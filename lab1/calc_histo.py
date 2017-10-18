@@ -7,7 +7,9 @@ import parse_file
 from matplotlib import pyplot as plt
 
 
-def calc_mask(img):
+# Return the masked image
+# Warning : Redundancy between img and img_info
+def calc_mask(img, img_info):
     mask = img.copy()
     #creating a mask for the histogram
     mask[:] = (0, 0, 0)
@@ -16,10 +18,10 @@ def calc_mask(img):
         e_tmp = img_info.list_ellipse[i]
         cv2.ellipse(mask,(int(e_tmp.c_x),int(e_tmp.c_y)),(int(e_tmp.r_a),
     		int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255, 255, 255), -1)
-    # Return the masked image
     return cv2.bitwise_and(img, img, mask = mask[:,:,0])
 
 
+# Return the hist as [HistB, HistG, HistR]
 def calc_hist(img, mask):
     color = {"b","g","r"}
     hist_rgb = []
@@ -35,7 +37,7 @@ def test():
 
     img_global = cv2.imread(img_info.img_path)
     
-    masked_img = calc_mask(img_global)
+    masked_img = calc_mask(img_global, img_info)
     hist = calc_hist(img_global, masked_img)
     
     color = {"b","g","r"}
