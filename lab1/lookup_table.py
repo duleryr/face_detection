@@ -78,7 +78,7 @@ def test_with_image(fd, lookup_table):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
-
-descriptor_file = open(sys.argv[1])
-lT = construct_lookup_table(descriptor_file, 40)
-test_with_image(descriptor_file, lT)
+def test():
+	descriptor_file = open(sys.argv[1])
+	lT = construct_lookup_table(descriptor_file, 40)
+	test_with_image(descriptor_file, lT)
