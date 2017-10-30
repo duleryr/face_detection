@@ -30,6 +30,11 @@ def calc_hist(img, mask):
     	hist_rgb.append(hist)
     return hist_rgb
 
+# Return the histogram without mask
+def calc_normal_hist(img):
+	mask = img.copy()
+	mask[:] = (255,255,255)
+	return calc_hist(img, mask)
 
 def test():
     descriptor_file = open(sys.argv[1])

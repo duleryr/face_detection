@@ -10,6 +10,7 @@ img_info = parse_file.get_img_info(descriptor_file)
 img_info = parse_file.get_img_info(descriptor_file)
 
 #load the image
+print(img_info.img_path)
 img = cv2.imread(img_info.img_path)
 
 for i in range(0, img_info.nb_faces):
