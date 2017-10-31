@@ -159,5 +159,37 @@ def test_statistics():
 	print("fn: "+str(s.fn))
 	print("tpr: "+str(tpr))
 	print("fpr: "+str(fpr))
+
+def test_roc_curve():
+	fd = open(sys.argv[1]) # the file containing the ellipse+image information
+	lT = lookup_table.construct_lookup_table(fd, 60)
+	tpr_vec = [0]*11
+	fpr_vec = [0]*11
+	tp_vec = [0]*11
+	fp_vec = [0]*11
+	tn_vec = [0]*11
+	fn_vec = [0]*11
+	bias_vec = np.arange(-0.5,0.6,0.1)
+	nb_images = 10
+	for k in range(0,nb_images):
+		print(str(k)+"-th image")
+		# per-image operations
+		img_info = parse_file.get_img_info(fd)
+		img = cv2.imread(img_info.img_path)
+		for i,bias in enumerate(bias_vec):
+			s = get_statistics_one_image(lT,img,img_info,bias,5,5,11,11)
+			tp_vec[i] += s.tp
+			fp_vec[i] += s.fp
+			tn_vec[i] += s.tn
+			fn_vec[i] += s.fn
+			
+	# calculating the tpr, fpr
+	for i in range(0,11):
+		tpr_vec[i] = float(tp_vec[i])/float(tp_vec[i]+fn_vec[i])
+		fpr_vec[i] = float(fp_vec[i])/float(fp_vec[i]+tn_vec[i])
+	print("tpr: "+str(tpr_vec))
+	print("fpr: "+str(fpr_vec))
+	plt.plot(fpr_vec,tpr_vec,'ro')
+	plt.show()
 	
-test_statistics()
+test_roc_curve()
