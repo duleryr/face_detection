@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 import calc_histo
@@ -39,6 +40,13 @@ class region_of_interest:
 		self.r += self.step_size_i
 		self.c_i += self.step_size_i
 
+class statistics:
+	def __init__(self,tp,fp,tn,fn):
+		self.tp = tp
+		self.fp = fp
+		self.tn = tn
+		self.fn = fn
+
 # Return true if roi detects a face within the roi
 def is_face(img, l_t, roi, bias):
 	g_sum = 0.0
@@ -76,8 +84,34 @@ def ground_truth(ground_truth_mask, x, y):
 	#return is_in_ellipse
 	return (ground_truth_mask[x,y][0]==255)
  
-			
-def test():
+def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j, roi_w, roi_h):
+	roi = region_of_interest(roi_c_i,roi_c_j,roi_w,roi_h)
+	ground_truth_mask = get_ground_truth_mask(img, img_info)
+	tp = 0 # true positivs, etc.
+	fp = 0
+	tn = 0
+	fn = 0
+	positive = False # boolean variables to count the aforementioned statistics
+	true = False
+	# while the roi is still in the image
+	while(roi.correct_position(img.shape)):
+		positive = is_face(img,lookup_table,roi,bias)
+		true = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
+		# TODO: write a more concise form of the following branching
+		if(positive): # we detected a face
+			if(true): # decision of the ground-truth function
+				tp += 1 # it really is a face
+			else:
+				fp += 1 # false alert
+		else: # our algorithm didn't detect a face
+			if(true): # but it actually was
+				fn += 1 # we missed an actual face
+			else:
+				tn += 1 # our decision was correct
+		roi.step_forward()
+	return statistics(tp,fp,tn,fn)
+
+def test_graphical():
 	fd = open(sys.argv[1])
 	lT = lookup_table.construct_lookup_table(fd, 40)
 	img_info = parse_file.get_img_info(fd)
@@ -110,4 +144,20 @@ def test():
 	plt.subplot(223)
 	plt.imshow(img, 'gray')
 	plt.show()
-test()
+
+def test_statistics():
+	fd = open(sys.argv[1])
+	lT = lookup_table.construct_lookup_table(fd, 40)
+	img_info = parse_file.get_img_info(fd)
+	img = cv2.imread(img_info.img_path)
+	s = get_statistics_one_image(lT,img,img_info,0.3,2,2,5,5)
+	tpr = float(s.tp)/float(s.tp+s.fn)
+	fpr = float(s.fp)/float(s.fp+s.tn)
+	print("tp: "+str(s.tp))
+	print("fp: "+str(s.fp))
+	print("tn: "+str(s.tn))
+	print("fn: "+str(s.fn))
+	print("tpr: "+str(tpr))
+	print("fpr: "+str(fpr))
+	
+test_statistics()
