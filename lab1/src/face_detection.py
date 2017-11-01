@@ -91,20 +91,19 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
 	fp = 0
 	tn = 0
 	fn = 0
-	positive = False # boolean variables to count the aforementioned statistics
-	true = False
+	face_detected = False # boolean variables to count the aforementioned statistics
+	true_face = False
 	# while the roi is still in the image
 	while(roi.correct_position(img.shape)):
-		positive = is_face(img,lookup_table,roi,bias)
-		true = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
-		# TODO: write a more concise form of the following branching
-		if(positive): # we detected a face
-			if(true): # decision of the ground-truth function
+		face_detected = is_face(img,lookup_table,roi,bias)
+		true_face = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
+		if(face_detected): # we detected a face
+			if(true_face): # decision of the ground-truth function
 				tp += 1 # it really is a face
 			else:
 				fp += 1 # false alert
 		else: # our algorithm didn't detect a face
-			if(true): # but it actually was
+			if(true_face): # but it actually was
 				fn += 1 # we missed an actual face
 			else:
 				tn += 1 # our decision was correct

@@ -27,9 +27,7 @@ def construct_lookup_table(fd, nb_images):
 		hist_t = calc_histo.calc_hist(img_global, masked_img)
 		hist_all = calc_histo.calc_normal_hist(img_global)
 		# Sum the histograms
-		hist_t_sum[0] += hist_t[0] # for loop doesn't seem to work here
-		hist_t_sum[1] += hist_t[1]
-		hist_t_sum[2] += hist_t[2] 
+		hist_t_sum += hist_t
 		hist_all_sum[0] += hist_all[0]
 		hist_all_sum[1] += hist_all[1]
 		hist_all_sum[2] += hist_all[2]

@@ -24,7 +24,7 @@ def get_nb_images(file_name):
 		
 #get the ellipse information for all the faces in the image
 def get_img_info(fh):
-    img_path = fh.readline()
+    img_path = "../dataset/" + fh.readline()
     nb_faces = int(fh.readline())
     
     list_ellipse = []
