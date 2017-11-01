@@ -6,6 +6,7 @@ import calc_histo
 import parse_file
 import lookup_table
 import numpy as np
+from sklearn.metrics import auc
 import cv2
 from matplotlib import pyplot as plt
 import math
@@ -186,8 +187,10 @@ def test_roc_curve():
 	for i in range(0,11):
 		tpr_vec[i] = float(tp_vec[i])/float(tp_vec[i]+fn_vec[i])
 		fpr_vec[i] = float(fp_vec[i])/float(fp_vec[i]+tn_vec[i])
-	print("tpr: "+str(tpr_vec))
-	print("fpr: "+str(fpr_vec))
+	print("tpr: " + str(tpr_vec))
+	print("fpr: " + str(fpr_vec))
+	area_under_curve = auc(tpr_vec, fpr_vec)
+	print("Area under curve : " + str(area_under_curve))
 	plt.plot(fpr_vec,tpr_vec,'ro')
 	plt.show()
 	
