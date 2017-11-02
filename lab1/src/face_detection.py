@@ -98,6 +98,8 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
 	while(roi.correct_position(img.shape)):
 		face_detected = is_face(img,lookup_table,roi,bias)
 		true_face = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
+		# print("face_detected : " + str(face_detected))
+		# print("true_face : " + str(true_face))
 		if(face_detected): # we detected a face
 			if(true_face): # decision of the ground-truth function
 				tp += 1 # it really is a face
