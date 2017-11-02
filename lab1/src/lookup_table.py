@@ -80,3 +80,6 @@ def test():
 	descriptor_file = open(sys.argv[1])
 	lT = construct_lookup_table(descriptor_file, 40)
 	test_with_image(descriptor_file, lT)
+
+if __name__ == '__main__':
+    test()

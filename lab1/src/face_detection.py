@@ -194,4 +194,5 @@ def test_roc_curve():
 	plt.plot(fpr_vec,tpr_vec,'ro')
 	plt.show()
 	
-test_roc_curve()
+if __name__ == '__main__':
+    test_roc_curve()
