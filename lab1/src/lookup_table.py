@@ -10,11 +10,13 @@ from matplotlib import pyplot as plt
 # Return the likelihood table(r,g,b) for nb_images images
 def construct_lookup_table(fd, nb_images):
 	# Initialize the sum of histograms with the first image
+	n_quantification = 8
 	img_info = parse_file.get_img_info(fd)
 	img_global = cv2.imread(img_info.img_path)
 	masked_img = calc_histo.calc_mask(img_global, img_info)
 	hist_t = calc_histo.calc_hist(img_global, masked_img)
 	hist_all = calc_histo.calc_normal_hist(img_global)
+	#hist_all = calc_histo.calc_hist(img_global, masked_img)
 	
 	# Initialization
 	hist_t_sum = hist_t
@@ -34,27 +36,38 @@ def construct_lookup_table(fd, nb_images):
 		hist_all_sum[1] += hist_all[1]
 		hist_all_sum[2] += hist_all[2]
 
-	lookup_table = hist_t_sum
-	lookup_table[0] /= hist_all_sum[0]
-	lookup_table[1] /= hist_all_sum[1]
-	lookup_table[2] /= hist_all_sum[2]
+	lookup_table = []
+	lookup_table.append([0]*int(256/n_quantification))
+	lookup_table.append([0]*int(256/n_quantification))
+	lookup_table.append([0]*int(256/n_quantification))
+	for i in range(0,3):
+	    for j in range(0,int(256/n_quantification)):
+	        lookup_table[i][j] = hist_t_sum[i][j][0]
+	for i in range(0,3):
+	    for j in range(0,int(256/n_quantification)):
+	        lookup_table[i][j] /= hist_all_sum[i][j][0]
+	print(lookup_table)
+	#lookup_table = hist_t_sum
+	#lookup_table[0] /= hist_all_sum[0]
+	#lookup_table[1] /= hist_all_sum[1]
+	#lookup_table[2] /= hist_all_sum[2]
 	
 # DEBUG
-#	color = {"b","g","r"}
-#	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
-#	    plt.plot(hist_t_sum[i], color = col)
-#	    plt.xlim([0,256])
-#	plt.show()
-#
-#	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
-#	    plt.plot(hist_all_sum[i], color = col)
-#	    plt.xlim([0,256])
-#	plt.show()
+	color = {"b","g","r"}
+	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
+	    plt.plot(hist_t_sum[i], color = col)
+	    plt.xlim([0,int(256/n_quantification)])
+	plt.show()
 
-#	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
-#	    plt.plot(lookup_table[i], color = col)
-#	    plt.xlim([0,256])
-#	plt.show()
+	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
+	    plt.plot(hist_all_sum[i], color = col)
+	    plt.xlim([0,int(256/n_quantification)])
+	plt.show()
+
+	for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
+	    plt.plot(lookup_table[i], color = col)
+	    plt.xlim([0,int(256/n_quantification)])
+	plt.show()
 
 #	cv2.imshow('face', masked_img)
 #	cv2.waitKey(0)
@@ -62,7 +75,8 @@ def construct_lookup_table(fd, nb_images):
 	return lookup_table
 
 def pixel_probability(lookup_table, pixel):
-	return (lookup_table[0][pixel[0]],lookup_table[1][pixel[1]],lookup_table[2][pixel[2]])
+	n_quantification = 8
+	return (lookup_table[0][int(pixel[0]/n_quantification)],lookup_table[1][int(pixel[1]/n_quantification)],lookup_table[2][int(pixel[2]/n_quantification)])
 
 # Fill the next image with the likelihood-values (Black and white style)
 def test_with_image(fd, lookup_table):

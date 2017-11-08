@@ -51,12 +51,16 @@ class statistics:
 # Return true if roi detects a face within the roi
 def is_face(img, l_t, roi, bias):
 	g_sum = 0.0
+	pixel_nb = 0
 	for i in range(int(roi.l), int(roi.r)):
 		for j in range(int(roi.t), int(roi.b)):
+			pixel_nb += 1
 			pixel_prob = lookup_table.pixel_probability(l_t,img[i,j])
 			mean_pixel_prob = (pixel_prob[0]+pixel_prob[1]+pixel_prob[2])/3.0
-			g_sum += mean_pixel_prob
-	g_sum /= (roi.w*roi.h)
+			#mean_pixel_prob = max(max(pixel_prob[0],pixel_prob[1]),pixel_prob[2])
+			g_sum += float(mean_pixel_prob)
+	print(g_sum)
+	g_sum /= float(roi.w*roi.h)
 	return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse

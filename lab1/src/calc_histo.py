@@ -18,16 +18,23 @@ def calc_mask(img, img_info):
         e_tmp = img_info.list_ellipse[i]
         cv2.ellipse(mask,(int(e_tmp.c_x),int(e_tmp.c_y)),(int(e_tmp.r_a),
     		int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255, 255, 255), -1)
+    #cv2.imshow('face', img)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
+    #cv2.imshow('face', mask)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     return cv2.bitwise_and(img, img, mask = mask[:,:,0])
-
 
 # Return the hist as [HistB, HistG, HistR]
 def calc_hist(img, mask):
+    n_quantification = 8
     color = {"b","g","r"}
     hist_rgb = []
     for i,col in enumerate(color): #enumerate returns always a couple, e.g.(0,'r')
-    	hist = cv2.calcHist([img],[i], mask[:,:,0], [256], [0,256])
+    	hist = cv2.calcHist([img],[i], mask[:,:,0], [256/n_quantification], [0,31])
     	hist_rgb.append(hist)
+    #print(hist_rgb)
     return hist_rgb
 
 # Return the histogram without mask
@@ -52,7 +59,6 @@ def test():
     
     plt.show()
     cv2.imshow('face', masked_img)
-
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
