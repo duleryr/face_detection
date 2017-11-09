@@ -12,7 +12,7 @@ import graphical_tools
 """ Initialization : Choice of the files used for the training/testing """
 try:
     file_used = sys.argv[1]
-    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + file_used + "-ellipseList.txt")
+    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-" + file_used + "-ellipseList.txt")
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
