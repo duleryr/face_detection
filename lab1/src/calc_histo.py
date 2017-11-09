@@ -56,5 +56,15 @@ def test():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+# Return the hist as [HistB, HistG, HistR]
+def test_color_img():
+    descriptor_file = open(sys.argv[1])
+    img = cv2.imread(sys.argv[1])
+
+    for i in range(0,img.shape[0]):
+        for j in range(0,img.shape[1]):
+            (r,g,b) = img[i,j]
+            print(img[i,j])
+
 if __name__ == '__main__':
     test()
