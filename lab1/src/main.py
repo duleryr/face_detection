@@ -12,7 +12,7 @@ import graphical_tools
 """ Initialization : Choice of the files used for the training/testing """
 try:
     file_used = sys.argv[1]
-    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-" + file_used + "-ellipseList.txt")
+    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + file_used + "-ellipseList.txt")
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
@@ -84,7 +84,7 @@ for k in range(nb_images_testing):
     print("  bias = ", end = "", flush = True)
     for i,bias in enumerate(bias_vec):
         print(bias, end = ", ", flush = True)
-        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,30,30,61,61, n_quantification)
+        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,4,4,9,9, n_quantification)
         tp_vec[i] += s.tp
         fp_vec[i] += s.fp
         tn_vec[i] += s.tn

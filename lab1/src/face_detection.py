@@ -137,7 +137,7 @@ def test_graphical(quantification):
     #let's create a mask that shows us where we got a positive detection
     mask = img.copy()
     mask[:] = (0,0,0)
-    roi = region_of_interest(5,5,11,11)
+    roi = region_of_interest(2,2,5,5)
     nb_detections = 0
     nb_true_pos = 0
     #DEBUG
@@ -159,7 +159,12 @@ def test_graphical(quantification):
     plt.subplot(222)
     plt.imshow(mask)
     plt.subplot(223)
-    plt.imshow(img, 'gray')
+    tmp_vec = img[:][2]
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            (b,g,r) = img[i,j]
+            img[i,j] = (r,g,b)
+    plt.imshow(img)
     plt.show()
 
 def view_ground_truth():
