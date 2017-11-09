@@ -10,11 +10,15 @@ import pickle
 
 """ Initialization : Choice of the files used for the training/testing """
 try:
-    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + sys.argv[1] + "-ellipseList.txt")
+    file_used = sys.argv[1]
+    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + file_used + "-ellipseList.txt")
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
     n_quantification = int(sys.argv[5])
+    if (charge_lookup_table):
+        lookup_table_file = sys.argv[6]
+
 except IndexError as err:
     print("IndexError: {0}".format(err))
     print("\nAppel de la fonction :")
@@ -24,6 +28,7 @@ except IndexError as err:
     print("    int3 : nombre d'images à utiliser pour les tests de détection")
     print("    int4 : 0 to rebuild the lookup table, 1 to charge it from file \"lookup_table\" ")
     print("    int5 : the color sample rate, f.ex.1, 8")
+    print("    str6 : if loading the lookup table (int4 == 1), the lookup table file to use")
     exit(1)
 
 """ --- Phase 1 : Training : Skin pixels detection with color ---  """
@@ -31,7 +36,7 @@ except IndexError as err:
 # Parameters : RGB or Chrominance, Quantification N, choice of the training Data 
 
 lookup_table_data = []
-if(charge_lookup_table==0):
+if (charge_lookup_table==0):
     print("Construction of the lookup table...", end = " ", flush = True)
     print("")
     lookup_table_data = lookup_table.construct_lookup_table(fd, nb_images_training, n_quantification)
@@ -39,16 +44,16 @@ if(charge_lookup_table==0):
     print("Saving lookup table in file lT ...", end = " ", flush = True)
     print("")
     try:
-        lookup_table_fd = open("lT","wb")
+        lookup_table_fd = open("lT_" + file_used + "_" + str(nb_images_training), "wb")
         pickle.dump(lookup_table_data, lookup_table_fd)
         lookup_table_fd.close() 
         print("done.")
     except IndexError as err:
         print("IndexError: {0}".format(err))
         exit(1)
-if(charge_lookup_table==1):
+if (charge_lookup_table==1):
     try:
-        lookup_table_fd = open("lT","rb")
+        lookup_table_fd = open(lookup_table_file, "rb")
         lookup_table_data = pickle.load(lookup_table_fd)
         lookup_table_fd.close() 
     except IndexError as err:
