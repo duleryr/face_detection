@@ -49,13 +49,13 @@ class statistics:
 		self.fn = fn
 
 # Return true if roi detects a face within the roi
-def is_face(img, l_t, roi, bias):
+def is_face(img, l_t, roi, bias, n_quantification):
 	g_sum = 0.0
 	pixel_nb = 0
 	for i in range(int(roi.l), int(roi.r)):
 		for j in range(int(roi.t), int(roi.b)):
 			pixel_nb += 1
-			pixel_prob = lookup_table.pixel_probability(l_t,img[i,j])
+			pixel_prob = lookup_table.pixel_probability(l_t,img[i,j], n_quantification)
 			g_sum += pixel_prob
 	g_sum /= float(roi.w*roi.h)
 	return ((g_sum+bias)>0.5)
@@ -86,7 +86,7 @@ def ground_truth(ground_truth_mask, x, y):
 	#return is_in_ellipse
 	return (ground_truth_mask[int(x)][int(y)][0]==255)
  
-def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j, roi_w, roi_h):
+def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j, roi_w, roi_h, n_quantification):
 	roi = region_of_interest(roi_c_i,roi_c_j,roi_w,roi_h)
 	ground_truth_mask = get_ground_truth_mask(img, img_info)
 	tp = 0 # true positivs, etc.
@@ -97,7 +97,7 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
 	true_face = False
 	# while the roi is still in the image
 	while(roi.correct_position(img.shape)):
-		face_detected = is_face(img,lookup_table,roi,bias)
+		face_detected = is_face(img,lookup_table,roi,bias, n_quantification)
 		true_face = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
 		# print("face_detected : " + str(face_detected))
 		# print("true_face : " + str(true_face))

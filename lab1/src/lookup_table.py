@@ -14,14 +14,13 @@ def plot_array(vec, title):
 	plt.show()
 	
 # Return the likelihood table(r,g,b) for nb_images images
-def construct_lookup_table(fd, nb_images):
+def construct_lookup_table(fd, nb_images, n_quantification):
 	# Initialize the sum of histograms with the first image
-	n_quantification = 8
 	img_info = parse_file.get_img_info(fd)
 	img_global = cv2.imread(img_info.img_path)
 	masked_img = calc_histo.calc_mask(img_global, img_info)
-	hist_t = calc_histo.calc_hist(img_global, masked_img)
-	hist_all = calc_histo.calc_normal_hist(img_global)
+	hist_t = calc_histo.calc_hist(img_global, masked_img, n_quantification)
+	hist_all = calc_histo.calc_normal_hist(img_global, n_quantification)
 	
 	# Initialization
 	hist_t_sum = hist_t
@@ -31,8 +30,8 @@ def construct_lookup_table(fd, nb_images):
 		img_info = parse_file.get_img_info(fd)
 		img_global = cv2.imread(img_info.img_path)
 		masked_img = calc_histo.calc_mask(img_global, img_info)
-		hist_t = calc_histo.calc_hist(img_global, masked_img)
-		hist_all = calc_histo.calc_normal_hist(img_global)
+		hist_t = calc_histo.calc_hist(img_global, masked_img, n_quantification)
+		hist_all = calc_histo.calc_normal_hist(img_global, n_quantification)
 		hist_t_sum += hist_t
 		hist_all_sum += hist_all
 		print(str(i)+"-th image processed")
@@ -49,9 +48,11 @@ def construct_lookup_table(fd, nb_images):
 
 	return lookup_table
 
-def pixel_probability(lookup_table, pixel):
-	n_quantification = 8
-	return (lookup_table[pixel[0]][pixel[1]][pixel[2]])
+def pixel_probability(lookup_table, pixel, n_quantification):
+	r = int(pixel[0]/n_quantification)
+	g = int(pixel[1]/n_quantification)
+	b = int(pixel[2]/n_quantification)
+	return lookup_table[r][g][b]
 
 # Fill the next image with the likelihood-values (Black and white style)
 def test_with_image(fd, lookup_table):
@@ -60,7 +61,7 @@ def test_with_image(fd, lookup_table):
 	likelihood_img = img.copy()
 	for i in range(0, likelihood_img.shape[0]):
 		for j in range(0, likelihood_img.shape[1]):
-			pixel_prob = pixel_probability(lookup_table,likelihood_img[i,j])
+			pixel_prob = pixel_probability(lookup_table,likelihood_img[i,j], n_quantification)
 			grey_value = (255)*pixel_prob[0]+(255)*pixel_prob[1]+(255)*pixel_prob[2]
 			likelihood_img[i,j] = (grey_value,grey_value, grey_value)
 	cv2.imshow('face', likelihood_img)

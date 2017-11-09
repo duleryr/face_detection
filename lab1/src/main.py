@@ -13,6 +13,7 @@ try:
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
+    n_quantification = int(sys.argv[5])
 except IndexError as err:
     print("IndexError: {0}".format(err))
     print("\nAppel de la fonction :")
@@ -21,6 +22,7 @@ except IndexError as err:
     print("    int2 : nombre d'images à utiliser pour l'entrainement")
     print("    int3 : nombre d'images à utiliser pour les tests de détection")
     print("    int4 : 0 to rebuild the lookup table, 1 to charge it from file \"lookup_table\" ")
+    print("    int5 : the color sample rate, f.ex.1, 8")
     exit(1)
 
 """ --- Phase 1 : Training : Skin pixels detection with color ---  """
@@ -31,7 +33,7 @@ lookup_table_data = []
 if(charge_lookup_table==0):
     print("Construction of the lookup table...", end = " ", flush = True)
     print("")
-    lookup_table_data = lookup_table.construct_lookup_table(fd, nb_images_training)
+    lookup_table_data = lookup_table.construct_lookup_table(fd, nb_images_training, n_quantification)
     print("done.")
     print("Saving lookup table in file lT ...", end = " ", flush = True)
     print("")
@@ -74,7 +76,7 @@ for k in range(nb_images_testing):
     print("  bias = ", end = "", flush = True)
     for i,bias in enumerate(bias_vec):
         print(bias, end = ", ", flush = True)
-        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,20,20,41,41)
+        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,20,20,41,41, n_quantification)
         tp_vec[i] += s.tp
         fp_vec[i] += s.fp
         tn_vec[i] += s.tn

@@ -21,21 +21,21 @@ def calc_mask(img, img_info):
     return mask
 
 # Return the hist as [HistB, HistG, HistR]
-def calc_hist(img, mask):
-    n_quantification = 8
-    hist_all_colors = np.array([[[0]*256]*256]*256)
+def calc_hist(img, mask, n_quantification):
+    nb_color_values = int(256/n_quantification)
+    hist_all_colors = np.array([[[0]*nb_color_values]*nb_color_values]*nb_color_values)
     for i in range(0,img.shape[0]):
         for j in range(0,img.shape[1]):
     	    (r,g,b) = img[i,j]
     	    if(mask[i,j][0]==255):
-    	        hist_all_colors[r][g][b] += 1
+    	        hist_all_colors[int(r/n_quantification)][int(g/n_quantification)][int(b/n_quantification)] += 1
     return hist_all_colors
 
 # Return the histogram without mask
-def calc_normal_hist(img):
+def calc_normal_hist(img, n_quantification):
 	mask = img.copy()
 	mask[:] = (255,255,255)
-	return calc_hist(img, mask)
+	return calc_hist(img, mask, n_quantification)
 
 def test():
     descriptor_file = open(sys.argv[1])
