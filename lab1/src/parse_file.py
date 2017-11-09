@@ -19,9 +19,9 @@ def get_nb_images(file_name):
     nb_images = 0
     with open(file_name, "r") as fh:
         for line in fh:
-    	    nb_images += 1
+            nb_images += 1
     return nb_images
-		
+        
 #get the ellipse information for all the faces in the image
 def get_img_info(fh):
     img_path = "../dataset/" + fh.readline()
@@ -31,6 +31,6 @@ def get_img_info(fh):
     for i in range(0,nb_faces):
         e_str_tmp = str.split(fh.readline())
         e_tmp = ellipse(e_str_tmp[0],e_str_tmp[1],e_str_tmp[2],
-    		e_str_tmp[3],e_str_tmp[4])
+            e_str_tmp[3],e_str_tmp[4])
         list_ellipse.append(e_tmp)
     return img_information(img_path.rstrip()+".jpg", int(nb_faces), list_ellipse)
