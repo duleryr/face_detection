@@ -7,11 +7,12 @@ import cv2
 from matplotlib import pyplot as plt
 from face_detection import get_statistics_one_image
 import pickle
+import graphical_tools
 
 """ Initialization : Choice of the files used for the training/testing """
 try:
     file_used = sys.argv[1]
-    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + file_used + "-ellipseList.txt")
+    fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-" + file_used + "-ellipseList.txt")
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
@@ -61,6 +62,7 @@ if (charge_lookup_table==1):
         exit(1)
 
 lookup_table.plot_array(lookup_table_data,"lookup table")
+graphical_tools.plot_3d_color_histogram(lookup_table_data, n_quantification)
 
 """ ----------------- Phase 2 : Face detection ------------------- """
 """ Use of sliding window : ROI """
