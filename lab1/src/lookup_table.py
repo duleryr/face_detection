@@ -7,6 +7,12 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
+def plot_array(vec, title):
+	plt.plot(vec.flatten())
+	plt.xlim([0,vec.size-1])
+	plt.title(title)
+	plt.show()
+	
 # Return the likelihood table(r,g,b) for nb_images images
 def construct_lookup_table(fd, nb_images):
 	# Initialize the sum of histograms with the first image
@@ -38,18 +44,8 @@ def construct_lookup_table(fd, nb_images):
 	            if(hist_all_sum[i][j][k] != 0):
 	                lookup_table[i][j][k] = float(hist_t_sum[i][j][k])/float(hist_all_sum[i][j][k])
 	#DEBUG
-	plt.plot(hist_t_sum.flatten())
-	plt.xlim([0,hist_t_sum.size-1])
-	plt.title("histogram target zone")
-	plt.show()
-	plt.plot(hist_all_sum.flatten())
-	plt.xlim([0,hist_all_sum.size-1])
-	plt.title("histogram all pixels")
-	plt.show()
-	plt.plot(lookup_table.flatten())
-	plt.xlim([0,lookup_table.size-1])
-	plt.title("lookup table")
-	plt.show()
+	plot_array(hist_t_sum, "histogram target zone")
+	plot_array(hist_all_sum, "histogram all pixels")
 
 	return lookup_table
 

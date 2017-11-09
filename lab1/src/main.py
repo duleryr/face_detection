@@ -5,29 +5,54 @@ import lookup_table
 import parse_file
 import cv2
 from face_detection import get_statistics_one_image
+import pickle
 
 """ Initialization : Choice of the files used for the training/testing """
 try:
     fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-0" + sys.argv[1] + "-ellipseList.txt")
     nb_images_training = int(sys.argv[2])
     nb_images_testing = int(sys.argv[3])
+    charge_lookup_table = int(sys.argv[4])
 except IndexError as err:
     print("IndexError: {0}".format(err))
     print("\nAppel de la fonction :")
-    print("python3 int1 int2 int3, avec :")
+    print("python3 int1 int2 int3 int4, avec :")
     print("    int1 : numéro du fichier ellipseList à utiliser, entre 1 et 10")
     print("    int2 : nombre d'images à utiliser pour l'entrainement")
     print("    int3 : nombre d'images à utiliser pour les tests de détection")
+    print("    int4 : 0 to rebuild the lookup table, 1 to charge it from file \"lookup_table\" ")
     exit(1)
 
 """ --- Phase 1 : Training : Skin pixels detection with color ---  """
 """ Construction of the lookup table """
 # Parameters : RGB or Chrominance, Quantification N, choice of the training Data 
 
-print("Construction of the lookup table...", end = " ", flush = True)
-print("")
-lookup_table = lookup_table.construct_lookup_table(fd, nb_images_training)
-print("done.")
+lookup_table_data = []
+if(charge_lookup_table==0):
+    print("Construction of the lookup table...", end = " ", flush = True)
+    print("")
+    lookup_table_data = lookup_table.construct_lookup_table(fd, nb_images_training)
+    print("done.")
+    print("Saving lookup table in file lT ...", end = " ", flush = True)
+    print("")
+    try:
+        lookup_table_fd = open("lT","wb")
+        pickle.dump(lookup_table_data, lookup_table_fd)
+        lookup_table_fd.close() 
+        print("done.")
+    except IndexError as err:
+        print("IndexError: {0}".format(err))
+        exit(1)
+if(charge_lookup_table==1):
+    try:
+        lookup_table_fd = open("lT","rb")
+        lookup_table_data = pickle.load(lookup_table_fd)
+        lookup_table_fd.close() 
+    except IndexError as err:
+        print("IndexError: {0}".format(err))
+        exit(1)
+
+lookup_table.plot_array(lookup_table_data,"lookup table")
 
 """ ----------------- Phase 2 : Face detection ------------------- """
 """ Use of sliding window : ROI """
@@ -49,7 +74,7 @@ for k in range(nb_images_testing):
     print("  bias = ", end = "", flush = True)
     for i,bias in enumerate(bias_vec):
         print(bias, end = ", ", flush = True)
-        s = get_statistics_one_image(lookup_table,img,img_info,bias,20,20,41,41)
+        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,20,20,41,41)
         tp_vec[i] += s.tp
         fp_vec[i] += s.fp
         tn_vec[i] += s.tn
