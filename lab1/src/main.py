@@ -6,6 +6,7 @@ import parse_file
 import cv2
 from face_detection import get_statistics_one_image
 import pickle
+import pyqtgraph.examples
 
 """ Initialization : Choice of the files used for the training/testing """
 try:
@@ -55,6 +56,7 @@ if(charge_lookup_table==1):
         exit(1)
 
 lookup_table.plot_array(lookup_table_data,"lookup table")
+pyqtgraph.examples.run()
 
 """ ----------------- Phase 2 : Face detection ------------------- """
 """ Use of sliding window : ROI """
