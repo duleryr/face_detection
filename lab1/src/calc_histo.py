@@ -26,7 +26,7 @@ def calc_hist(img, mask, n_quantification):
     hist_all_colors = np.array([[[0]*nb_color_values]*nb_color_values]*nb_color_values)
     for i in range(0,img.shape[0]):
         for j in range(0,img.shape[1]):
-            (r,g,b) = img[i,j]
+            (b,g,r) = img[i,j]
             if(mask[i,j][0]==255):
                 hist_all_colors[int(r/n_quantification)][int(g/n_quantification)][int(b/n_quantification)] += 1
     return hist_all_colors
