@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import pickle
+import graphical_tools
 import calc_histo
 import parse_file
 import lookup_table
@@ -114,28 +116,40 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
         roi.step_forward()
     return statistics(tp,fp,tn,fn)
 
-def test_graphical():
+def test_graphical(quantification):
     fd = open(sys.argv[1])
-    lT = lookup_table.construct_lookup_table(fd, 40)
+    charge_lookup_table = int(sys.argv[2])
+
+    if(charge_lookup_table==1):
+        try:
+            lookup_table_fd = open("lT","rb")
+            lT = pickle.load(lookup_table_fd)
+            lookup_table_fd.close() 
+        except IndexError as err:
+            print("IndexError: {0}".format(err))
+            exit(1)
+    else:
+        lT = lookup_table.construct_lookup_table(fd, 1, quantification)
+
     img_info = parse_file.get_img_info(fd)
     img = cv2.imread(img_info.img_path)
     
     #let's create a mask that shows us where we got a positive detection
     mask = img.copy()
     mask[:] = (0,0,0)
-    roi = region_of_interest(2,2,5,5)
+    roi = region_of_interest(5,5,11,11)
     nb_detections = 0
     nb_true_pos = 0
     #DEBUG
     ground_truth_mask = get_ground_truth_mask(img, img_info)
     while(roi.correct_position(img.shape)):
-        if(is_face(img,lT,roi,0.3)):
+        if(is_face(img,lT,roi,0, quantification)):
             nb_detections += 1;
             if(ground_truth(ground_truth_mask,roi.c_i,roi.c_j)):
                 nb_true_pos += 1
-                for i in range(roi.l, roi.r):
-                    for j in range(roi.t, roi.b):
-                        mask[i,j] = (255,255,255)
+            for i in range(int(roi.l), int(roi.r)):
+                for j in range(int(roi.t), int(roi.b)):
+                    mask[i,j] = (255,255,255)
         roi.step_forward()
     print("nb_detections: "+str(nb_detections))
     print("nb_true_pos: "+str(nb_true_pos))
@@ -147,6 +161,14 @@ def test_graphical():
     plt.subplot(223)
     plt.imshow(img, 'gray')
     plt.show()
+
+def view_ground_truth():
+    fd = open(sys.argv[1])
+    img_info = parse_file.get_img_info(fd)
+    img = cv2.imread(img_info.img_path)
+    ground_truth_mask = get_ground_truth_mask(img, img_info)
+    graphical_tools.showImg("Dataset Image", img)
+    graphical_tools.showImg("Ground_truth", ground_truth_mask)
 
 def test_statistics():
     fd = open(sys.argv[1])
@@ -198,4 +220,5 @@ def test_roc_curve():
     plt.show()
     
 if __name__ == '__main__':
-    test_roc_curve()
+    quantif = 8
+    test_graphical(quantif)

@@ -55,14 +55,14 @@ def pixel_probability(lookup_table, pixel, n_quantification):
     return lookup_table[r][g][b]
 
 # Fill the next image with the likelihood-values (Black and white style)
-def test_with_image(fd, lookup_table):
+def test_with_image(fd, lookup_table, n_quantification = 8):
     img_info = parse_file.get_img_info(fd)
     img = cv2.imread(img_info.img_path)
     likelihood_img = img.copy()
     for i in range(0, likelihood_img.shape[0]):
         for j in range(0, likelihood_img.shape[1]):
             pixel_prob = pixel_probability(lookup_table,likelihood_img[i,j], n_quantification)
-            grey_value = (255)*pixel_prob[0]+(255)*pixel_prob[1]+(255)*pixel_prob[2]
+            grey_value = int((255)*pixel_prob)
             likelihood_img[i,j] = (grey_value,grey_value, grey_value)
     cv2.imshow('face', likelihood_img)
     cv2.waitKey(0)
@@ -70,8 +70,9 @@ def test_with_image(fd, lookup_table):
 
 def test():
     descriptor_file = open(sys.argv[1])
-    lT = construct_lookup_table(descriptor_file, 40)
-    test_with_image(descriptor_file, lT)
+    quantif = 8
+    lT = construct_lookup_table(descriptor_file, 40, quantif)
+    test_with_image(descriptor_file, lT, quantif)
 
 if __name__ == '__main__':
     test()
