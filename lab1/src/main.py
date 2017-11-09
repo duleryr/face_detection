@@ -76,7 +76,7 @@ for k in range(nb_images_testing):
     print("  bias = ", end = "", flush = True)
     for i,bias in enumerate(bias_vec):
         print(bias, end = ", ", flush = True)
-        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,20,20,41,41, n_quantification)
+        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,30,30,61,61, n_quantification)
         tp_vec[i] += s.tp
         fp_vec[i] += s.fp
         tn_vec[i] += s.tn

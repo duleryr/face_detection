@@ -12,6 +12,7 @@ def plot_array(vec, title):
 	plt.xlim([0,vec.size-1])
 	plt.title(title)
 	plt.show()
+    print("hello")
 	
 # Return the likelihood table(r,g,b) for nb_images images
 def construct_lookup_table(fd, nb_images, n_quantification):
