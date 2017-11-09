@@ -25,6 +25,7 @@ except IndexError as err:
 # Parameters : RGB or Chrominance, Quantification N, choice of the training Data 
 
 print("Construction of the lookup table...", end = " ", flush = True)
+print("")
 lookup_table = lookup_table.construct_lookup_table(fd, nb_images_training)
 print("done.")
 
@@ -36,11 +37,11 @@ print("Face detection...")
 
 bias_vec = np.arange(-0.5, 0.6, 0.1)
 
+# per-image operations
+tpr_vec, fpr_vec, tp_vec, fp_vec, tn_vec, fn_vec = ([0]*len(bias_vec) for i in range(6))
+
 for k in range(nb_images_testing):
     print(" "+str(k)+"-th image")
-
-    # per-image operations
-    tpr_vec, fpr_vec, tp_vec, fp_vec, tn_vec, fn_vec = ([0]*len(bias_vec) for i in range(6))
 
     img_info = parse_file.get_img_info(fd)
     img = cv2.imread(img_info.img_path)
@@ -55,15 +56,15 @@ for k in range(nb_images_testing):
         fn_vec[i] += s.fn
     print("done.")
 
-    # calculating the tpr, fpr
-    for i in range(len(bias_vec)):
-        tpr_vec[i] = float(tp_vec[i])/float(tp_vec[i]+fn_vec[i])
-        fpr_vec[i] = float(fp_vec[i])/float(fp_vec[i]+tn_vec[i])
+# calculating the tpr, fpr
+for i in range(len(bias_vec)):
+    tpr_vec[i] = float(tp_vec[i])/float(tp_vec[i]+fn_vec[i])
+    fpr_vec[i] = float(fp_vec[i])/float(fp_vec[i]+tn_vec[i])
 
-    print("  tpr : " + str(tpr_vec))
-    print("  fpr : " + str(fpr_vec))
-    area_under_curve = auc(tpr_vec, fpr_vec)
-    print("  Area under curve : " + str(area_under_curve))
+print("  tpr : " + str(tpr_vec))
+print("  fpr : " + str(fpr_vec))
+area_under_curve = auc(tpr_vec, fpr_vec)
+print("  Area under curve : " + str(area_under_curve))
 
 
 """ ---------- Performance evaluation of the detection ----------- """
