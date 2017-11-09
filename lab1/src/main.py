@@ -4,6 +4,7 @@ from sklearn.metrics import auc
 import lookup_table
 import parse_file
 import cv2
+from matplotlib import pyplot as plt
 from face_detection import get_statistics_one_image
 import pickle
 
@@ -62,7 +63,7 @@ lookup_table.plot_array(lookup_table_data,"lookup table")
 
 print("Face detection...")
 
-bias_vec = np.arange(-0.5, 0.6, 0.1)
+bias_vec = np.arange(-0.5, 0.6, 0.05)
 
 # per-image operations
 tpr_vec, fpr_vec, tp_vec, fp_vec, tn_vec, fn_vec = ([0]*len(bias_vec) for i in range(6))
@@ -90,9 +91,10 @@ for i in range(len(bias_vec)):
 
 print("  tpr : " + str(tpr_vec))
 print("  fpr : " + str(fpr_vec))
-area_under_curve = auc(tpr_vec, fpr_vec)
+area_under_curve = auc(fpr_vec, tpr_vec)
 print("  Area under curve : " + str(area_under_curve))
-
+plt.plot(fpr_vec, tpr_vec)
+plt.show()
 
 """ ---------- Performance evaluation of the detection ----------- """
 """ Plot of ROC curves """
