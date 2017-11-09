@@ -8,10 +8,10 @@ import cv2
 from matplotlib import pyplot as plt
 
 def plot_array(vec, title):
-	plt.plot(vec.flatten())
-	plt.xlim([0,vec.size-1])
-	plt.title(title)
-	plt.show()
+    plt.plot(vec.flatten())
+    plt.xlim([0,vec.size-1])
+    plt.title(title)
+    plt.show()
 	
 # Return the likelihood table(r,g,b) for nb_images images
 def construct_lookup_table(fd, nb_images, n_quantification):
