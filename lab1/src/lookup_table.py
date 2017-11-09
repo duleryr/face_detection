@@ -49,9 +49,9 @@ def construct_lookup_table(fd, nb_images, n_quantification):
     return lookup_table
 
 def pixel_probability(lookup_table, pixel, n_quantification):
-    r = int(pixel[0]/n_quantification)
+    r = int(pixel[2]/n_quantification)
     g = int(pixel[1]/n_quantification)
-    b = int(pixel[2]/n_quantification)
+    b = int(pixel[0]/n_quantification)
     return lookup_table[r][g][b]
 
 # Fill the next image with the likelihood-values (Black and white style)
