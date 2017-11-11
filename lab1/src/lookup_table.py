@@ -6,6 +6,7 @@ import parse_file
 import numpy as np
 import cv2
 from matplotlib import pyplot as plt
+from progress.bar import Bar
 
 class LookupTable:
     def __init__(self,mode=calc_histo.Color.RGB,n_quantification=1):
@@ -19,13 +20,17 @@ class LookupTable:
         self.list_hist_sum = []
    
     def calc_fold_histograms(self, fd, nb_images):
+        barFile = Bar("Getting the histograms for each file", max = nb_images)
+
         # Initialize the sum of histograms with the first image
         img_info = parse_file.get_img_info(fd)
         img_global = cv2.imread(img_info.img_path)
         masked_img = calc_histo.calc_mask(img_global, img_info)
         hist_t = calc_histo.calc_hist(img_global, masked_img, self.mode, self.n_quantification)
         hist_all = calc_histo.calc_normal_hist(img_global, self.mode, self.n_quantification)
-        
+
+        barFile.next()
+
         # Initialization
         hist_t_sum = hist_t
         hist_all_sum = hist_all
@@ -38,8 +43,10 @@ class LookupTable:
             hist_all = calc_histo.calc_normal_hist(img_global, self.mode, self.n_quantification)
             hist_t_sum += hist_t
             hist_all_sum += hist_all
-            print(str(i)+"-th image processed")
+            barFile.next()
         self.list_hist_sum.append((hist_t_sum, hist_all_sum))
+
+        barFile.finish()
         #DEBUG
         #plot_array(hist_t_sum, "histogram target zone")
         #plot_array(hist_all_sum, "histogram all pixels")
