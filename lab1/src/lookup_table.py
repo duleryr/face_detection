@@ -16,9 +16,9 @@ class LookupTable:
             self.table = np.full((nb_color_values,nb_color_values,nb_color_values),0.0)
         elif(self.mode == calc_histo.Color.RG):
             self.table = np.full((nb_color_values,nb_color_values),0.0)
+        self.list_hist_sum = []
    
-    # Return the likelihood table(r,g,b) for nb_images images
-    def construct_lookup_table(self, fd, nb_images):
+    def calc_fold_histograms(self, fd, nb_images):
         # Initialize the sum of histograms with the first image
         img_info = parse_file.get_img_info(fd)
         img_global = cv2.imread(img_info.img_path)
@@ -39,23 +39,32 @@ class LookupTable:
             hist_t_sum += hist_t
             hist_all_sum += hist_all
             print(str(i)+"-th image processed")
+        self.list_hist_sum.append((hist_t_sum, hist_all_sum))
+        #DEBUG
+        #plot_array(hist_t_sum, "histogram target zone")
+        #plot_array(hist_all_sum, "histogram all pixels")
+
+    # Return the likelihood table(r,g,b) for nb_images images
+    def construct_lookup_table(self):
     
-        #lookup_table = np.full(hist_t_sum.shape, 0.0)
+        global_hist_t_sum = self.list_hist_sum[0][0]
+        global_hist_all_sum = self.list_hist_sum[0][1]
+
+        for tuple_hist in self.list_hist_sum[1:]:
+            global_hist_t_sum += tuple_hist[0]
+            global_hist_all_sum += tuple_hist[1]
+
         if(self.mode == calc_histo.Color.RGB):
             for i in range(self.table.shape[0]):
                 for j in range(self.table.shape[1]):
                     for k in range(self.table.shape[2]):
-                        if(hist_all_sum[i][j][k] != 0):
-                            self.table[i][j][k] = float(hist_t_sum[i][j][k])/float(hist_all_sum[i][j][k])
-        elif(self.mode == calc_histo.Color.RG):
+                        if(global_hist_all_sum[i][j][k] != 0):
+                            self.table[i][j][k] = float(global_hist_t_sum[i][j][k])/float(global_hist_all_sum[i][j][k])
+        elif(self.mode == calc_global_histo.Color.RG):
             for i in range(self.table.shape[0]):
                 for j in range(self.table.shape[1]):
-                    if(hist_all_sum[i][j] != 0):
-                        self.table[i][j] = float(hist_t_sum[i][j])/float(hist_all_sum[i][j])
- 
-        #DEBUG
-        plot_array(hist_t_sum, "histogram target zone")
-        plot_array(hist_all_sum, "histogram all pixels")
+                    if(global_hist_all_sum[i][j] != 0):
+                        self.table[i][j] = float(global_hist_t_sum[i][j])/float(global_hist_all_sum[i][j])
     
     def get_pixel_probability(self, pixel):
         if(self.mode == calc_histo.Color.RGB):
