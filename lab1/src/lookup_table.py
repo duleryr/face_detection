@@ -60,7 +60,7 @@ class LookupTable:
                     for k in range(self.table.shape[2]):
                         if(global_hist_all_sum[i][j][k] != 0):
                             self.table[i][j][k] = float(global_hist_t_sum[i][j][k])/float(global_hist_all_sum[i][j][k])
-        elif(self.mode == calc_global_histo.Color.RG):
+        elif(self.mode == calc_histo.Color.RG):
             for i in range(self.table.shape[0]):
                 for j in range(self.table.shape[1]):
                     if(global_hist_all_sum[i][j] != 0):
