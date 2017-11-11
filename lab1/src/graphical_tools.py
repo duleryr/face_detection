@@ -21,8 +21,8 @@ def plot_3d_color_histogram(histo, n_quantification):
     w.show()
     w.setWindowTitle('pyqtgraph example: GLScatterPlotItem')
     
-    g = gl.GLGridItem()
-    w.addItem(g)
+    #g = gl.GLGridItem()
+    #w.addItem(g)
 
     pos = np.empty((histo.size, 3))
     size = np.empty((histo.size))
@@ -37,6 +37,7 @@ def plot_3d_color_histogram(histo, n_quantification):
                 size[index] = histo[i][j][k]
                 index += 1
     sp1 = gl.GLScatterPlotItem(pos=pos, size=size, color=color, pxMode=False)
+    sp1.translate(-128/n_quantification,-128/n_quantification,-128/n_quantification)
     w.addItem(sp1)
 
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
