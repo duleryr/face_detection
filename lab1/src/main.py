@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from sklearn.metrics import auc
+import calc_histo
 import lookup_table
 import parse_file
 import cv2
@@ -17,8 +18,12 @@ try:
     nb_images_testing = int(sys.argv[3])
     charge_lookup_table = int(sys.argv[4])
     n_quantification = int(sys.argv[5])
+    color_mode = str(sys.argv[6])
+    lookup_table_color_mode = calc_histo.Color.RGB
+    if(color_mode == "RG"):
+        lookup_table_color_mode = calc_histo.Color.RG
     if (charge_lookup_table):
-        lookup_table_file = sys.argv[6]
+        lookup_table_file = sys.argv[7]
 
 except IndexError as err:
     print("IndexError: {0}".format(err))
@@ -29,23 +34,24 @@ except IndexError as err:
     print("    int3 : nombre d'images à utiliser pour les tests de détection")
     print("    int4 : 0 to rebuild the lookup table, 1 to charge it from file \"lookup_table\" ")
     print("    int5 : the color sample rate, f.ex.1, 8")
-    print("    str6 : if loading the lookup table (int4 == 1), the lookup table file to use")
+    print("    str6 : the color mode, \"RGB\" or \"RG\"")
+    print("    str7 : if loading the lookup table (int4 == 1), the lookup table file to use")
     exit(1)
 
 """ --- Phase 1 : Training : Skin pixels detection with color ---  """
 """ Construction of the lookup table """
 # Parameters : RGB or Chrominance, Quantification N, choice of the training Data 
 
-lookup_table_data = []
+lookup_table_data = lookup_table.LookupTable(lookup_table_color_mode, n_quantification)
 if (charge_lookup_table==0):
     print("Construction of the lookup table...", end = " ", flush = True)
     print("")
-    lookup_table_data = lookup_table.construct_lookup_table(fd, nb_images_training, n_quantification)
+    lookup_table_data.construct_lookup_table(fd, nb_images_training)
     print("done.")
     print("Saving lookup table in file lT ...", end = " ", flush = True)
     print("")
     try:
-        lookup_table_fd = open("lT_" + file_used + "_" + str(nb_images_training), "wb")
+        lookup_table_fd = open("lT_" + file_used + "_" + str(nb_images_training) + "_" + color_mode, "wb")
         pickle.dump(lookup_table_data, lookup_table_fd)
         lookup_table_fd.close() 
         print("done.")
@@ -61,7 +67,7 @@ if (charge_lookup_table==1):
         print("IndexError: {0}".format(err))
         exit(1)
 
-lookup_table.plot_array(lookup_table_data,"lookup table")
+lookup_table_data.plot("lookup table")
 graphical_tools.plot_3d_color_histogram(lookup_table_data, n_quantification)
 
 """ ----------------- Phase 2 : Face detection ------------------- """

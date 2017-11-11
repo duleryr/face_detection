@@ -6,13 +6,15 @@ import numpy as np
 import pyqtgraph.opengl as gl
 from pyqtgraph.Qt import QtCore, QtGui
 import sys
+import calc_histo
+import lookup_table
 
 def showImg(name, img):
     cv2.imshow(name, img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def plot_3d_color_histogram(histo, n_quantification):
+def plot_3d_color_histogram(lookup_table, n_quantification):
     #pyqtgraph.examples.run()
     color_value = int(256/n_quantification)
     app = QtGui.QApplication([])
@@ -24,17 +26,26 @@ def plot_3d_color_histogram(histo, n_quantification):
     #g = gl.GLGridItem()
     #w.addItem(g)
 
-    pos = np.empty((histo.size, 3))
-    size = np.empty((histo.size))
-    color = np.empty((histo.size, 4))
+    pos = np.empty((lookup_table.table.size, 3))
+    size = np.empty((lookup_table.table.size))
+    color = np.empty((lookup_table.table.size, 4))
     index = 0
-    for i in range(histo.shape[0]):
-        for j in range(histo.shape[1]):
-            for k in range(histo.shape[2]):
-                pos[index] = (i,j,k)
+    if(lookup_table.mode == calc_histo.Color.RGB):
+        for i in range(lookup_table.table.shape[0]):
+            for j in range(lookup_table.table.shape[1]):
+                for k in range(lookup_table.table.shape[2]):
+                    pos[index] = (i,j,k)
+                    color[index] = (i*n_quantification/256,
+                        j*n_quantification/256,k*n_quantification/256,1.0)
+                    size[index] = lookup_table.table[i][j][k]
+                    index += 1
+    elif(lookup_table.mode == calc_histo.Color.RG):
+        for i in range(lookup_table.table.shape[0]):
+            for j in range(lookup_table.table.shape[1]):
+                pos[index] = (i,j,0)
                 color[index] = (i*n_quantification/256,
-                    j*n_quantification/256,k*n_quantification/256,1.0)
-                size[index] = histo[i][j][k]
+                        j*n_quantification/256,0,1.0)
+                size[index] = lookup_table.table[i][j]
                 index += 1
     sp1 = gl.GLScatterPlotItem(pos=pos, size=size, color=color, pxMode=False)
     sp1.translate(-128/n_quantification,-128/n_quantification,-128/n_quantification)

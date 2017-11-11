@@ -5,7 +5,11 @@ import numpy as np
 import cv2
 import parse_file
 from matplotlib import pyplot as plt
+from enum import Enum
 
+class Color(Enum):
+    RGB = 1
+    RG = 2
 
 # Return the masked image
 # Warning : Redundancy between img and img_info
@@ -21,21 +25,39 @@ def calc_mask(img, img_info):
     return mask
 
 # Return the hist as [HistB, HistG, HistR]
-def calc_hist(img, mask, n_quantification):
+def calc_hist(img, mask, mode, n_quantification):
     nb_color_values = int(256/n_quantification)
-    hist_all_colors = np.array([[[0]*nb_color_values]*nb_color_values]*nb_color_values)
-    for i in range(0,img.shape[0]):
-        for j in range(0,img.shape[1]):
-            (b,g,r) = img[i,j]
-            if(mask[i,j][0]==255):
-                hist_all_colors[int(r/n_quantification)][int(g/n_quantification)][int(b/n_quantification)] += 1
+    hist_all_colors = []
+    if(mode == Color.RGB):
+        hist_all_colors = np.array([[[0]*nb_color_values]*nb_color_values]*nb_color_values)
+        for i in range(0,img.shape[0]):
+            for j in range(0,img.shape[1]):
+                (b,g,r) = img[i,j]
+                if(mask[i,j][0]==255):
+                    hist_all_colors[int(r/n_quantification)][int(g/n_quantification)][int(b/n_quantification)] += 1
+    elif(mode == Color.RG):
+        hist_all_colors = np.array([[0]*nb_color_values]*nb_color_values)
+        for i in range(0,img.shape[0]):
+            for j in range(0,img.shape[1]):
+                (b,g,r) = img[i,j]
+                r = int(r)
+                g = int(g)
+                b = int(b)
+                if(mask[i,j][0]==255):
+                    l = float(r+g+b)
+                    r_norm = float(r)
+                    g_norm = float(g)
+                    if(l != 0.0):
+                        r_norm /= l 
+                        g_norm /= l
+                    hist_all_colors[int((nb_color_values-1)*r_norm)][int((nb_color_values-1)*g_norm)] += 1
     return hist_all_colors
 
 # Return the histogram without mask
-def calc_normal_hist(img, n_quantification):
+def calc_normal_hist(img, mode, n_quantification):
     mask = img.copy()
     mask[:] = (255,255,255)
-    return calc_hist(img, mask, n_quantification)
+    return calc_hist(img, mask, mode, n_quantification)
 
 def test():
     descriptor_file = open(sys.argv[1])
