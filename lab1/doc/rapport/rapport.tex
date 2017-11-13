@@ -24,8 +24,22 @@
 \maketitle
 \vspace{1cm}
 
-\section{Travail réalisé}
-\section{Résultats expérimentaux}
-\section{Explication des résultats obtenus}
+\section{Résumé du travail réalisé}
+\section{Analyse des résultats expérimentaux}
+\subsection{Phase d'apprentissage}
+visionnage 3D
+- test variations paramètres : pas, BD d'entrainement, colorspace
+\subsection{Reconnaissance faciale}
+- taille ROI :
+      soit petites, détection peau humaine
+          - masque gaussien pas intéressant
+      soit grandes, taille visage
+          - masque gaussien à utiliser
+\subsection{Clustering}
+- Difficultés : pas possible de filtrer la taille car possible d'avoir un visage loin
+                pas possible de filtrer par forme car possible d'avoir un visage de biais ou coupé
+- Idée : utiliser le fait qu'un visage est d'une seule couleur
+-> utiliser la moyenne des couleurs du visage
+-> détection de plusieurs personnes
 
 \end{document}
