@@ -124,7 +124,9 @@ def main(file_number_used, nb_images_testing, lookup_table_file, debug = False):
         print("  Area under curve : " + str(area_under_curve))
         plt.show()
     else:
-        plt.savefig("../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + parameters[3] + "_" + str(lookup_table_color_mode) + ".png")
+        destination = "../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(lookup_table_color_mode) + ".png"
+        plt.savefig(destination)
+        print(destination + " : AUC = " + str(area_under_curve))
     
     """ --------------- Phase 3 : Face localisation ------------------ """
     """ Expectation Maximization, K-means """
