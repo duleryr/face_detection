@@ -12,7 +12,23 @@ import graphical_tools
 import multiprocessing
 import time
 
-def main(file_number_used, nb_images_testing, lookup_table_file, debug = False):
+if __name__ == '__main__':
+    """ Initialization : Choice of the files used for the training/testing """
+    try:
+        file_number_used = sys.argv[1]
+        if (len(file_number_used) == 1):
+            file_number_used = "0" + file_number_used
+        nb_images_testing = int(sys.argv[2])
+        lookup_table_file = sys.argv[3]
+        debug = False
+    except IndexError as err:
+        print("IndexError: {0}".format(err))
+        print("\nAppel de la fonction :")
+        print("python3 int1 int2 str3, avec :")
+        print("    int1 : numéro du fichier ellipseList à utiliser, entre 1 et 10")
+        print("    int2 : nombre d'images à utiliser pour les tests de détection")
+        print("    str3 : la lookup table à utiliser")
+        exit(1)
     fd = open("../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-" + file_number_used + "-ellipseList.txt")
     
     parameters = lookup_table_file.split("_")
@@ -40,7 +56,8 @@ def main(file_number_used, nb_images_testing, lookup_table_file, debug = False):
     """ Use of sliding window : ROI """
     # Parameters : Width/Height of ROI, Scanning pattern, Decision algorithm of detection, Use of gaussian mask
     
-    print("Face detection...")
+    if debug:
+        print("Face detection...")
     
     bias_vec = np.arange(-0.5, 0.501, 0.05)
     
@@ -132,21 +149,3 @@ def main(file_number_used, nb_images_testing, lookup_table_file, debug = False):
     """ --------------- Phase 3 : Face localisation ------------------ """
     """ Expectation Maximization, K-means """
     # Parameters : Number of faces in the image, Range of position/size/orientation, clustering regions sizes, distance for non-maximal suppression
-
-if __name__ == '__main__':
-    """ Initialization : Choice of the files used for the training/testing """
-    try:
-        file_number_used = sys.argv[1]
-        if (len(file_number_used) == 1):
-            file_number_used = "0" + file_number_used
-        nb_images_testing = int(sys.argv[2])
-        lookup_table_file = sys.argv[3]
-    except IndexError as err:
-        print("IndexError: {0}".format(err))
-        print("\nAppel de la fonction :")
-        print("python3 int1 int2 str3, avec :")
-        print("    int1 : numéro du fichier ellipseList à utiliser, entre 1 et 10")
-        print("    int2 : nombre d'images à utiliser pour les tests de détection")
-        print("    str3 : la lookup table à utiliser")
-        exit(1)
-    main(file_number_used, nb_images_testing, lookup_table_file, True)
