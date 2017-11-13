@@ -12,6 +12,7 @@ from sklearn.metrics import auc
 import cv2
 from matplotlib import pyplot as plt
 import math
+from sklearn import mixture
 
 class region_of_interest:
     def __init__(self,c_i,c_j,w,h):
@@ -25,6 +26,8 @@ class region_of_interest:
         self.h = h
         self.step_size_i = w/2
         self.step_size_j = h/2
+        # color-clustering
+        self.mean_color = 0
     def correct_position(self,img_shape):
         if(self.r>img_shape[0]):
             self.t += self.step_size_j
@@ -54,12 +57,15 @@ class statistics:
 def is_face(img, l_t, roi, bias):
     g_sum = 0.0
     pixel_nb = 0
+    roi.mean_color = 0
     for i in range(int(roi.l), int(roi.r)):
         for j in range(int(roi.t), int(roi.b)):
             pixel_nb += 1
             pixel_prob = l_t.get_pixel_probability(img[i,j])
+            roi.mean_color += img[i,j][0]*255*255+img[i,j][1]*255+img[i,j][2]
             g_sum += pixel_prob
     g_sum /= float(roi.w*roi.h)
+    roi.mean_color /= float(roi.w*roi.h)
     return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse
@@ -87,7 +93,15 @@ def ground_truth(ground_truth_mask, x, y):
     #is_in_ellipse = is_in_ellipse or in_ellipse(e_tmp,x,y)
     #return is_in_ellipse
     return (ground_truth_mask[int(x)][int(y)][0]==255)
- 
+
+def get_ellipse_mask(img, e):
+   mask = img.copy()
+   mask[:] = (0)
+   # we have to extract all the ellipses
+   cv2.ellipse(mask,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
+       int(e.theta),0,360,(255), -1)
+   return mask
+
 def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j, roi_w, roi_h, n_quantification):
     roi = region_of_interest(roi_c_i,roi_c_j,roi_w,roi_h)
     ground_truth_mask = get_ground_truth_mask(img, img_info)
@@ -98,12 +112,14 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
     face_detected = False # boolean variables to count the aforementioned statistics
     true_face = False
     # while the roi is still in the image
+    detections = []
     while(roi.correct_position(img.shape)):
         face_detected = is_face(img,lookup_table,roi,bias)
         true_face = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
         # print("face_detected : " + str(face_detected))
         # print("true_face : " + str(true_face))
         if(face_detected): # we detected a face
+            detections.append((roi.c_j,roi.c_i))
             if(true_face): # decision of the ground-truth function
                 tp += 1 # it really is a face
             else:
@@ -114,6 +130,78 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
             else:
                 tn += 1 # our decision was correct
         roi.step_forward()
+
+    if(len(detections) > 0):
+# CLUSTERING
+        x = np.array(detections)
+        bic = []
+        components = range(1,10)
+        for c in components:
+            if(c<len(x)):
+                sys.stdout.flush()
+                gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+                gmm.fit(x)
+                bic.append(gmm.bic(x))
+        bic = np.array(bic)
+        best_bic_c = bic.argmin()+1
+        gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
+        labels = gmm.predict(x)
+# construct gaussian ellipses
+        detections_ellipses = []
+        for i in range(best_bic_c):
+            mean = gmm.means_[i]
+            covariance = gmm.covariances_[i]
+            # singular value decomposition
+            U, s, Vt = np.linalg.svd(covariance) 
+            angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+            #width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+            width, height = 2 * np.sqrt(1*s) 
+            detections_ellipses.append(parse_file.ellipse(height,width,
+                    math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+# construct bi-parted-graph
+        d_masks = [] # masks of detected ellipses
+        l_masks = [] # masks of ground-truth ellipses
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        for d in detections_ellipses:
+            d_masks.append(get_ellipse_mask(gray_img,d))
+        for l in img_info.list_ellipse:
+            l_masks.append(get_ellipse_mask(gray_img,l))
+# evaluate graph result
+        bias_graph = 0.3
+        bi_graph = np.full((len(d_masks), len(l_masks)), 0.0)
+        for i,d in enumerate(d_masks):
+            for j,l in enumerate(l_masks):
+                union = cv2.bitwise_or(d,l)
+                intersection = cv2.bitwise_and(d,l)
+                #cv2.imshow('detection_mask', union)
+                union_count = cv2.countNonZero(union)
+                #print("union_count: "+str(union_count))
+                #cv2.waitKey(0)
+                #cv2.destroyAllWindows()
+                #cv2.imshow('detection_mask', intersection)
+                intersection_count = cv2.countNonZero(intersection)
+                #print("intersection_count: "+str(intersection_count))
+                #cv2.waitKey(0)
+                #cv2.destroyAllWindows()
+                bi_graph[i][j] = float(intersection_count)/float(union_count)
+# get statistics
+#        tp = 0
+#        fp = 0
+#        fn = 0
+#        for d_i in range(bi_graph.shape[0]):
+#            max_i = bi_graph[d_i].max()
+#            if(max_i == 0.0):
+#                fp += 1
+#            elif((max_i+bias_graph) < 0.5):
+#                fp += 1
+#            elif(bi_graph[:,bi_graph[d_i].argmax()].argmax() != d_i):
+#                fp += 1
+#            else:
+#                tp += 1
+#        for l_i in range(bi_graph.shape[1]):
+#            if(bi_graph[:,l_i].max()+bias_graph<0.5):
+#                fn += 1
+ 
     return statistics(tp,fp,tn,fn)
 
 def test_graphical(quantification):
