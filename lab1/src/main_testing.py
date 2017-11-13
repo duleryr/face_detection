@@ -32,8 +32,9 @@ def main(file_number_used, nb_images_testing, lookup_table_file, debug = False):
         print("IndexError: {0}".format(err))
         exit(1)
     
-    lookup_table_data.plot("lookup table")
-    graphical_tools.plot_3d_color_histogram(lookup_table_data, n_quantification)
+    if debug:
+        lookup_table_data.plot("lookup table")
+        graphical_tools.plot_3d_color_histogram(lookup_table_data, n_quantification)
     
     """ ----------------- Phase 2 : Face detection ------------------- """
     """ Use of sliding window : ROI """
