@@ -57,15 +57,15 @@ class statistics:
 def is_face(img, l_t, roi, bias):
     g_sum = 0.0
     pixel_nb = 0
-    roi.mean_color = 0
+    #roi.mean_color = 0
     for i in range(int(roi.l), int(roi.r)):
         for j in range(int(roi.t), int(roi.b)):
             pixel_nb += 1
             pixel_prob = l_t.get_pixel_probability(img[i,j])
-            roi.mean_color += img[i,j][0]*255*255+img[i,j][1]*255+img[i,j][2]
+            #roi.mean_color += img[i,j][0]*255*255+img[i,j][1]*255+img[i,j][2]
             g_sum += pixel_prob
     g_sum /= float(roi.w*roi.h)
-    roi.mean_color /= float(roi.w*roi.h)
+    #roi.mean_color /= float(roi.w*roi.h)
     return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse
@@ -112,14 +112,14 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
     face_detected = False # boolean variables to count the aforementioned statistics
     true_face = False
     # while the roi is still in the image
-    detections = []
+#    detections = []
     while(roi.correct_position(img.shape)):
         face_detected = is_face(img,lookup_table,roi,bias)
         true_face = ground_truth(ground_truth_mask,roi.c_i,roi.c_j)
         # print("face_detected : " + str(face_detected))
         # print("true_face : " + str(true_face))
         if(face_detected): # we detected a face
-            detections.append((roi.c_j,roi.c_i))
+#            detections.append((roi.c_j,roi.c_i))
             if(true_face): # decision of the ground-truth function
                 tp += 1 # it really is a face
             else:
@@ -131,59 +131,59 @@ def get_statistics_one_image(lookup_table, img, img_info, bias, roi_c_i, roi_c_j
                 tn += 1 # our decision was correct
         roi.step_forward()
 
-    if(len(detections) > 0):
-# CLUSTERING
-        x = np.array(detections)
-        bic = []
-        components = range(1,10)
-        for c in components:
-            if(c<len(x)):
-                sys.stdout.flush()
-                gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
-                gmm.fit(x)
-                bic.append(gmm.bic(x))
-        bic = np.array(bic)
-        best_bic_c = bic.argmin()+1
-        gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
-        labels = gmm.predict(x)
-# construct gaussian ellipses
-        detections_ellipses = []
-        for i in range(best_bic_c):
-            mean = gmm.means_[i]
-            covariance = gmm.covariances_[i]
-            # singular value decomposition
-            U, s, Vt = np.linalg.svd(covariance) 
-            angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-            #width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
-            width, height = 2 * np.sqrt(1*s) 
-            detections_ellipses.append(parse_file.ellipse(height,width,
-                    math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
-# construct bi-parted-graph
-        d_masks = [] # masks of detected ellipses
-        l_masks = [] # masks of ground-truth ellipses
-        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        for d in detections_ellipses:
-            d_masks.append(get_ellipse_mask(gray_img,d))
-        for l in img_info.list_ellipse:
-            l_masks.append(get_ellipse_mask(gray_img,l))
-# evaluate graph result
-        bias_graph = 0.3
-        bi_graph = np.full((len(d_masks), len(l_masks)), 0.0)
-        for i,d in enumerate(d_masks):
-            for j,l in enumerate(l_masks):
-                union = cv2.bitwise_or(d,l)
-                intersection = cv2.bitwise_and(d,l)
-                #cv2.imshow('detection_mask', union)
-                union_count = cv2.countNonZero(union)
-                #print("union_count: "+str(union_count))
-                #cv2.waitKey(0)
-                #cv2.destroyAllWindows()
-                #cv2.imshow('detection_mask', intersection)
-                intersection_count = cv2.countNonZero(intersection)
-                #print("intersection_count: "+str(intersection_count))
-                #cv2.waitKey(0)
-                #cv2.destroyAllWindows()
-                bi_graph[i][j] = float(intersection_count)/float(union_count)
+#    if(len(detections) > 0):
+## CLUSTERING
+#        x = np.array(detections)
+#        bic = []
+#        components = range(1,10)
+#        for c in components:
+#            if(c<len(x)):
+#                sys.stdout.flush()
+#                gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+#                gmm.fit(x)
+#                bic.append(gmm.bic(x))
+#        bic = np.array(bic)
+#        best_bic_c = bic.argmin()+1
+#        gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
+#        labels = gmm.predict(x)
+## construct gaussian ellipses
+#        detections_ellipses = []
+#        for i in range(best_bic_c):
+#            mean = gmm.means_[i]
+#            covariance = gmm.covariances_[i]
+#            # singular value decomposition
+#            U, s, Vt = np.linalg.svd(covariance) 
+#            angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+#            #width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+#            width, height = 2 * np.sqrt(1*s) 
+#            detections_ellipses.append(parse_file.ellipse(height,width,
+#                    math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+## construct bi-parted-graph
+#        d_masks = [] # masks of detected ellipses
+#        l_masks = [] # masks of ground-truth ellipses
+#        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#        for d in detections_ellipses:
+#            d_masks.append(get_ellipse_mask(gray_img,d))
+#        for l in img_info.list_ellipse:
+#            l_masks.append(get_ellipse_mask(gray_img,l))
+## evaluate graph result
+#        bias_graph = 0.3
+#        bi_graph = np.full((len(d_masks), len(l_masks)), 0.0)
+#        for i,d in enumerate(d_masks):
+#            for j,l in enumerate(l_masks):
+#                union = cv2.bitwise_or(d,l)
+#                intersection = cv2.bitwise_and(d,l)
+#                #cv2.imshow('detection_mask', union)
+#                union_count = cv2.countNonZero(union)
+#                #print("union_count: "+str(union_count))
+#                #cv2.waitKey(0)
+#                #cv2.destroyAllWindows()
+#                #cv2.imshow('detection_mask', intersection)
+#                intersection_count = cv2.countNonZero(intersection)
+#                #print("intersection_count: "+str(intersection_count))
+#                #cv2.waitKey(0)
+#                #cv2.destroyAllWindows()
+#                bi_graph[i][j] = float(intersection_count)/float(union_count)
 # get statistics
 #        tp = 0
 #        fp = 0

@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 from sklearn.metrics import auc
 import calc_histo
@@ -73,8 +74,8 @@ if __name__ == '__main__':
     results = multiprocessing.Array('i', 4*len(bias_vec), lock=False)
     
     def parallel_img(pid):
-        if (debug):
-            print(" "+str(pid)+"-th image")
+        #if (debug):
+        print(" "+str(pid)+"-th image")
         img_info_local = img_info_vec[pid]
         img = cv2.imread(img_info_local.img_path)
         #print("  bias = ", end = "", flush = True)
@@ -89,12 +90,13 @@ if __name__ == '__main__':
         return 0
     
     p = multiprocessing.Pool(multiprocessing.cpu_count())
+    #p = multiprocessing.Pool(4)
     
     start_time = time.time()
     p.map(parallel_img, range(nb_images_testing))
     end_time = time.time()
-    if debug:
-        print("Parallel time=", end_time - start_time)
+    #if debug:
+    #print("Parallel time=", end_time - start_time)
     #for i in results:
     #    print(i)
     
@@ -142,7 +144,10 @@ if __name__ == '__main__':
         print("  Area under curve : " + str(area_under_curve))
         plt.show()
     else:
-        destination = "../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(lookup_table_color_mode) + ".png"
+        destination = os.getcwd()+"/../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(lookup_table_color_mode) + ".png"
+        plt.xlabel("FPR")
+        plt.ylabel("TPR")
+        plt.title("AUC = "+str(area_under_curve))
         plt.savefig(destination)
         print(destination + " : AUC = " + str(area_under_curve))
     
