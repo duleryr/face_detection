@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import sys
 import pickle
-import graphical_tools
+#import graphical_tools
 import calc_histo
 import parse_file
 import lookup_table
@@ -36,8 +36,8 @@ def test():
     #let's create a mask that shows us where we got a positive detection
     mask = img.copy()
     mask[:] = (0,0,0)
-    #roi = face_detection.region_of_interest(4,4,9,9)
-    roi = face_detection.region_of_interest(10,10,21,21)
+    #roi = face_detection.region_of_interest(4,4,9,9,0)
+    roi = face_detection.region_of_interest(10,10,21,21,0)
     nb_detections = 0
     nb_true_pos = 0
     #DEBUG
@@ -59,21 +59,51 @@ def test():
     #print("nb_detections: "+str(nb_detections))
     #print("nb_true_pos: "+str(nb_true_pos))
 
-    # CLUSTERING
-    x = np.array(detections)
-    bic = []
-    components = range(1,10)
-    for c in components:
-        if(c<x.size):
-            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
-            gmm.fit(x)
-            bic.append(gmm.bic(x))
-    bic = np.array(bic)
-    best_bic_c = bic.argmin()+1
-    #print("best number of components: " + str(best_bic_c+1))
+#    # CLUSTERING
+#    x = np.array(detections)
+#    bic = []
+#    components = range(1,10)
+#    for c in components:
+#        if(c<x.size):
+#            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+#            gmm.fit(x)
+#            bic.append(gmm.bic(x))
+#    bic = np.array(bic)
+#    best_bic_c = bic.argmin()+1
+#    #print("best number of components: " + str(best_bic_c+1))
 
     # PLOT THE RESULTS
     plt.suptitle("Bias= "+str(bias)+", ROI= ("+str(roi.w)+", "+str(roi.h)+")")
+    plt.subplot(222)
+    plt.title("Ground Truth")
+    plt.imshow(ground_truth_mask)
+    plt.subplot(223)
+    plt.title("Positive Detections")
+    plt.imshow(mask)
+
+    mask1 = img.copy()
+    mask1[:] = (0,0,0)
+    roi = face_detection.region_of_interest(42,42,84,84,1)
+    nb_detections = 0
+    nb_true_pos = 0
+    #DEBUG
+    ground_truth_mask1 = face_detection.get_ground_truth_mask(img, img_info)
+    detections = []
+    while(roi.correct_position(img.shape)):
+        if(face_detection.is_face(img,lT,roi,bias)):
+            nb_detections += 1;
+            if(face_detection.ground_truth(ground_truth_mask1,roi.c_i,roi.c_j)):
+                nb_true_pos += 1
+            detections.append((roi.c_j,roi.c_i))
+            for i in range(int(roi.l), int(roi.r)):
+                for j in range(int(roi.t), int(roi.b)):
+                    mask1[i,j] = (255,255,255)
+        roi.step_forward()
+
+    plt.subplot(224)
+    plt.title("Positive Detections")
+    plt.imshow(mask1)
+
     plt.subplot(221)
     tmp_vec = img[:][2]
     for i in range(img.shape[0]):
@@ -82,31 +112,25 @@ def test():
             img[i,j] = (r,g,b)
     plt.title("Original Image")
     plt.imshow(img)
-    plt.subplot(222)
-    plt.title("Ground Truth")
-    plt.imshow(ground_truth_mask)
-    plt.subplot(223)
-    plt.title("Positive Detections")
-    plt.imshow(mask)
 
-    # GMM
-    window = plt.subplot(224)
-    img_gmm = img.copy()
-    plt.title("Model Fit")
-    plt.xlim(0, img.shape[1])
-    plt.ylim(0, img.shape[0])
-    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
-    labels = gmm.predict(x)
-    for i in range(best_bic_c):
-        mean = gmm.means_[i]
-        covariance = gmm.covariances_[i]
-        U, s, Vt = np.linalg.svd(covariance)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(s)
-        window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
-    plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.gca().invert_yaxis()
-    plt.imshow(img_gmm)
+#    # GMM
+#    window = plt.subplot(224)
+#    img_gmm = img.copy()
+#    plt.title("Model Fit")
+#    plt.xlim(0, img.shape[1])
+#    plt.ylim(0, img.shape[0])
+#    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
+#    labels = gmm.predict(x)
+#    for i in range(best_bic_c):
+#        mean = gmm.means_[i]
+#        covariance = gmm.covariances_[i]
+#        U, s, Vt = np.linalg.svd(covariance)
+#        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+#        width, height = 2 * np.sqrt(s)
+#        window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
+#    plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.gca().invert_yaxis()
+#    plt.imshow(img_gmm)
 
     # TODO: Maximize window
     plt.show()

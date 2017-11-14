@@ -84,7 +84,9 @@ def parallel_img(pid):
     #print("  bias = ", end = "", flush = True)
     for i,bias in enumerate(bias_vec):
         #print(bias, end = ", ", flush = True)
-        s = get_statistics_one_image(lookup_table_data,img,img_info_local,bias,4,4,9,9, n_quantification)
+        s =
+        get_statistics_one_image(lookup_table_data,img,img_info_local,bias,4,4,9,9,
+                n_quantification,0)
         results[i*4+0] += s.tp
         results[i*4+1] += s.fp
         results[i*4+2] += s.tn
@@ -119,7 +121,9 @@ for i in range(len(bias_vec)):
 #    print("  bias = ", end = "", flush = True)
 #    for i,bias in enumerate(bias_vec):
 #        print(bias, end = ", ", flush = True)
-#        s = get_statistics_one_image(lookup_table_data,img,img_info,bias,4,4,9,9, n_quantification)
+#        s =
+#        get_statistics_one_image(lookup_table_data,img,img_info,bias,4,4,9,9,
+#        n_quantification,0)
 #        tp_vec[i] += s.tp
 #        fp_vec[i] += s.fp
 #        tn_vec[i] += s.tn
