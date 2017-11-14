@@ -5,6 +5,7 @@
 \usepackage[french]{babel}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{diagbox}
 \usepackage[T1]{fontenc}
 \graphicspath{{images/}}
 
@@ -29,7 +30,21 @@
 \section{Analyse des résultats expérimentaux}
 \subsection{Phase d'apprentissage}
 
+\subsubsection{Travail réalisé}
+
 La phase d'apprentissage consiste en la création de la Lookup Table, qui associe à chaque couleur une probabilité d'appartenance à la cible, ici à la peau.
+
+3 paramètres entrent en jeu :
+
+\begin{itemize}
+    \item La dataset utilisée
+    \item La quantification des couleurs N
+    \item L'espace de couleur utilisé\\
+\end{itemize}
+
+Nous avons implémenté l'utilisation des espaces de couleur RGB et RG (chrominances). Nous avons utilisé l'outil PyQTGraph afin de visualiser les Lookup Tables en 3 dimensions, avec chaque couleur représentée par une sphère, dont la taille est proportionnelle à la probabilité de correspondance à de la peau.\\
+
+Voici des exemples de résultats obtenus :
 
 \begin{figure}[H]
 \begin{center}
@@ -45,8 +60,63 @@ La phase d'apprentissage consiste en la création de la Lookup Table, qui associ
 \end{center}
 \end{figure}
 
-visionnage 3D
-- test variations paramètres : pas, BD d'entrainement, colorspace
+On constate que dans les deux cas, les couleurs prédominantes correspondent bien à de potentielles couleurs de peau.
+
+\subsubsection{Analyse de l'influence des paramètres}
+
+Nous avons utilisé l'aire sous les courbes ROC en guise de méthode d'évaluation.
+
+Voici les résultats obtenus pour les 100 premières images du fichier 10, avec différents paramètres :
+
+\begin{itemize}
+    \item En utilisant l'espace de couleur RGB\\
+
+        \begin{center}
+            \begin{tabular}{| c | p{2cm} | p{2cm} | p{2cm} | p{2cm} |}
+                \hline
+                \diagbox{Data}{N} & 128 & 64 & 32 & 16 \\
+                \hline
+                2 & 0.8446 & 0.8570 & 0.8639 & 0.8655 \\
+                9 & 0.8634 & 0.8687 & \textbf{0.8702} & 0.8682 \\
+                \hline
+            \end{tabular}
+        \end{center}~\\
+
+    \item En utilisant l'espace de couleur RG\\
+
+        \begin{center}
+            \begin{tabular}{| c | p{2cm} | p{2cm} | p{2cm} | p{2cm} |}
+                \hline
+                \diagbox{Data}{N} & 128 & 64 & 32 & 16 \\
+                \hline
+                2 & 0.8626 & 0.8620 & 0.8591 & 0.8555 \\
+                9 & \textbf{0.8630} & 0.8622 & 0.8580 & 0.8550 \\
+                \hline
+            \end{tabular}
+        \end{center}
+
+\end{itemize}~\\
+
+Data désigne le dernier fichier utilisé pour l'entrainement : dans le cas où Num fichier vaut 2, les images des fichiers 01 et 02 ont été utilisées pour l'entrainement.
+
+Tout d'abord, les meilleurs résultats obtenus l'ont été avec l'entrainement sur 9 fichiers, N = 32, et en espace RGB, mais il y a peu de différence de performances en fonction des paramètres.
+
+On peut toutefois relever certaines informations.
+
+Au niveau de la quantification, on constate que les meilleurs résultats sont obtenus avec N = 32 en RGB et N = 128 en RG. On peut conjecturer qu'en RG, étant donné qu'on stocke beaucoup moins d'informations, on a besoin que celles-ci soient plus précises.
+
+Au niveau de la dataset, en RGB il est notable qu'il est préférable d'entrainer l'algorithme autant que possible. Toutefois celle-ci est suffisamment pertinente et bien 'mélangée' pour que cette influence soit faible.
+
+Enfin, il n'y a pas de différence notable d'aspect entre les différences courbes ROC obtenues.
+
+En voici une à titre d'exemple :
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.5]{ROC_8_RGB.png}
+    \caption{Courbe ROC obtenue avec les fichiers 1 et 2, N=32 couleurs, en RGB}
+\end{center}
+\end{figure}
 
 \subsection{Détection faciale}
 
