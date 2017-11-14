@@ -8,7 +8,7 @@
 \graphicspath{{images/}}
 
 \title{Rapport du projet 1 de reconnaissance faciale}
-\author{Auriane Reverdell, Félix Hahnlein, Romain Duléry}
+\author{Auriane Reverdell, Felix Hähnlein, Romain Duléry}
 \date{\today}
 
 \setlength{\oddsidemargin}{0.2cm}
@@ -29,7 +29,31 @@
 \subsection{Phase d'apprentissage}
 visionnage 3D
 - test variations paramètres : pas, BD d'entrainement, colorspace
-\subsection{Reconnaissance faciale}
+\subsection{Détection faciale}
+La phase de la détection faciale est différente de celle de la phase d'apprentissage. 
+Alors qu'avant on s'intéressait à la construction de la table de probababilité la plus fiable pour détecter de la peau humaine, dans cette partie, il s'agit d'exploiter cette information afin de pouvoir donner en sortie un ensemble de formes qui englobent des éventuels visages.
+Nous nous sommes intéressés à deux approches bien distinctes d'utiliser ce \og détecteur de peau humaine\fg{}. 
+La première va chercher à trouver directement les visages à l'intérieur des ROI pendant que la deuxième va utiliser les ROI comme un système de filtrage et essayer de reconstruire les visages grâce à sa sortie.
+\newline
+\subsubsection{Détection de visage sans post-traitement}
+Cette technique vise à fournir les visages en sortie directement après les avoir détecté dans une zone d'intérêt.
+Cela semble être intuitif, elle est même la principale raison pour laquelle nous les avons introduit.
+Néanmoins, la principale difficulté que nous avons rencontré avec cette approche est le choix de la taille de la ROI.
+Encore une fois, il semble y avoir deux stratégies pour trouver une taille convenable.
+\newline
+Premièrement, on peut l'intuiter à partir des dimensions de l'image où en moyennant les tailles rencontrées pendant la phase d'apprentissage.
+Cette stratégie a l'avantage qu'elle est facile à implémenter, mais elle ne va pas fournir des résultats satisfaisants, car en réalité, l'aire occupée par un visage peut varier fortement.
+Il suffit de prendre comme exemple une image de portrait et une image qui contient un visage dans l'arrière-plan.
+\newline
+Deuxièmement, on peut utiliser des ROI de taille adaptative. 
+Cette stratégie va faire aggrandir la zone dans une certaine direction tant que le critère d'arrêt n'a pas été rempli.
+Un exemple de critère d'arrêt utilisé par d'autres systèmes est la décroissance de la probabilité accumulée au sein d'une ROI.
+Cela correspond au dépassement de la région faciale, mais il s'avère que son défaut principal est le rejet des parties de visages n'ayant pas une couleur similaire à celle de la peau humaine, comme par exemple les yeux, les lunettes, une bouche ouverte, etc.
+\newline
+\newline
+En poursuivant une de ces deux stratégies avec une ROI rectangulaire, il est pertinent d'utiliser un filtre gaussien pour tenir compte de la forme elliptique de la partie anatomique visée.
+RESULTATS
+\newline
 - taille ROI :
       soit petites, détection peau humaine
           - masque gaussien pas intéressant
