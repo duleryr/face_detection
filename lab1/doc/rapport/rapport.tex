@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage[T1]{fontenc}
 \graphicspath{{images/}}
 
@@ -27,11 +28,30 @@
 \section{Résumé du travail réalisé}
 \section{Analyse des résultats expérimentaux}
 \subsection{Phase d'apprentissage}
+
+La phase d'apprentissage consiste en la création de la Lookup Table, qui associe à chaque couleur une probabilité d'appartenance à la cible, ici à la peau.
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.5]{lT_1_9_8_RGB.png}
+    \caption{Lookup Table obtenue avec les fichiers 1 à 9, N=32 couleurs, en RGB}
+\end{center}
+\end{figure}
+
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.5]{lT_1_9_4_RG.png}
+    \caption{Lookup Table obtenue avec les fichiers 1 à 9, N=64 couleurs, en RG}
+\end{center}
+\end{figure}
+
 visionnage 3D
 - test variations paramètres : pas, BD d'entrainement, colorspace
+
 \subsection{Détection faciale}
+
 La phase de la détection faciale est différente de celle de la phase d'apprentissage. 
-Alors qu'avant on s'intéressait à la construction de la table de probababilité la plus fiable pour détecter de la peau humaine, dans cette partie, il s'agit d'exploiter cette information afin de pouvoir donner en sortie un ensemble de formes qui englobent des éventuels visages.
+Alors qu'avant on s'intéressait à la construction de la table de probabilité la plus fiable pour détecter de la peau humaine, dans cette partie, il s'agit d'exploiter cette information afin de pouvoir donner en sortie un ensemble de formes qui englobent des éventuels visages.
 Nous nous sommes intéressés à deux approches bien distinctes d'utiliser ce \og détecteur de peau humaine\fg{}. 
 La première va chercher à trouver directement les visages à l'intérieur des ROI pendant que la deuxième va utiliser les ROI comme un système de filtrage et essayer de reconstruire les visages grâce à sa sortie.
 \newline
