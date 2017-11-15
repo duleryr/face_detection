@@ -84,7 +84,7 @@ def test():
     #print("best number of components: " + str(best_bic_c+1))
 
     # PLOT THE RESULTS
-    plt.suptitle("Bias= "+str(bias)+", ROI= ("+str(roi.w)+", "+str(roi.h)+")")
+    #plt.suptitle("Bias= "+str(bias)+", ROI= ("+str(roi.w)+", "+str(roi.h)+")")
     plt.subplot(221)
     tmp_vec = img[:][2]
     for i in range(img.shape[0]):
@@ -96,13 +96,14 @@ def test():
     plt.subplot(222)
     plt.title("Ground Truth")
     plt.imshow(ground_truth_mask)
-    #plt.subplot(223)
-    #plt.title("Positive Detections")
-    #plt.imshow(mask)
+    plt.subplot(223)
+    plt.title("Positive Detections")
+    plt.imshow(mask)
 
     # GMM
     window = plt.subplot(224)
     img_gmm = img.copy()
+    #img_gmm[:] = (255,255,255)
     plt.title("Model Fit")
     plt.xlim(0, img.shape[1])
     plt.ylim(0, img.shape[0])
@@ -120,27 +121,27 @@ def test():
         window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
         width, height = 2 * np.sqrt(1*s) 
         detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
-    plt.scatter(x[:,0],x[:,1],c=labels)
+    #plt.scatter(x[:,0],x[:,1],c=labels)
     plt.gca().invert_yaxis()
     plt.imshow(img_gmm)
 
     # TODO: Maximize window
 
-    # construct bi-parted-graph
-    d_masks = [] # masks of detected ellipses
-    l_masks = [] # masks of ground-truth ellipses
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    for d in detections_ellipses:
-        d_masks.append(get_ellipse_mask(gray_img,d))
-    for l in img_info.list_ellipse:
-        l_masks.append(get_ellipse_mask(gray_img,l))
-    all_mask = gray_img
-    all_mask[:] = (0)
-    for l in l_masks:
-        cv2.bitwise_or(all_mask,l,all_mask)
-        #cv2.imshow('detection_mask', d)
-        #cv2.waitKey(0)
-        #cv2.destroyAllWindows()
+#    # construct bi-parted-graph
+#    d_masks = [] # masks of detected ellipses
+#    l_masks = [] # masks of ground-truth ellipses
+#    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+#    for d in detections_ellipses:
+#        d_masks.append(get_ellipse_mask(gray_img,d))
+#    for l in img_info.list_ellipse:
+#        l_masks.append(get_ellipse_mask(gray_img,l))
+#    all_mask = gray_img
+#    all_mask[:] = (0)
+#    for l in l_masks:
+#        cv2.bitwise_or(all_mask,l,all_mask)
+#        #cv2.imshow('detection_mask', d)
+#        #cv2.waitKey(0)
+#        #cv2.destroyAllWindows()
 #    plt.subplot(223)
 #    plt.imshow(all_mask)
 #    plt.show()
@@ -187,54 +188,58 @@ def test():
 #    print("fp: "+str(fp))
 #    print("fn: "+str(fn))
 
-    # COLOR CLUSTERING
-    y = np.array(color_detections)
-    y[:,0] -= y[:,0].min()
-    y[:,1] -= y[:,1].min()
-    y[:,0] /= y[:,0].max()
-    y[:,1] /= y[:,1].max()
-    y[:,0] *= 400
-    y[:,1] *= 450
-    print(y)
-    bic = []
-    components = range(1,10)
-    for c in components:
-        if(c<y.size):
-            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
-            gmm.fit(y)
-            bic.append(gmm.bic(y))
-    bic = np.array(bic)
-    print("bic:")
-    print(bic)
-    best_bic_c = bic.argmin()+1
-    #print("best number of components: " + str(best_bic_c+1))
-    # GMM
-    window = plt.subplot(223)
-    img_gmm = img.copy()
-    plt.title("Model Fit")
-    plt.xlim(0, img.shape[1])
-    plt.ylim(0, img.shape[0])
-    print("best_bic: "+str(best_bic_c))
-    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(y)
-    labels = gmm.predict(y)
-    detections_ellipses = []
-    for i in range(best_bic_c):
-        mean = gmm.means_[i]
-        covariance = gmm.covariances_[i]
-        # singular value decomposition
-        U, s, Vt = np.linalg.svd(covariance) 
-        print(s)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
-        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
-        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
-        width, height = 2 * np.sqrt(1*s) 
-        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
-    #plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.gca().invert_yaxis()
-    plt.imshow(img_gmm)
+#    # COLOR CLUSTERING
+#    y = np.array(color_detections)
+#    y[:,0] -= y[:,0].min()
+#    y[:,1] -= y[:,1].min()
+#    y[:,0] /= y[:,0].max()
+#    y[:,1] /= y[:,1].max()
+#    y[:,0] *= 400
+#    y[:,1] *= 450
+#    print(y)
+#    bic = []
+#    components = range(1,10)
+#    for c in components:
+#        if(c<y.size):
+#            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+#            gmm.fit(y)
+#            bic.append(gmm.bic(y))
+#    bic = np.array(bic)
+#    print("bic:")
+#    print(bic)
+#    best_bic_c = bic.argmin()+1
+#    #print("best number of components: " + str(best_bic_c+1))
+#    # GMM
+#    window = plt.subplot(223)
+#    img_gmm = img.copy()
+#    plt.title("Model Fit")
+#    plt.xlim(0, img.shape[1])
+#    plt.ylim(0, img.shape[0])
+#    print("best_bic: "+str(best_bic_c))
+#    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(y)
+#    labels = gmm.predict(y)
+#    detections_ellipses = []
+#    for i in range(best_bic_c):
+#        mean = gmm.means_[i]
+#        covariance = gmm.covariances_[i]
+#        # singular value decomposition
+#        U, s, Vt = np.linalg.svd(covariance) 
+#        print(s)
+#        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+#        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+#        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
+#        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
+#        width, height = 2 * np.sqrt(1*s) 
+#        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+#    #plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.gca().invert_yaxis()
+#    plt.imshow(img_gmm)
 
+    fig = plt.gcf()
+    fig.set_size_inches((12,10))
+    fig.set_dpi(100)
+    fig.savefig("resume.png")
     plt.show()
 
 

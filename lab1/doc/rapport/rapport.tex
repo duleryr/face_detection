@@ -10,7 +10,7 @@
 \graphicspath{{images/}}
 
 \title{Rapport du projet 1 de reconnaissance faciale}
-\author{Auriane Reverdell, Felix Hähnlein, Romain Duléry}
+\author{Auriane Reverdell, Felix Hähnlein, Nicolas Violette, Romain Duléry}
 \date{\today}
 
 \setlength{\oddsidemargin}{0.2cm}
@@ -27,6 +27,18 @@
 \vspace{1cm}
 
 \section{Résumé du travail réalisé}
+Dans le cadre de ce premier TP, nous avons réalisé un détecteur de visage, basé sur des histogrammes de couleurs. 
+Tout d'abord, nous avons construit la table de correspondance (en angl. lookup table) qui nous sert à déterminer la probabilité qu'un pixel fait partie du corps humain.
+Ensuite, nous avons utilisé des fenêtres glissantes pour essayer deux approches différentes.
+Premièrement, nous avons essayé de détecter des visages à l'intérieur d'une fenêtre. 
+Deuxièmement, nous les avons utilisé comme un système de filtrage de zone d'intérêt pour les partitionner à la suite.
+\begin{figure}[H]
+\begin{center}
+    \includegraphics[scale=0.45]{resume_clustering.png}
+    \caption{Pipeline notre détecteur de visage avec post-traitement des zones d'intérêt}
+\end{center}
+\end{figure}
+
 \section{Analyse des résultats expérimentaux}
 \subsection{Phase d'apprentissage}
 
