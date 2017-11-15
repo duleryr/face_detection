@@ -165,6 +165,7 @@ D'ailleurs, cette interprétation correspond exactement à la manière dont on a
 L'algorithme de partitionnement de données (en angl. {\textit{clustering}}) choisi est l'algorithme espérance-maximisation.
 Il s'agit d'un algorithme largement utilisé dans le domaine de l'apprentissage automatique dont le principal avantage pour notre application par rapport à l'algorithme k-means est l'utilisation de l'espérance au lieu d'une norme spatiale pour décider l'attribution à un certain cluster.
 L'algorithme k-means va donc favoriser des clusters sphériques, alors que l'algorithme EM permet des formes elliptiques quelconques, ce qui est avantageux pour reconstruire des visages.\\
+Nous utilisons l'implémentation fournie par \verb!sklearn.mixture.GaussianMixture!.
 \newline
 
 Nous avons rencontré deux principales difficultés avec cet algorithme. 
@@ -208,5 +209,17 @@ Sur la figure ~\ref{fig:color_clustering_different_people}, nous constatons que 
 De la même manière nous voyons sur la figure ~\ref{fig:color_clustering_close} que des personnes ayant des couleurs de peau extrêmement proches peuvent difficilement être distinguées avec l'aide de ce critère.
 \newline
 Nous avons alors jugé cette méthode peu appropriée par rapport à notre besoin, même en essayant de diminuer la sensibilité des différences chromatiques en réduisant le nombre de bits utilisé pour l'encodage des couleurs.
-\section{Implémentation}
+\subsubsection{Évaluation des détections de visages}
+Tout détecteur de visage ne renvoie que des détections positives qui peuvent soit correspondre aux visages se trouvant dans l'image, soit être des fausses positives.
+Seulement le nombre de vrais négatifs ne peut pas être déduit directement.
+Pour cela, il faut avoir des connaissances sur le fonctionnement interne du détecteur.
+\newline
+Dans notre cas, l'algorithme de clustering ne fournit que des gaussiennes, il ne prend pas de décision de rejeter des données.
+Et le nombre de cluster, i.e. le nombre de détections positives n'est pas directement lié au bias donné en entrée.
+C'est pour cela que nous n'avons pas pu quantifier les résultats de nos détections de visages de la même manière que nous avons pu tester les différents paramètres de construction de la table de correspondance.
+\section{Conclusion}
+Nous jugeons la détection de visages par histogrammes de couleurs comme insuffisante, car elle est basée sur un détecteur de peau humaine qui introduit un nombre de détections parasitaires important.
+Cela a pour effet que la partie principale du projet concerne le traitement des faux positifs.
+Il serait préférable d'avoir un détecteur basé sur des caractéristiques intrinséques du visage humain, comme par exemple des propriétés géométriques.
+Sa couleur semble peu approprié pour répondre à ce besoin.
 \end{document}
