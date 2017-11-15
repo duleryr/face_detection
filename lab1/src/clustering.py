@@ -85,8 +85,6 @@ def test():
 
     # PLOT THE RESULTS
     #plt.suptitle("Bias= "+str(bias)+", ROI= ("+str(roi.w)+", "+str(roi.h)+")")
-    #plt.subplot(221)
-    plt.suptitle("Bias= "+str(bias)+", ROI= ("+str(roi.w)+", "+str(roi.h)+")")
     plt.subplot(222)
     plt.title("Ground Truth")
     plt.imshow(ground_truth_mask)
@@ -102,6 +100,8 @@ def test():
             (b,g,r) = mask1[i,j]
             mask1[i,j] = (r,g,b)
  
+    #roi = face_detection.region_of_interest(21,21,42,42,1)
+    #roi = face_detection.region_of_interest(84,42,168,84,1)
     roi = face_detection.region_of_interest(10,10,21,21,1)
     nb_detections = 0
     nb_true_pos = 0
@@ -116,7 +116,12 @@ def test():
             detections.append((roi.c_j,roi.c_i))
             for i in range(int(roi.l), int(roi.r)):
                 for j in range(int(roi.t), int(roi.b)):
-                    mask1[i,j] = (255,255,255)
+                    grey_value = int(255.0*roi.fil[int(i-roi.l)][int(j-roi.t)])
+                    (b,g,r) = mask1[i,j]
+                    b = min(int(float(b)+255.0*roi.fil[int(i-roi.l)][int(j-roi.t)]),255) 
+                    g = min(int(float(g)+255.0*roi.fil[int(i-roi.l)][int(j-roi.t)]),255)
+                    r = min(int(float(r)+255.0*roi.fil[int(i-roi.l)][int(j-roi.t)]),255)
+                    mask1[i,j] = (b,g,r)
         roi.step_forward()
 
     plt.subplot(224)
@@ -124,8 +129,14 @@ def test():
     plt.imshow(mask1)
 
     plt.subplot(221)
-    #plt.title("Original Image")
-    #plt.imshow(img)
+    plt.title("Original Image")
+    tmp_vec = img[:][2]
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            (b,g,r) = img[i,j]
+            img[i,j] = (r,g,b)
+    plt.imshow(img)
+ 
     #plt.subplot(222)
     #plt.title("Ground Truth")
     #plt.imshow(ground_truth_mask)
@@ -134,32 +145,32 @@ def test():
     #plt.title("Positive Detections")
     #plt.imshow(mask)
 
-    # GMM
-    #window = plt.subplot(224)
-    window = plt.subplot(121)
-    img_gmm = img.copy()
-    #img_gmm[:] = (255,255,255)
-    plt.title("Spatial clustering")
-    plt.xlim(0, img.shape[1])
-    plt.ylim(0, img.shape[0])
-    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
-    labels = gmm.predict(x)
-    detections_ellipses = []
-    for i in range(best_bic_c):
-        mean = gmm.means_[i]
-        covariance = gmm.covariances_[i]
-        # singular value decomposition
-        U, s, Vt = np.linalg.svd(covariance) 
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
-        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
-        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
-        width, height = 2 * np.sqrt(1*s) 
-        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
-    plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.gca().invert_yaxis()
-    plt.imshow(img_gmm)
-
+#    # GMM
+#    #window = plt.subplot(224)
+#    window = plt.subplot(121)
+#    img_gmm = img.copy()
+#    #img_gmm[:] = (255,255,255)
+#    plt.title("Spatial clustering")
+#    plt.xlim(0, img.shape[1])
+#    plt.ylim(0, img.shape[0])
+#    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(x)
+#    labels = gmm.predict(x)
+#    detections_ellipses = []
+#    for i in range(best_bic_c):
+#        mean = gmm.means_[i]
+#        covariance = gmm.covariances_[i]
+#        # singular value decomposition
+#        U, s, Vt = np.linalg.svd(covariance) 
+#        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+#        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+#        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
+#        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
+#        width, height = 2 * np.sqrt(1*s) 
+#        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+#    plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.gca().invert_yaxis()
+#    plt.imshow(img_gmm)
+#
     # TODO: Maximize window
 
 #    # construct bi-parted-graph
@@ -223,66 +234,66 @@ def test():
 #    print("fp: "+str(fp))
 #    print("fn: "+str(fn))
 
-    # COLOR CLUSTERING
-    y = np.array(color_detections)
-    y[:,0] -= y[:,0].min()
-    y[:,1] -= y[:,1].min()
-    y[:,0] /= y[:,0].max()
-    y[:,1] /= y[:,1].max()
-    y[:,0] *= 400
-    y[:,1] *= 450
-    print(y)
-    bic = []
-    components = range(1,10)
-    for c in components:
-        if(c<y.size):
-            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
-            gmm.fit(y)
-            bic.append(gmm.bic(y))
-    bic = np.array(bic)
-    print("bic:")
-    print(bic)
-    best_bic_c = bic.argmin()+1
-    #print("best number of components: " + str(best_bic_c+1))
-    # GMM
-    window = plt.subplot(122)
-    img_gmm = img.copy()
-    plt.title("Color clustering")
-    plt.xlim(0, img.shape[1])
-    plt.ylim(0, img.shape[0])
-    print("best_bic: "+str(best_bic_c))
-    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(y)
-    labels = gmm.predict(y)
-    detections_ellipses = []
-    for i in range(best_bic_c):
-        mean = gmm.means_[i]
-        covariance = gmm.covariances_[i]
-        # singular value decomposition
-        U, s, Vt = np.linalg.svd(covariance) 
-        print(s)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
-        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
-        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
-        width, height = 2 * np.sqrt(1*s) 
-        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
-    #plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.scatter(x[:,0],x[:,1],c=labels)
-    plt.gca().invert_yaxis()
-    plt.imshow(img_gmm)
+#    # COLOR CLUSTERING
+#    y = np.array(color_detections)
+#    y[:,0] -= y[:,0].min()
+#    y[:,1] -= y[:,1].min()
+#    y[:,0] /= y[:,0].max()
+#    y[:,1] /= y[:,1].max()
+#    y[:,0] *= 400
+#    y[:,1] *= 450
+#    print(y)
+#    bic = []
+#    components = range(1,10)
+#    for c in components:
+#        if(c<y.size):
+#            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+#            gmm.fit(y)
+#            bic.append(gmm.bic(y))
+#    bic = np.array(bic)
+#    print("bic:")
+#    print(bic)
+#    best_bic_c = bic.argmin()+1
+#    #print("best number of components: " + str(best_bic_c+1))
+#    # GMM
+#    window = plt.subplot(122)
+#    img_gmm = img.copy()
+#    plt.title("Color clustering")
+#    plt.xlim(0, img.shape[1])
+#    plt.ylim(0, img.shape[0])
+#    print("best_bic: "+str(best_bic_c))
+#    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(y)
+#    labels = gmm.predict(y)
+#    detections_ellipses = []
+#    for i in range(best_bic_c):
+#        mean = gmm.means_[i]
+#        covariance = gmm.covariances_[i]
+#        # singular value decomposition
+#        U, s, Vt = np.linalg.svd(covariance) 
+#        print(s)
+#        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+#        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+#        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
+#        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
+#        width, height = 2 * np.sqrt(1*s) 
+#        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+#    #plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.scatter(x[:,0],x[:,1],c=labels)
+#    plt.gca().invert_yaxis()
+#    plt.imshow(img_gmm)
 
-    fig = plt.gcf()
-    fig.set_size_inches((8,6))
-    fig.set_dpi(100)
-    fig.savefig("color_clustering.png")
-    plt.show()
-    plt.title("Original Image")
-    plt.imshow(img)
-    fig = plt.gcf()
-    fig.set_size_inches((8,8))
-    fig.set_dpi(100)
-    fig.savefig("fig2.png")
-    plt.show();
+#    fig = plt.gcf()
+#    fig.set_size_inches((8,6))
+#    fig.set_dpi(100)
+#    fig.savefig("color_clustering.png")
+#    plt.show()
+#    plt.title("Original Image")
+#    plt.imshow(img)
+#    fig = plt.gcf()
+#    fig.set_size_inches((8,8))
+#    fig.set_dpi(100)
+#    fig.savefig("fig2.png")
+#    plt.show();
 
 #    # GMM
 #    window = plt.subplot(224)
@@ -343,11 +354,11 @@ def test():
 #    plt.gca().invert_yaxis()
 #    plt.imshow(img_gmm)
 #
-#    fig = plt.gcf()
-#    fig.set_size_inches((8,6))
-#    fig.set_dpi(100)
-#    fig.savefig("resume_2.png")
-#    plt.show()
+    fig = plt.gcf()
+    fig.set_size_inches((10,8))
+    fig.set_dpi(100)
+    fig.savefig("resume_2.png")
+    plt.show()
 
  
 test()

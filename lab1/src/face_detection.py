@@ -59,45 +59,45 @@ class statistics:
 # Return true if roi detects a face within the roi
 def is_face(img, l_t, roi, bias):
     g_sum = 0.0
-    pixel_nb = 0
-    #roi.mean_color = [0,0,0]
-    roi.mean_color = [0,0]
-    #nb_color_values = int(256/l_t.n_quantification)
-    nb_color_values = 8
-    for i in range(int(roi.l), int(roi.r)):
-        for j in range(int(roi.t), int(roi.b)):
-            pixel_nb += 1
-            pixel_prob = l_t.get_pixel_probability(img[i,j])
-            #roi.mean_color += img[i,j]
-            (b,g,r) = img[i,j]
-            l = float(b)+float(g)+float(r)
-            r_norm = 0
-            g_norm = 0
-            if(l != 0):
-                r_norm = nb_color_values*float(r)/l
-                g_norm = nb_color_values*float(g)/l
-            roi.mean_color[0] += r_norm
-            roi.mean_color[1] += g_norm
-            #roi.mean_color[2] += img[i,j][2]
-            g_sum += pixel_prob
-    g_sum /= float(roi.w*roi.h)
-    roi.mean_color[0] = float(roi.mean_color[0])/float(roi.w*roi.h)
-    roi.mean_color[1] = float(roi.mean_color[1])/float(roi.w*roi.h)
-    #roi.mean_color[2] = float(roi.mean_color[2])/float(roi.w*roi.h)
-#    f = roi.fil
-#    pixel_prob = 0
+#    pixel_nb = 0
+#    #roi.mean_color = [0,0,0]
+#    roi.mean_color = [0,0]
+#    #nb_color_values = int(256/l_t.n_quantification)
+#    nb_color_values = 8
 #    for i in range(int(roi.l), int(roi.r)):
 #        for j in range(int(roi.t), int(roi.b)):
-#            if roi.bool_f:
-#                pixel_prob = l_t.get_pixel_probability(img[i,j])*f[i -
-#                        int(roi.l)][j - int(roi.t)]
-#            else:
-#                pixel_prob = l_t.get_pixel_probability(img[i,j])
+#            pixel_nb += 1
+#            pixel_prob = l_t.get_pixel_probability(img[i,j])
+#            #roi.mean_color += img[i,j]
+#            (b,g,r) = img[i,j]
+#            l = float(b)+float(g)+float(r)
+#            r_norm = 0
+#            g_norm = 0
+#            if(l != 0):
+#                r_norm = nb_color_values*float(r)/l
+#                g_norm = nb_color_values*float(g)/l
+#            roi.mean_color[0] += r_norm
+#            roi.mean_color[1] += g_norm
+#            #roi.mean_color[2] += img[i,j][2]
 #            g_sum += pixel_prob
-#    if (roi.bool_f):
-#        g_sum /= roi.fil_sum
-#    else:
-#        g_sum /= float(roi.w * roi.h)
+#    g_sum /= float(roi.w*roi.h)
+#    roi.mean_color[0] = float(roi.mean_color[0])/float(roi.w*roi.h)
+#    roi.mean_color[1] = float(roi.mean_color[1])/float(roi.w*roi.h)
+    #roi.mean_color[2] = float(roi.mean_color[2])/float(roi.w*roi.h)
+    f = roi.fil
+    pixel_prob = 0
+    for i in range(int(roi.l), int(roi.r)):
+        for j in range(int(roi.t), int(roi.b)):
+            if roi.bool_f:
+                pixel_prob = l_t.get_pixel_probability(img[i,j])*f[i -
+                        int(roi.l)][j - int(roi.t)]
+            else:
+                pixel_prob = l_t.get_pixel_probability(img[i,j])
+            g_sum += pixel_prob
+    if (roi.bool_f):
+        g_sum /= roi.fil_sum
+    else:
+        g_sum /= float(roi.w * roi.h)
     return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse
