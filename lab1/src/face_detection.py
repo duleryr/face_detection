@@ -27,7 +27,7 @@ class region_of_interest:
         self.step_size_i = w/2
         self.step_size_j = h/2
         # color-clustering
-        self.mean_color = 0
+        self.mean_color = [0,0]
     def correct_position(self,img_shape):
         if(self.r>img_shape[0]):
             self.t += self.step_size_j
@@ -57,15 +57,30 @@ class statistics:
 def is_face(img, l_t, roi, bias):
     g_sum = 0.0
     pixel_nb = 0
-    #roi.mean_color = 0
+    #roi.mean_color = [0,0,0]
+    roi.mean_color = [0,0]
+    #nb_color_values = int(256/l_t.n_quantification)
+    nb_color_values = 8
     for i in range(int(roi.l), int(roi.r)):
         for j in range(int(roi.t), int(roi.b)):
             pixel_nb += 1
             pixel_prob = l_t.get_pixel_probability(img[i,j])
-            #roi.mean_color += img[i,j][0]*255*255+img[i,j][1]*255+img[i,j][2]
+            #roi.mean_color += img[i,j]
+            (b,g,r) = img[i,j]
+            l = float(b)+float(g)+float(r)
+            r_norm = 0
+            g_norm = 0
+            if(l != 0):
+                r_norm = nb_color_values*float(r)/l
+                g_norm = nb_color_values*float(g)/l
+            roi.mean_color[0] += r_norm
+            roi.mean_color[1] += g_norm
+            #roi.mean_color[2] += img[i,j][2]
             g_sum += pixel_prob
     g_sum /= float(roi.w*roi.h)
-    #roi.mean_color /= float(roi.w*roi.h)
+    roi.mean_color[0] = float(roi.mean_color[0])/float(roi.w*roi.h)
+    roi.mean_color[1] = float(roi.mean_color[1])/float(roi.w*roi.h)
+    #roi.mean_color[2] = float(roi.mean_color[2])/float(roi.w*roi.h)
     return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse

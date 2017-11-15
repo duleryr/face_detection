@@ -53,11 +53,11 @@ def test():
     color_detections = []
     while(roi.correct_position(img.shape)):
         if(face_detection.is_face(img,lT,roi,bias)):
+            color_detections.append(roi.mean_color)
             nb_detections += 1;
             if(face_detection.ground_truth(ground_truth_mask,roi.c_i,roi.c_j)):
                 nb_true_pos += 1
             detections.append((roi.c_j,roi.c_i))
-            color_detections.append((roi.c_j,roi.c_i))
             for i in range(int(roi.l), int(roi.r)):
                 for j in range(int(roi.t), int(roi.b)):
                     mask[i,j] = (255,255,255)
@@ -67,6 +67,8 @@ def test():
         exit(1)
     #print("nb_detections: "+str(nb_detections))
     #print("nb_true_pos: "+str(nb_true_pos))
+    #print(detections)
+    #print(color_detections)
 
     # CLUSTERING
     x = np.array(detections)
@@ -123,7 +125,6 @@ def test():
     plt.imshow(img_gmm)
 
     # TODO: Maximize window
-    #plt.show()
 
     # construct bi-parted-graph
     d_masks = [] # masks of detected ellipses
@@ -185,5 +186,58 @@ def test():
 #    print("tp: "+str(tp))
 #    print("fp: "+str(fp))
 #    print("fn: "+str(fn))
+
+    # COLOR CLUSTERING
+    y = np.array(color_detections)
+    y[:,0] -= y[:,0].min()
+    y[:,1] -= y[:,1].min()
+    y[:,0] /= y[:,0].max()
+    y[:,1] /= y[:,1].max()
+    y[:,0] *= 400
+    y[:,1] *= 450
+    print(y)
+    bic = []
+    components = range(1,10)
+    for c in components:
+        if(c<y.size):
+            gmm = mixture.GaussianMixture(n_components=c,covariance_type="full")
+            gmm.fit(y)
+            bic.append(gmm.bic(y))
+    bic = np.array(bic)
+    print("bic:")
+    print(bic)
+    best_bic_c = bic.argmin()+1
+    #print("best number of components: " + str(best_bic_c+1))
+    # GMM
+    window = plt.subplot(223)
+    img_gmm = img.copy()
+    plt.title("Model Fit")
+    plt.xlim(0, img.shape[1])
+    plt.ylim(0, img.shape[0])
+    print("best_bic: "+str(best_bic_c))
+    gmm = mixture.GaussianMixture(n_components=best_bic_c).fit(y)
+    labels = gmm.predict(y)
+    detections_ellipses = []
+    for i in range(best_bic_c):
+        mean = gmm.means_[i]
+        covariance = gmm.covariances_[i]
+        # singular value decomposition
+        U, s, Vt = np.linalg.svd(covariance) 
+        print(s)
+        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+        width, height = 2 * np.sqrt(3*s) # 3-sigma rule => 99% of all values
+        #detections_ellipses.append(parse_file.ellipse(width,height,math.degrees(float(angle)),mean[0],mean[1]))
+        #window.add_artist(patches.Ellipse(mean, width, height, angle,color="r"))
+        width, height = 2 * np.sqrt(1*s) 
+        detections_ellipses.append(parse_file.ellipse(height,width,math.radians(float(angle))+math.pi/2,mean[0],mean[1]))
+    #plt.scatter(x[:,0],x[:,1],c=labels)
+    plt.scatter(x[:,0],x[:,1],c=labels)
+    plt.gca().invert_yaxis()
+    plt.imshow(img_gmm)
+
+    plt.show()
+
+
+ 
 test()
 # example command: python clustering.py ../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-02-ellipseList.txt lT_1_280_RG 0.03 6
