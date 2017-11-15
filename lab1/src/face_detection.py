@@ -3,7 +3,7 @@
 
 import sys
 import pickle
-import graphical_tools
+#import graphical_tools
 import calc_histo
 import parse_file
 import lookup_table
@@ -15,7 +15,7 @@ import math
 from sklearn import mixture
 
 class region_of_interest:
-    def __init__(self,c_i,c_j,w,h):
+    def __init__(self,c_i,c_j,w,h,bool_f):
         self.t = c_j-(h-1)/2
         self.b = c_j+(h-1)/2
         self.l = c_i-(w-1)/2
@@ -28,6 +28,9 @@ class region_of_interest:
         self.step_size_j = h/2
         # color-clustering
         self.mean_color = [0,0]
+        self.bool_f = bool_f
+        self.fil = gaussian_2D(w,h,1) if bool_f else 0
+        self.fil_sum = np.matrix(self.fil).sum()
     def correct_position(self,img_shape):
         if(self.r>img_shape[0]):
             self.t += self.step_size_j
@@ -81,6 +84,20 @@ def is_face(img, l_t, roi, bias):
     roi.mean_color[0] = float(roi.mean_color[0])/float(roi.w*roi.h)
     roi.mean_color[1] = float(roi.mean_color[1])/float(roi.w*roi.h)
     #roi.mean_color[2] = float(roi.mean_color[2])/float(roi.w*roi.h)
+#    f = roi.fil
+#    pixel_prob = 0
+#    for i in range(int(roi.l), int(roi.r)):
+#        for j in range(int(roi.t), int(roi.b)):
+#            if roi.bool_f:
+#                pixel_prob = l_t.get_pixel_probability(img[i,j])*f[i -
+#                        int(roi.l)][j - int(roi.t)]
+#            else:
+#                pixel_prob = l_t.get_pixel_probability(img[i,j])
+#            g_sum += pixel_prob
+#    if (roi.bool_f):
+#        g_sum /= roi.fil_sum
+#    else:
+#        g_sum /= float(roi.w * roi.h)
     return ((g_sum+bias)>0.5)
 
 # Return true if the coordinates are inside the ellipse
@@ -240,7 +257,7 @@ def test_graphical(quantification):
     #let's create a mask that shows us where we got a positive detection
     mask = img.copy()
     mask[:] = (0,0,0)
-    roi = region_of_interest(2,2,5,5)
+    roi = region_of_interest(2,2,5,5,0)
     nb_detections = 0
     nb_true_pos = 0
     #DEBUG
@@ -283,7 +300,7 @@ def test_statistics():
     lT = lookup_table.construct_lookup_table(fd, 40)
     img_info = parse_file.get_img_info(fd)
     img = cv2.imread(img_info.img_path)
-    s = get_statistics_one_image(lT,img,img_info,0.3,2,2,5,5)
+    s = get_statistics_one_image(lT,img,img_info,0.3,2,2,5,5,0)
     tpr = float(s.tp)/float(s.tp+s.fn)
     fpr = float(s.fp)/float(s.fp+s.tn)
     print("tp: "+str(s.tp))
@@ -310,7 +327,7 @@ def test_roc_curve():
         img_info = parse_file.get_img_info(fd)
         img = cv2.imread(img_info.img_path)
         for i,bias in enumerate(bias_vec):
-            s = get_statistics_one_image(lT,img,img_info,bias,5,5,11,11)
+            s = get_statistics_one_image(lT,img,img_info,bias,5,5,11,11,0)
             tp_vec[i] += s.tp
             fp_vec[i] += s.fp
             tn_vec[i] += s.tn
@@ -326,6 +343,20 @@ def test_roc_curve():
     print("Area under curve : " + str(area_under_curve))
     plt.plot(fpr_vec,tpr_vec,'ro')
     plt.show()
+
+def gaussian_2D(l, c, sigma):
+    moins_2Pi_sigma = -2*math.pi*math.pi*sigma*sigma;
+    vall = 0
+    valc = 0
+    im = [[0] * c for _ in range(l)]
+    #im = np.arange(l*c, step=1).reshape((l,c))
+    for i in range(l):
+        for j in range(c):
+            vall = (i-l*0.5)/float(l)
+            valc = (j-c*0.5)/float(c)
+            im[i][j] = math.exp(moins_2Pi_sigma*(vall*vall+valc*valc));
+    return im
+    
     
 if __name__ == '__main__':
     quantif = 8
