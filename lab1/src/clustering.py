@@ -82,8 +82,14 @@ def test():
     plt.imshow(mask)
 
     mask1 = img.copy()
-    mask1[:] = (0,0,0)
-    roi = face_detection.region_of_interest(42,42,84,84,1)
+    #mask1[:] = (0,0,0)
+    tmp_vec = mask1[:][2]
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            (b,g,r) = mask1[i,j]
+            mask1[i,j] = (r,g,b)
+ 
+    roi = face_detection.region_of_interest(10,10,21,21,1)
     nb_detections = 0
     nb_true_pos = 0
     #DEBUG
@@ -112,6 +118,11 @@ def test():
             img[i,j] = (r,g,b)
     plt.title("Original Image")
     plt.imshow(img)
+    fig = plt.gcf()
+    fig.set_size_inches((8,8))
+    fig.set_dpi(100)
+    fig.savefig("fig2.png")
+    plt.show();
 
 #    # GMM
 #    window = plt.subplot(224)
@@ -133,7 +144,7 @@ def test():
 #    plt.imshow(img_gmm)
 
     # TODO: Maximize window
-    plt.show()
+    #plt.show()
 
 test()
 # example command: python clustering.py ../dataset/FDDB_dataset/FDDB-folds/FDDB-fold-02-ellipseList.txt lT_1_280_RG 0.03 6
