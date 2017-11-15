@@ -154,8 +154,30 @@ Un exemple de critère d'arrêt utilisé par d'autres systèmes est la décroiss
 Cela correspond au dépassement de la région faciale, mais il s'avère que son défaut principal est le rejet des parties de visages n'ayant pas une couleur similaire à celle de la peau humaine, comme par exemple les yeux, les lunettes, une bouche ouverte, etc.
 \newline
 \newline
-En poursuivant une de ces deux stratégies avec une ROI rectangulaire, il est pertinent d'utiliser un filtre gaussien pour tenir compte de la forme elliptique de la partie anatomique visée.
-RESULTATS
+En poursuivant une de ces deux stratégies avec une ROI rectangulaire, il est
+pertinent d'utiliser un filtre gaussien pour tenir compte de la forme elliptique
+de la partie anatomique visée.
+\begin{figure}[!h]
+\begin{center}
+    \includegraphics[scale=0.5]{gaussian_fig1.png}
+    \caption{Comparaison de détection de ROI sans filtre gaussien (gauche) et avec
+     filtre (droite)}
+\end{center}
+\end{figure}
+Nous remarquons ici qu'avec un filtre gaussien et une ROI de taille similaire au
+visage principal
+\begin{figure}[!h]
+\begin{center}
+    \includegraphics[scale=0.5]{gaussian_fig1.png}
+    \caption{Comparaison pour une ROI de même taille} 
+\end{center}
+\end{figure}
+Le filtre gaussien appliqué à une petite ROI permet une détection plus précise
+des bords. En effet si nous nous trouvons proche du cou, qui est souvent
+ombragé, la ROI avec le filtre gaussien prendra cette zone en compte sur ce
+bord car les coefficients sont presque nuls. De même on détecte mieux les
+bordures au niveau des cheveux.
+%RESULTATS
 \subsubsection{Détection de visage avec post-traitement}
 Pour contourner le problème précédemment décrit, on peut envisager d'agglomérer les détections positives fournies par le système de filtrage des ROI.
 En faisant ceci, on n'utilise les ROI que pour connaître la probabilité d'une zone de l'image de faire partie de la peau humaine.
