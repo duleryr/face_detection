@@ -11,7 +11,7 @@ if(len(sys.argv)<2):
     exit(1)
 
 # load necessary files
-face_cascade = cv2.CascadeClassifier("haarcascades/haarcascade_frontalface_default.xml")
+face_cascade = cv2.CascadeClassifier("../haarcascades/haarcascade_frontalface_default.xml")
 img_name = sys.argv[1]
 img = cv2.imread(img_name)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
