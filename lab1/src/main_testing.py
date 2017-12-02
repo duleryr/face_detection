@@ -144,7 +144,7 @@ if __name__ == '__main__':
         print("  Area under curve : " + str(area_under_curve))
         plt.show()
     else:
-        destination = os.getcwd()+"/../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(lookup_table_color_mode) + ".png"
+        destination = os.getcwd()+"/../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(n_quantification) + "_" + str(lookup_table_color_mode) + ".png"
         plt.xlabel("FPR")
         plt.ylabel("TPR")
         plt.title("AUC = "+str(area_under_curve))
