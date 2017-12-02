@@ -5,11 +5,12 @@
 \usepackage[french]{babel}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{fullpage}
 \usepackage{diagbox}
 \usepackage[T1]{fontenc}
 \graphicspath{{images/}}
 
-\title{Rapport du projet 1 de reconnaissance faciale}
+\title{Reconnaissance de formes et apprentissage automatique Projet 1}
 \author{Auriane Reverdell, Felix Hähnlein, Nicolas Violette, Romain Duléry}
 \date{\today}
 
@@ -28,13 +29,13 @@
 
 \section{Résumé du travail réalisé}
 Dans le cadre de ce premier TP, nous avons réalisé un détecteur de visage, basé sur des histogrammes de couleurs. 
-Tout d'abord, nous avons construit la table de correspondance (en angl. lookup table) qui nous sert à déterminer la probabilité qu'un pixel fait partie du corps humain.
-Ensuite, nous avons utilisé des fenêtres glissantes pour essayer deux approches différentes.
+Tout d'abord, nous avons construit la table de correspondance (en angl. lookup table) qui nous sert à déterminer la probabilité qu'un pixel fasse partie du corps humain.
+Ensuite, nous avons utilisé des fenêtres glissantes afin de comparer deux approches différentes.
 Premièrement, nous avons essayé de détecter des visages à l'intérieur d'une fenêtre. 
-Deuxièmement, nous les avons utilisé comme un système de filtrage de zone d'intérêt pour les partitionner à la suite.
+Deuxièmement, nous les avons utilisées comme système de filtrage de zone d'intérêt pour les partitionner à la suite.
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.45]{resume_clustering.png}
+    \includegraphics[scale=0.4]{resume_clustering.png}
     \caption{Pipeline de notre détecteur de visage avec post-traitement des zones d'intérêt}
 \end{center}
 \end{figure}
@@ -49,12 +50,12 @@ La phase d'apprentissage consiste en la création de la Lookup Table, qui associ
 3 paramètres entrent en jeu :
 
 \begin{itemize}
-    \item La dataset utilisée
-    \item La quantification des couleurs N
+    \item Le dataset utilisé
+    \item La quantification de N couleurs 
     \item L'espace de couleur utilisé\\
 \end{itemize}
 
-Nous avons implémenté l'utilisation des espaces de couleur RGB et RG (chrominances). Nous avons utilisé l'outil PyQTGraph afin de visualiser les Lookup Tables en 3 dimensions, avec chaque couleur représentée par une sphère, dont la taille est proportionnelle à la probabilité de correspondance à de la peau.\\
+Nous avons implémenté les espaces de couleur RGB et RG (chrominances). Nous avons utilisé la librairie \verb!PyQTGraph! afin de visualiser les Lookup Tables en 3 dimensions, chaque couleur représentée par une sphère, dont la taille est proportionnelle à la probabilité de correspondance à de la peau.\\
 
 Voici des exemples de résultats obtenus :
 
@@ -109,7 +110,7 @@ Voici les résultats obtenus pour les 100 premières images du fichier 10, avec 
 
 \end{itemize}~\\
 
-Data désigne le dernier fichier utilisé pour l'entrainement : dans le cas où Num fichier vaut 2, les images des fichiers 01 et 02 ont été utilisées pour l'entrainement.
+Data désigne le dernier fichier utilisé pour l'entrainement : dans le cas où le numéro du fichier vaut 2, les images des fichiers 01 et 02 ont été utilisées pour l'entrainement.
 
 Tout d'abord, les meilleurs résultats obtenus l'ont été avec l'entrainement sur 9 fichiers, N = 32, et en espace RGB, mais il y a peu de différence de performances en fonction des paramètres.
 
@@ -117,9 +118,9 @@ On peut toutefois relever certaines informations.
 
 Au niveau de la quantification, on constate que les meilleurs résultats sont obtenus avec N = 32 en RGB et N = 128 en RG. On peut conjecturer qu'en RG, étant donné qu'on stocke beaucoup moins d'informations, on a besoin que celles-ci soient plus précises.
 
-Au niveau de la dataset, en RGB il est notable qu'il est préférable d'entrainer l'algorithme autant que possible. Toutefois celle-ci est suffisamment pertinente et bien 'mélangée' pour que cette influence soit faible.
+Au niveau du dataset, en RGB il est notable qu'il est préférable d'entrainer l'algorithme autant que possible. Toutefois celle-ci est suffisamment pertinente et bien 'mélangée' pour que cette influence soit faible.
 
-Enfin, il n'y a pas de différence notable d'aspect entre les différences courbes ROC obtenues.
+Enfin, il n'y a pas de différence notable d'aspect entre les différentes courbes ROC obtenues.
 
 En voici une à titre d'exemple :
 
@@ -135,20 +136,20 @@ En voici une à titre d'exemple :
 La phase de la détection faciale est différente de celle de la phase d'apprentissage. 
 Alors qu'avant on s'intéressait à la construction de la table de probabilité la plus fiable pour détecter de la peau humaine, dans cette partie, il s'agit d'exploiter cette information afin de pouvoir donner en sortie un ensemble de formes qui englobent des éventuels visages.\\
 \newline
-Nous nous sommes intéressés à deux approches bien distinctes d'utiliser ce \og détecteur de peau humaine\fg{}. 
-La première va chercher à trouver directement les visages à l'intérieur des ROI pendant que la deuxième va utiliser les ROI comme un système de filtrage et essayer de reconstruire les visages grâce à sa sortie.
+Nous nous sommes intéressés à deux approches bien distinctes utilisant ce \og détecteur de peau humaine\fg{}. 
+La première va chercher à trouver directement les visages à l'intérieur des ROI pendant que la deuxième va utiliser les ROI comme système de filtrage et essayer de reconstruire les visages grâce à sa sortie.
 \newline
 \subsubsection{Détection de visage sans post-traitement}
-Cette technique vise à fournir les visages en sortie directement après les avoir détecté dans une zone d'intérêt.
+Cette technique vise à fournir les visages en sortie directement après les avoir détectés dans une zone d'intérêt.
 Cela semble être intuitif, elle est même la principale raison pour laquelle nous les avons introduit.
 Néanmoins, la principale difficulté que nous avons rencontré avec cette approche est le choix de la taille de la ROI.
 Encore une fois, il semble y avoir deux stratégies pour trouver une taille convenable.\\
 \newline
 Premièrement, on peut l'intuiter à partir des dimensions de l'image où en moyennant les tailles rencontrées pendant la phase d'apprentissage.
-Cette stratégie a l'avantage qu'elle est facile à implémenter, mais elle ne va pas fournir des résultats satisfaisants, car en réalité, l'aire occupée par un visage peut varier fortement.
+Cette stratégie a l'avantage d'être facile à implémenter, mais elle ne va pas fournir des résultats satisfaisants, car en réalité, l'aire occupée par un visage peut varier fortement.
 Il suffit de prendre comme exemple une image de portrait et une image qui contient un visage dans l'arrière-plan.\\
 \newline
-Deuxièmement, on peut utiliser des ROI de taille adaptative. 
+Deuxièmement, on peut utiliser des ROI de taille adaptative (sur la figure \ref{fig:gaussian_fig1}, la taille a été choisie arbitrairement).
 Cette stratégie va faire agrandir la zone dans une certaine direction tant que le critère d'arrêt n'a pas été rempli.
 Un exemple de critère d'arrêt utilisé par d'autres systèmes est la décroissance de la probabilité accumulée au sein d'une ROI.
 Cela correspond au dépassement de la région faciale, mais il s'avère que son défaut principal est le rejet des parties de visages n'ayant pas une couleur similaire à celle de la peau humaine, comme par exemple les yeux, les lunettes, une bouche ouverte, etc.
@@ -157,78 +158,83 @@ Cela correspond au dépassement de la région faciale, mais il s'avère que son 
 En poursuivant une de ces deux stratégies avec une ROI rectangulaire, il est
 pertinent d'utiliser un filtre gaussien pour tenir compte de la forme elliptique
 de la partie anatomique visée.
-\begin{figure}[!h]
+\begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.5]{gaussian_fig1.png}
     \caption{Comparaison de détection de ROI sans filtre gaussien (gauche) et avec
      filtre (droite)}
+     \label{fig:gaussian_fig1}
 \end{center}
 \end{figure}
-Nous remarquons ici qu'avec un filtre gaussien et une ROI de taille similaire au
-visage principal
-\begin{figure}[!h]
+Nous remarquons, sur la figure \ref{fig:gaussian_fig1}, que la présence d'un filtre gaussien limite les détections parasites.
+\begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.5]{gaussian_fig1.png}
+    \includegraphics[scale=0.5]{gaussian_turc.png}
     \caption{Comparaison pour une ROI de même taille} 
 \end{center}
 \end{figure}
 Le filtre gaussien appliqué à une petite ROI permet une détection plus précise
 des bords. En effet si nous nous trouvons proche du cou, qui est souvent
-ombragé, la ROI avec le filtre gaussien prendra cette zone en compte sur ce
-bord car les coefficients sont presque nuls. De même on détecte mieux les
+ombragé (valeurs qui nous intéressent), la ROI avec le filtre gaussien prendra cette zone en compte sur ce
+bord car les poids sont faibles à cet endroit. De même on détecte mieux les
 bordures au niveau des cheveux.
-%RESULTATS
 \subsubsection{Détection de visage avec post-traitement}
 Pour contourner le problème précédemment décrit, on peut envisager d'agglomérer les détections positives fournies par le système de filtrage des ROI.
-En faisant ceci, on n'utilise les ROI que pour connaître la probabilité d'une zone de l'image de faire partie de la peau humaine.
-D'ailleurs, cette interprétation correspond exactement à la manière dont on a construit la table de probabilités pendant la première phase.
+En faisant ceci, on n'utilise les ROI seulement pour connaître la probabilité d'une zone de l'image de faire partie de la peau humaine.
+Par ailleurs, cette interprétation correspond exactement à la manière dont on a construit la table de probabilités pendant la première phase.
 \newline
 \newline
 L'algorithme de partitionnement de données (en angl. {\textit{clustering}}) choisi est l'algorithme espérance-maximisation.
-Il s'agit d'un algorithme largement utilisé dans le domaine de l'apprentissage automatique dont le principal avantage pour notre application par rapport à l'algorithme k-means est l'utilisation de l'espérance au lieu d'une norme spatiale pour décider l'attribution à un certain cluster.
+Il s'agit d'un algorithme largement utilisé dans le domaine de l'apprentissage automatique. 
+Son principal avantage pour notre application par rapport à l'algorithme k-means est l'utilisation de l'espérance au lieu d'une norme spatiale pour décider l'attribution à un certain cluster.
 L'algorithme k-means va donc favoriser des clusters sphériques, alors que l'algorithme EM permet des formes elliptiques quelconques, ce qui est avantageux pour reconstruire des visages.\\
 Nous utilisons l'implémentation fournie par \verb!sklearn.mixture.GaussianMixture!.
 \newline
 
 Nous avons rencontré deux principales difficultés avec cet algorithme. 
-Pour l'initialiser, il faut préciser le nombre de clusters qu'on cherche à construire et des visages spatialement proches vont être reconnus comme provenant d'une même personne.
+Pour l'initialiser, il faut préciser le nombre de clusters que l'on cherche à construire et des visages spatialement proches vont être reconnus comme appartenant à une même personne.
 Le premier problème revient à un problème d'ajustement de modèle. On ne veut pas surajuster ni sous-ajuster le nombre de paramètres utilisés pour décrire les données.
 Une méthode communément utilisée pour trouver le meilleur paramétrage est l'utilisation d'un critère d'information bayésien (BIC).
 Ce critère se base sur un calcul de probabilité faisant intervenir la vraisemblance du modèle choisi, le nombre de paramètres utilisés et le nombre de données en entrée.
-En pratique, nous évaluons le modèle pour un intervalle de paramètres et choisissons ensuite le paramètrage qui a obtenu un critère minimal.
+En pratique, nous évaluons le modèle pour un intervalle de paramètres et nous choisissons ensuite le paramètrage qui a obtenu un critère minimal.
 \begin{figure}[H]
 \begin{center}
-    \includegraphics[scale=0.5]{clustering_presentation_1.png}
-    \caption{Clustering des détections positives avec l'algorithme EM} \end{center}
+    \includegraphics[scale=0.4]{clustering_presentation_1.png}
+    \caption{Clustering des détections positives avec l'algorithme EM} 
+\end{center}
 \end{figure}
 L'algorithme EM nous fournit les distributions normales multivariées optimales pour le critère BIC.
 Afin de pouvoir envoyer des ellipses convenant à la taille des visages en sortie, nous avons décidé d'afficher la gaussienne qui correspond à 3 fois l'écart-type, pour englober la quasi-totalité des détections positives.
 Plus précisément, cela correspond à environ 99\% de la distribution.
 \begin{figure}[H]
-\begin{center}
-    \includegraphics[scale=0.5]{clustering_presentation_2.png}
-    \caption{Les ellipses gaussiennes en sortie du clustering} \end{center}
+%\begin{center}
+\centering
+    \includegraphics[scale=0.4]{clustering_presentation_2.png}
+    \caption{Les ellipses gaussiennes en sortie du clustering} 
+%\end{center}
 \end{figure}
-Pour résoudre le problème des visages proches, nous avons appliqué le clustering non seulement aux données spatiales, mais également aux données chromatiques.
+Pour résoudre le problème des visages proches, nous avons essayé d'appliquer le clustering non seulement aux données spatiales, mais également aux données chromatiques.
 En effet, en supposant que les détections positives qui ont une même couleur proviennent de la même personne, il est raisonnable de supposer que nous pouvons faire la distinction entre des personnes spatialement proches.
 Une autre application possible du partitionnement des couleurs pourrait être la détection d'une partie du corps qu'on ne veut pas reconnaître, mais qui a une couleur similaire à celle de la peau humaine, comme par exemple une main.
 \newline
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.5]{color_clustering_different_people.png}
-    \caption{Exemple d'un visage qui est composé de couleurs différentes} \end{center}
+    \caption{Exemple d'un visage qui est composé de couleurs différentes} 
     \label{fig:color_clustering_different_people}
+\end{center}
 \end{figure}
 Après avoir implémenté cette méthode, nous avons pu constater que notre hypothèse n'était pas valide.
-Nous ne pouvons pas supposé que sur une image, la peau d'une personne a globalement la même coleur, car elle dépend fortement des conditions de prise de photo.
-Sur la figure ~\ref{fig:color_clustering_different_people}, nous constatons que le visage du milieu contient des couleurs différentes, des couleurs qu'il partage avec d'autres visages sur la photo, même avec les mains du premier plan.
+Nous ne pouvons pas supposer que sur une image, la peau d'une personne a globalement la même couleur, car elle dépend fortement des conditions de prise de photo.
+Sur la figure \ref{fig:color_clustering_different_people}, nous constatons que le visage du milieu contient des teintes différentes, et ce sont les mêmes sur les autres visages et mains de la photo.
 \begin{figure}[H]
 \begin{center}
     \includegraphics[scale=0.5]{color_clustering_close.png}
-    \caption{Exemple de deux visages ayant des couleurs très proches} \end{center}
+    \caption{Exemple de deux visages ayant des couleurs très proches} 
     \label{fig:color_clustering_close}
+\end{center}
 \end{figure}
-De la même manière nous voyons sur la figure ~\ref{fig:color_clustering_close} que des personnes ayant des couleurs de peau extrêmement proches peuvent difficilement être distinguées avec l'aide de ce critère.
+De la même manière nous voyons sur la figure \ref{fig:color_clustering_close} que des personnes ayant des couleurs de peau extrêmement proches peuvent difficilement être distinguées avec l'aide de ce critère.
 \newline
 Nous avons alors jugé cette méthode peu appropriée par rapport à notre besoin, même en essayant de diminuer la sensibilité des différences chromatiques en réduisant le nombre de bits utilisé pour l'encodage des couleurs.
 \subsubsection{Évaluation des détections de visages}
@@ -237,10 +243,10 @@ Seulement le nombre de vrais négatifs ne peut pas être déduit directement.
 Pour cela, il faut avoir des connaissances sur le fonctionnement interne du détecteur.
 \newline
 Dans notre cas, l'algorithme de clustering ne fournit que des gaussiennes, il ne prend pas de décision de rejeter des données.
-Et le nombre de cluster, i.e. le nombre de détections positives n'est pas directement lié au bias donné en entrée.
+Et le nombre de cluster, i.e. le nombre de détections positives n'est pas directement lié au biais donné en entrée.
 C'est pour cela que nous n'avons pas pu quantifier les résultats de nos détections de visages de la même manière que nous avons pu tester les différents paramètres de construction de la table de correspondance.
 \section{Conclusion}
-Nous jugeons la détection de visages par histogrammes de couleurs comme insuffisante, car elle est basée sur un détecteur de peau humaine qui introduit un nombre de détections parasitaires important.
+Nous jugeons la détection de visages par histogrammes de couleurs comme insuffisante, car elle est basée sur un détecteur de peau humaine qui introduit un nombre de détections parasites important.
 Cela a pour effet que la partie principale du projet concerne le traitement des faux positifs.
 Il serait préférable d'avoir un détecteur basé sur des caractéristiques intrinséques du visage humain, comme par exemple des propriétés géométriques.
 Sa couleur semble peu approprié pour répondre à ce besoin.
