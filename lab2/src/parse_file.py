@@ -13,6 +13,7 @@ class img_information:
     def __init__(self, img_path, nb_faces, list_ellipse):
         self.img_path = img_path
         self.nb_faces = nb_faces
+        self.img_shape = (0,0) # for the construction of the masks
         self.list_ellipse = list_ellipse
 
 def get_nb_images(file_name):
