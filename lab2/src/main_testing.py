@@ -49,9 +49,9 @@ if __name__ == '__main__':
     for img_info in img_info_vec:
         # viola-jones works with grayscale images
         gray_img = cv2.imread(img_info.img_path,0) # 0 = IMREAD_GRAYSCALE
-        graphical_tools.showImg("grayscale image", gray_img)
+        #graphical_tools.showImg("grayscale image", gray_img)
         detected_faces = face_cascade.detectMultiScale(gray_img,scale_factor,min_neighbours)
-        graphical_tools.showFaces(gray_img,detected_faces)
+        #graphical_tools.showFaces(gray_img,detected_faces)
         img_info.img_shape = gray_img.shape
         # evaluate how well we're doing compared to the real faces
         single_image_evaluation.evaluate(img_info,detected_faces)

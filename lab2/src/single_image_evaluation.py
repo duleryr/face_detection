@@ -5,11 +5,11 @@ import numpy as np
 import cv2
 import time
 import graphical_tools
+from scipy.optimize import linear_sum_assignment
 
 # img_shape: [cols, rows]
 def get_ellipse_mask(img_shape, e):
     mask = np.zeros(img_shape)
-    #mask[:] = (0)
     # we have to extract all the ellipses
     cv2.ellipse(mask,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
         int(e.theta),0,360,(255), -1)
@@ -45,6 +45,17 @@ def evaluate(img_info, faces):
     for i in range(len(real_face_masks)):
         for j in range(len(detected_face_masks)):
             score_mat[i,j] = compute_score(detected_face_masks[j],real_face_masks[i])
-    # TODO: apply hungarian algorithm
+    # we need to invert the score matrix to apply the hungarian algorithm
+    score_mat[:] = 1 - score_mat[:];
+    row_ind,col_ind = linear_sum_assignment(score_mat)
+    score_mat[:] = -score_mat[:] + 1
+
     # TODO: showImg TP,FP,FN
-    print(score_mat)
+    detection_select = np.array([(i in col_ind) for i in range(len(detected_face_masks))])
+    if(detection_select.any()):
+        true_detections = faces[detection_select==True]
+        false_detections = faces[detection_select==False]
+        graphical_tools.showTPFPFN(img_info,true_detections,false_detections)
+    else:
+        graphical_tools.showTPFPFN(img_info,[],faces)
+    return score_mat[row_ind,col_ind].sum()

@@ -24,6 +24,32 @@ def showFaces(img, faces):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def save_snapshot(file_name,img):
+    cv2.imwrite(file_name,img)
+
+def showTPFPFN(img_info, true_detections, false_detections):
+    img = cv2.imread(img_info.img_path)
+    # TP
+    for(x,y,w,h) in true_detections:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    # FP
+    for(x,y,w,h) in false_detections:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),2)
+    # FN
+    for e in img_info.list_ellipse:
+        cv2.ellipse(img,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
+            int(e.theta),0,360,(0,0,255), 2)
+    cv2.namedWindow("face_detections", cv2.WINDOW_NORMAL)
+    #cv2.resizeWindow("face_detections", img.shape[1], img.shape[0])
+    cv2.resizeWindow("face_detections", 1000, 1000)
+    if(img.shape[0]>2000 or img.shape[1]>2000):
+        print(img.shape)
+        cv2.resizeWindow("face_detections", 800, 600)
+    #save_snapshot('result.jpg',img)
+    cv2.imshow("face_detections", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
 #def plot_3d_color_histogram(lookup_table, n_quantification):
 #    #pyqtgraph.examples.run()
 #    color_value = int(256/n_quantification)
