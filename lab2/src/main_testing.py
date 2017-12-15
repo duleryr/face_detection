@@ -40,16 +40,19 @@ if __name__ == '__main__':
     if debug:
         print("Face detection...")
 
-    scale_factor=1.5 # later we will run through these parameters
+    scale_factor=1.05 # later we will run through these parameters
     min_neighbours=3
 
+    #for scale_factor in np.arange(1.1,2.0,0.1):
+    #    for min_neighbours in range(0,10,1):
+    print("scale_factor: "+str(scale_factor)+", min_neighbours: "+str(min_neighbours))
     y_true = []
     levelWeights_all=[]
     counter = 0
     FN = 0
     for img_info in img_info_vec:
         counter += 1
-        print("img nb: "+str(counter))
+        #print("img nb: "+str(counter))
         # viola-jones works with grayscale images
         gray_img = cv2.imread(img_info.img_path,0) # 0 = IMREAD_GRAYSCALE
         [detected_faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray_img,scale_factor,min_neighbours,outputRejectLevels=True)
@@ -81,7 +84,8 @@ if __name__ == '__main__':
     # ============= STRATEGIE GROUPE 2 ================
     # ici on fait augmenter le seuil
     for i in range(len(y_true)):
-        print("TP : "+str(new_TP[i])+", FP: "+str(new_FP[i])+", FN: "+str(new_FN[i]))
+        # DEBUG
+        #print("TP : "+str(new_TP[i])+", FP: "+str(new_FP[i])+", FN: "+str(new_FN[i]))
         if(y_true[i]==1):
             new_TP.append(new_TP[i]-1)
             new_FN.append(new_FN[i]+1)
@@ -100,6 +104,7 @@ if __name__ == '__main__':
 #    print(precision)
 #    print(recall)
         
+    # ========== OLD STRATEGY ===============
 #    for i in range(len(y_true)-1,0,-1):
 #        if(y_true[i]==1):
 #            TP += 1
@@ -114,6 +119,11 @@ if __name__ == '__main__':
 #    print(precision)
 #    print(recall)
 
+    plt.gcf().clear()
     plt.step(recall, precision, color='b', alpha=0.2, where='post')
+    plt.title("scaleFactor: "+str(scale_factor)+", minNeighbours: "+str(min_neighbours))
     plt.axis([0,1.1,0,1.1])
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    #plt.savefig("figures/"+str(scale_factor)+"_"+str(min_neighbours)+".png")
     plt.show()
