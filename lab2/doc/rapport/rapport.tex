@@ -7,6 +7,7 @@
 \usepackage{float}
 \usepackage{fullpage}
 \usepackage{diagbox}
+\usepackage{enumitem}
 \usepackage[T1]{fontenc}
 \graphicspath{{images/}}
 
@@ -46,5 +47,20 @@
 	\subsubsection{Évaluation des détections de visages}
 
 \section{Conclusion}
+
+\section{Notes Auriane pour qu'elle s'en rappelle}
+    
+    \subsection{Choses à vérifier}
+	
+	\begin{itemize}
+	    \item En quoi l'expression du visage fait varier la détection ? (sourire avec les yeux plissés, etc.)
+	    \item Visages occultés ? Lunettes de soleil, main sur la bouche, mains qui cachent les
+		yeux.
+	\end{itemize}
+
+    \subsection{Analyse}
+
+	Singe 1 : visage détecté lorsque le minNeighbor is small, un rectangle quand minNeighbor = 3 et
+    	scaleFactor = 1.01, si on baisse le minNeighbour le nombre de rectangles augmentent.
 
 \end{document}
