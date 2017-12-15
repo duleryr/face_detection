@@ -7,8 +7,19 @@ import time
 
 # command line arguments
 if(len(sys.argv)<2):
-    print("Usage: python3 cascade.py image_file_name.ext")
+    print("Usage: python3 cascade.py image_file_name.ext scale_factor min_neighbors")
+    print("The last two parameters are optional")
     exit(1)
+
+if(len(sys.argv) < 4):
+    min_neighbors = 3
+else:
+    min_neighbors = int(sys.argv[3])
+
+if(len(sys.argv) < 3):
+    scale_factor = 1.4
+else:
+    scale_factor = float(sys.argv[2])
 
 # load necessary files
 face_cascade = cv2.CascadeClassifier("../haarcascades/haarcascade_frontalface_default.xml")
@@ -20,11 +31,13 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 start_time = time.time()
 # a scale-factor of 1.10 means that the image will be downscaled by 10% each time
 # => there will be 10 images to go trough
-faces = face_cascade.detectMultiScale(gray,1.1,3)
+
 #[faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray,1.1,3,outputRejectLevels=True)
-print("len(faces): " + str(len(faces)))
+#print("len(faces): " + str(len(faces)))
 #print(rejectLevels)
 #print(levelWeights)
+print(scale_factor, min_neighbors)
+faces = face_cascade.detectMultiScale(gray, scaleFactor=scale_factor, minNeighbors=min_neighbors)
 end_time = time.time()
 print("time=", end_time - start_time)
 
