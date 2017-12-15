@@ -10,6 +10,7 @@ import multiprocessing
 import time
 import graphical_tools
 import single_image_evaluation
+from sklearn.metrics import precision_recall_curve
 
 if __name__ == '__main__':
     """ Initialization : Choice of the files used for the training/testing """
@@ -35,44 +36,84 @@ if __name__ == '__main__':
         img_info_vec.append(parse_file.get_img_info(fd))
     fd.close()
 
-    # DEBUG
-    #for img_info in img_info_vec:
-    #    graphical_tools.showImg("debug",cv2.imread(img_info.img_path))
-
     """ ----------------- Phase 1 : Face detection ------------------- """
     if debug:
         print("Face detection...")
 
-    scale_factor=1.2 # later we will run through these parameters
+    scale_factor=1.5 # later we will run through these parameters
     min_neighbours=3
 
+    y_true = []
+    levelWeights_all=[]
+    counter = 0
+    FN = 0
     for img_info in img_info_vec:
+        counter += 1
+        print("img nb: "+str(counter))
         # viola-jones works with grayscale images
         gray_img = cv2.imread(img_info.img_path,0) # 0 = IMREAD_GRAYSCALE
-        #graphical_tools.showImg("grayscale image", gray_img)
-        detected_faces = face_cascade.detectMultiScale(gray_img,scale_factor,min_neighbours)
-        #graphical_tools.showFaces(gray_img,detected_faces)
+        [detected_faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray_img,scale_factor,min_neighbours,outputRejectLevels=True)
         img_info.img_shape = gray_img.shape
-        # evaluate how well we're doing compared to the real faces
-        single_image_evaluation.evaluate(img_info,detected_faces)
+        y_true_tmp = single_image_evaluation.evaluate(img_info,detected_faces)
+        y_true.append(y_true_tmp)
+        FN += len(img_info.list_ellipse)
+        if(len(levelWeights)>0):
+            levelWeights = np.concatenate(levelWeights)
+            levelWeights_all.append(levelWeights)
 
+    y_true = np.concatenate(y_true)
+    levelWeights_all = np.concatenate(levelWeights_all)
+    FN = FN-y_true.sum()
+    weight_tp_fp_vec = zip(levelWeights_all,y_true)
+    levelWeights_all,y_true = zip(*sorted(weight_tp_fp_vec))
+#    precision,recall, thresholds = precision_recall_curve(y_true,levelWeights_all,1)
+    precision = []
+    recall = []
+    TP = 0
+    FP = 0
+    P = 0
+    R = 0
+    y_true = np.array(y_true)
+    #print(y_true)
+    new_TP = [y_true.sum()]
+    new_FP = [len(y_true)-y_true.sum()]
+    new_FN = [FN]
+    # ============= STRATEGIE GROUPE 2 ================
+    # ici on fait augmenter le seuil
+    for i in range(len(y_true)):
+        print("TP : "+str(new_TP[i])+", FP: "+str(new_FP[i])+", FN: "+str(new_FN[i]))
+        if(y_true[i]==1):
+            new_TP.append(new_TP[i]-1)
+            new_FN.append(new_FN[i]+1)
+            new_FP.append(new_FP[i])
+        else:
+            new_FP.append(new_FP[i]-1)
+            new_TP.append(new_TP[i])
+            new_FN.append(new_FN[i])
+    # compute precision, recall
+    for i in range(len(new_TP)):
+        if((new_TP[i]+new_FP[i])!=0):
+            P = float(new_TP[i])/float(new_TP[i]+new_FP[i])
+            R = float(new_TP[i])/float(new_TP[i]+new_FN[i])
+            precision.append(P)
+            recall.append(R)
+#    print(precision)
+#    print(recall)
+        
+#    for i in range(len(y_true)-1,0,-1):
+#        if(y_true[i]==1):
+#            TP += 1
+#            #FN -= 1
+#        else:
+#            FP += 1
+#        print("TP: "+str(TP)+", FP: "+str(FP)+", FN: "+str(FN))
+#        P = float(TP)/float(TP+FP)
+#        R = float(TP)/float(FN)
+#        precision.append(P)
+#        recall.append(R)
+#    print(precision)
+#    print(recall)
 
-    
-    """ ---------- Performance evaluation of the detection ----------- """
-    """ Plot of ROC curves """
-#    # Parameters : Way to compare ROC curves : Area under the curve, FNR*FPR, FNR+FPR
-#    
-#    area_under_curve = auc(fpr_vec, tpr_vec)
-#    plt.plot(fpr_vec, tpr_vec)
-#    if debug:
-#        print("  tpr : " + str(tpr_vec))
-#        print("  fpr : " + str(fpr_vec))
-#        print("  Area under curve : " + str(area_under_curve))
-#        plt.show()
-#    else:
-#        destination = os.getcwd()+"/../ROC_curves/ROC_" + parameters[1] + "_" + parameters[2] + "_" + str(file_number_used) + "_" + str(nb_images_testing) + "_" + str(lookup_table_color_mode) + ".png"
-#        plt.xlabel("FPR")
-#        plt.ylabel("TPR")
-#        plt.title("AUC = "+str(area_under_curve))
-#        plt.savefig(destination)
-#        print(destination + " : AUC = " + str(area_under_curve))
+    plt.step(recall, precision, color='b', alpha=0.2, where='post')
+    plt.axis([0,1.1,0,1.1])
+    plt.show()

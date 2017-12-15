@@ -20,7 +20,11 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 start_time = time.time()
 # a scale-factor of 1.10 means that the image will be downscaled by 10% each time
 # => there will be 10 images to go trough
-faces = face_cascade.detectMultiScale(gray,1.05,3)
+faces = face_cascade.detectMultiScale(gray,1.1,3)
+#[faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray,1.1,3,outputRejectLevels=True)
+print("len(faces): " + str(len(faces)))
+#print(rejectLevels)
+#print(levelWeights)
 end_time = time.time()
 print("time=", end_time - start_time)
 

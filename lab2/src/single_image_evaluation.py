@@ -11,8 +11,11 @@ from scipy.optimize import linear_sum_assignment
 def get_ellipse_mask(img_shape, e):
     mask = np.zeros(img_shape)
     # we have to extract all the ellipses
-    cv2.ellipse(mask,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
-        int(e.theta),0,360,(255), -1)
+    pt1 = (int(e.c_x-e.r_b),int(e.c_y-e.r_a))
+    pt2 = (int(e.c_x+e.r_b),int(e.c_y+e.r_a))
+    cv2.rectangle(mask,pt1,pt2,(255),-1)
+    #cv2.ellipse(mask,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
+    #    int(e.theta),0,360,(255), -1)
     return mask
 
 def get_rectangle_mask(img_shape, r):
@@ -22,6 +25,7 @@ def get_rectangle_mask(img_shape, r):
 
 # compute score as according to the paper fddb
 def compute_score(d, l):
+    # DEBUG
     intersection = cv2.bitwise_and(d,l)
     union = cv2.bitwise_or(d,l)
     return intersection.sum()/union.sum()
@@ -36,6 +40,7 @@ def evaluate(img_info, faces):
         real_face_masks.append(get_ellipse_mask(img_info.img_shape,e))
     for f in faces:
         detected_face_masks.append(get_rectangle_mask(img_info.img_shape,f))
+
     # DEBUG
     #for r in real_face_masks:
     #    graphical_tools.showImg("debug",r)
@@ -50,12 +55,20 @@ def evaluate(img_info, faces):
     row_ind,col_ind = linear_sum_assignment(score_mat)
     score_mat[:] = -score_mat[:] + 1
 
-    # TODO: showImg TP,FP,FN
+    detection_score = np.zeros(len(detected_face_masks))
+    detection_score[col_ind] = score_mat[row_ind,col_ind]
+
     detection_select = np.array([(i in col_ind) for i in range(len(detected_face_masks))])
-    if(detection_select.any()):
-        true_detections = faces[detection_select==True]
-        false_detections = faces[detection_select==False]
-        graphical_tools.showTPFPFN(img_info,true_detections,false_detections)
-    else:
-        graphical_tools.showTPFPFN(img_info,[],faces)
-    return score_mat[row_ind,col_ind].sum()
+    for i in range(len(detection_select)):
+        if(detection_score[i]==0):
+            detection_select[i] = False
+
+    # DEBUG
+#    if(detection_select.any()):
+#        true_detections = faces[detection_select==True]
+#        false_detections = faces[detection_select==False]
+#        graphical_tools.showTPFPFN(img_info,true_detections,false_detections)
+#    else:
+#        graphical_tools.showTPFPFN(img_info,[],faces)
+
+    return detection_select.astype(int)

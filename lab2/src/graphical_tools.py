@@ -37,8 +37,12 @@ def showTPFPFN(img_info, true_detections, false_detections):
         cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,255),2)
     # FN
     for e in img_info.list_ellipse:
-        cv2.ellipse(img,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
-            int(e.theta),0,360,(0,0,255), 2)
+        print(int(e.c_x))
+        pt1 = (int(e.c_x-e.r_b),int(e.c_y-e.r_a))
+        pt2 = (int(e.c_x+e.r_b),int(e.c_y+e.r_a))
+        cv2.rectangle(img,pt1,pt2,(0,0,255),2)
+        #cv2.ellipse(img,(int(e.c_x),int(e.c_y)),(int(e.r_a), int(e.r_b)),
+        #    int(e.theta),0,360,(0,0,255), 2)
     cv2.namedWindow("face_detections", cv2.WINDOW_NORMAL)
     #cv2.resizeWindow("face_detections", img.shape[1], img.shape[0])
     cv2.resizeWindow("face_detections", 1000, 1000)
