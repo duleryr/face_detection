@@ -49,18 +49,100 @@
 \section{Conclusion}
 
 \section{Notes Auriane pour qu'elle s'en rappelle}
+
+    %TODO : faire une vraie analyse sur les paramètres
+
+\section{Analyse qualitative des détections}
     
-    \subsection{Choses à vérifier}
+    \subsection{Orientation du visage}
 	
-	\begin{itemize}
-	    \item En quoi l'expression du visage fait varier la détection ? (sourire avec les yeux plissés, etc.)
-	    \item Visages occultés ? Lunettes de soleil, main sur la bouche, mains qui cachent les
-		yeux.
-	\end{itemize}
+	Dans l'image suivante (figure \ref{fig:visage_or1}), l'orientation du visage varie
+	progressivement, cela nous montre exactement l'orientation à partir de laquelle la
+	reconnaissance ne marche plus. Nous remarquons ici que la détection dépend de la présence
+	des deux yeux, dès que l'un d'eux n'est plus visible ou occulté, la détection de fonctionne
+	plus.
 
-    \subsection{Analyse}
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.6]{images/orientation_visage_1,01_1.png}
+		\caption{Variation de l'orientation du visage - min neighbours = 1}
+		\label{fig:visage_or1}
+	    \end{center}
+	\end{figure}
 
-	Singe 1 : visage détecté lorsque le minNeighbor is small, un rectangle quand minNeighbor = 3 et
-    	scaleFactor = 1.01, si on baisse le minNeighbour le nombre de rectangles augmentent.
+	Si l'on augmente \textit{minneighbours}, rien ne change jusqu'à 3 (figure
+	\ref{fig:visage_or2}) puis le nombre de reconnaissance diminue.
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.6]{images/orientation_visage_1,01_3.png}
+		\caption{Variation de l'orientation du visage - min neighbours = 3}
+		\label{fig:visage_or2}
+	    \end{center}
+	\end{figure}
+
+    \subsection{Expressions du visage}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.6]{images/facial_expression_1,3_3.png}
+		\caption{Changement d'expressions du visage}
+		\label{fig:visage_exp}
+	    \end{center}
+	\end{figure}
+
+    
+    \subsection{Singes}
+
+	Le singe est détecté lorsque le	\textit{scaleFactor} et le \textit{minNeighbours} sont
+	relativement bas \ref{fig:singe}, dès que l'on augmente un peu l'un d'eux, la reconnaissance
+	ne se fait plus.
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.6]{images/singe_1,01_3.png}
+		\caption{Reconnaissance d'un singe}
+		\label{fig:singe}
+	    \end{center}
+	\end{figure}
+
+	Si l'on prend des paramètres identiques pour la reconnaissance du gorille (cela nous semble
+	faisable car il y a une importante zone d'ombre au niveau des yeux du gorille), la
+	reconnaissance ne marche pas, il faut augmenter le \textit{scaleFactor} à 1.021 pour qu'on
+	ait des détections (cf figure \ref{fig:singe2}).
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.6]{images/singe_gorille_1,021_3.png}
+		\caption{Reconnaissance d'un gorille - scaleFactor = 1.021}
+		\label{fig:singe2}
+	    \end{center}
+	\end{figure}
+
+    \subsection{Occultations}
+
+	\subsubsection{Oeil de pirate}
+
+	    \begin{figure}[H]
+	        \begin{center}
+	    	\includegraphics[scale = 0.6]{images/oeil_de_pirate_1,1_3.png}
+	    	\caption{Reconnaissance d'un visage occulté}
+	    	\label{fig:pirate}
+	        \end{center}
+	    \end{figure}
+
+	\subsubsection{Lunettes de soleil}
+
+	    Sur cette image le visage est orienté, la détection opère tout de même. En effet les
+	    lunettes se positionnent à l'endroit des yeux, ce qui trompe le \textit{feature}
+	    utilisé.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	    	\includegraphics[scale = 0.6]{images/lunette1_1,2_3.png}
+	    	\caption{Reconnaissance d'un visage occulté par des lunettes de soleil}
+	    	\label{fig:lunette}
+	        \end{center}
+	    \end{figure}
 
 \end{document}
