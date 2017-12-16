@@ -4,6 +4,8 @@ import sys
 import numpy as np
 import cv2
 import time
+import re
+from matplotlib import pyplot as plt
 
 # command line arguments
 if(len(sys.argv)<2):
@@ -25,6 +27,7 @@ else:
 face_cascade = cv2.CascadeClassifier("../haarcascades/haarcascade_frontalface_default.xml")
 img_name = sys.argv[1]
 img = cv2.imread(img_name)
+final_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 # the actual face detection
@@ -42,10 +45,23 @@ end_time = time.time()
 print("time=", end_time - start_time)
 
 # plot the result
+string = str(sys.argv[1])
+res = string.split("/")
+title = res[len(res) - 1]
+final_title = title + " - scaleFactor : " + str(scale_factor) + ", minNeighbours : " + str(min_neighbors)
+filename = title.split(".")[0] + "_" + str(scale_factor).replace('.', ',') + "_" + str(min_neighbors) + ".png"
+print(filename)
 for(x,y,w,h) in faces:
-    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
-cv2.namedWindow("Danemark", cv2.WINDOW_NORMAL)
-cv2.resizeWindow("Danemark", 800, 600)
-cv2.imshow("Danemark", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+    cv2.rectangle(final_img,(x,y),(x+w,y+h),(255,0,0),2)
+#cv2.namedWindow(str(title), cv2.WINDOW_NORMAL)
+#cv2.resizeWindow(str(title), 800, 600)
+#cv2.imshow(str(title), img)
+#cv2.imwrite(str(legend)+".jpg", img)
+#cv2.waitKey(0)
+#cv2.destroyAllWindows()
+
+plt.gcf().clear()
+plt.imshow(final_img)
+plt.title(final_title)
+plt.savefig("figures/"+filename)
+plt.show()
