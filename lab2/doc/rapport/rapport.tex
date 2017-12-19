@@ -10,6 +10,7 @@
 \usepackage{diagbox}
 \usepackage{enumitem}
 \usepackage[T1]{fontenc}
+\usepackage[]{algorithm2e}
 \graphicspath{{images/}}
 
 \title{Reconnaissance de formes et apprentissage automatique Projet 1}
@@ -30,6 +31,116 @@
 \vspace{1cm}
 
 \section{Résumé du travail réalisé}
+
+\section{Analyse quantitative}
+    
+    \subsection{Choix de l'évaluation}
+        
+        Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel. 
+        Nous avons fait ce choix pour les raisons suivantes.
+        \\
+        Premièrement, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC.
+        Dans notre cas, les vrais négatifs sont tous les fenêtres et sous-fenêtres qui ont été rejetées par la cascade de features.
+        Le but de ce TP étant d'examiner un détecteur de visages en tant que boîte noire, nous avons décidé de ne pas modifier le code source pour avoir accès au nombre de fenêtres rejetées.
+        Néanmoins, nous avons essayé de récupérer ce nombre avec succès, mais nous nous sommes rendu compte qu'il était inexploitable, car il est beaucoup trop important.
+        En effet, contrairement à la méthode étudiée pendant le premier TP où le nombre de ROI est maîtrisable, la détection de Viola-Jones utilise des ROI et des sous-fenêtres à plusieurs échelles ce qui rend $FP$ négligeable devant $TN$.
+        Cela fait que le taux de faux positifs $FPR = \frac{FP}{FP+TN}$ sera toujours très proche de $0$.
+        \\
+        La construction des courbes Précision-Rappel nécessite la classification des détections obtenues par la fonction \verb!detectMultiScale! d'{\it OpenCV} et l'affection de chaque détection par un score qui nous permettra de décider pour une détection donnée si l'on accepte ou pas. La construction va être décrite plus en détail dans la section  \ref{construction_courbe}.
+        
+    \subsection{Classification des détections}
+        
+        La classification des détections joue un rôle important pour l'évaluation de l'algorithme.
+        Il s'agit de décider si une détection est considérée comme un vrai positif, i.e. si nous pouvons considérer qu'elle a bien détecté un visage ou si il s'agit d'un faux positif, c'est-à-dire que l'algorithme a détecté une région comme étant un visage par erreur. Ces faux positifs peuvent par exemple être déclenchés par des régions qui ressemblent à un visage, comme c'est le cas pour la figure \ref{fig:mask_faux_positif}.
+	    \begin{figure}[H]
+	        \begin{center}
+	    	\includegraphics[scale = 0.6]{images/mask_1,01_3.png}
+	    	\caption{Exemple de faux positifs}
+	    	\label{fig:mask_faux_positif}
+	        \end{center}
+	    \end{figure}
+
+        Pour décider s'il s'agit d'un vrai positif ou d'un faux positif, nous avons implémenté la méthode détaillée dans $[4]$.
+        Il s'agit d'une méthode proposée par les créateurs de la base de données FDDB que nous utilisons dans le cadre de ce projet.
+        \\
+        La méthode consiste à trouver le couplage maximal dans un graphe biparti.
+        Les sommets de ce graphe sont divisé en deux ensembles, l'ensemble des détections et l'ensemble des étiquettes, i.e. des vrais visages, annotés dans la base de données.
+        Chaque détection partage une arête avec chaque étiquette, dont le poids est le rapport entre l'intersection et l'union des aires des deux régions.
+        Ce poids correspond au taux de correspondance entre une détection et un vrai visage présent dans l'image.
+        \\
+        Nous calculons le couplage maximal grâce à la fonction \verb!scipy.optimize.linear_sum_assignment!, l'implémentation de l'algorithme hongrois.
+        En sortie, nous nous intéressons à trois ensembles de sommets. 
+        Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais posifits}.
+        Ceux qui comptent parmi les sommets de détections et qui ne font pas parti du couplage sont considérés comme des {\bf faux posifits}.
+        Les sommets qui sont des étiquettes et qui ne font pas parti du couplage sont considérés comme des {\bf faux négatifs}, il s'agit d'un visage qui n'a pas été détecté.
+        \\
+        \\
+        Il est intéressant de noter que cette manière de classifier les détections implique qu'il ne peut y avoir qu'une seule détection par étiquette, même si le centre d'une deuxième détection est dans la région qui nous intéresse.
+        Un exemple d'illustration se trouve dans la figure \ref{fig:false_positive_couplage}, où le faux positif est déssiné en jaune, les vrais positifs en bleu et les étiquettes en rouge.
+	    \begin{figure}[H]
+	        \begin{center}
+	    	\includegraphics[scale = 0.4]{images/false_positive.png}
+	    	\caption{Exemple de faux positifs à la sortie du couplage}
+	    	\label{fig:false_positive_couplage}
+	        \end{center}
+	    \end{figure}
+
+    \subsection{Affectation des détections par un score}
+
+        Pour la construction de la courbe Précision-Rappel, nous avons besoin de faire varier un seuil d'acceptance de détections.
+        La comparaison d'une détection avec ce seuil nécessite l'accès à un score qui traduit la confiance que nous avons en cette détection.
+        {\it OpenCV} nous donne accès à un tel score via la fonction \verb!detectMultiScale3! qui ne nous renvoie pas seulement l'ensemble des détections mais aussi pour chaque détection le dernier niveau qu'elle a parcouru et la somme qu'elle a accumulé en ce niveau. 
+        \\
+        Rappelons qu'une éventuelle détection parcourt tous les niveaux d'une cascade de classification, dont chacun est composé de plusieurs features.
+        Chacune de ces features va contribuer à un score de confiance du niveau en question. 
+        Si le score dépasse un certain seuil, alors on passe au niveau suivant, sinon on rejette l'imagette.
+        \\
+        Nous obtenons donc en sortie de la fonction \verb!detectMultiScale3! le score de confiance du dernier niveau de la cascade.
+
+    \subsection{Construction de la courbe Précision-Rappel}
+    \label{construction_courbe}
+        
+        Après avoir obtenu les scores de confiance et après avoir classifié les détections, nous passons à la construction de la courbe Précision-Rappel.
+        Pour cela, nous parcourons les détections en ordre croissant de scores de confiance.
+        Au début, $TP$, $FP$ et $FN$ valent respectivement le nombre total de vrais positifs, faux positifs et faux négatifs, présents dans l'ensemble des images parcourues.
+        Ensuite, à chaque étape du parcours des scores, nous procédons de la manière suivante.
+
+        \begin{algorithm}[H]
+        \eIf{détection courante est un TP}{
+            TP = TP-1\;
+            FN = FN+1\;
+        }{
+            FP = FP-1\;
+        }
+        \end{algorithm}
+        Autrement dit, nous rejetons progressivement les détections en faisant augmenter notre seuil d'acceptance et dans le cas d'un vrai positif, nous augmentons le nombre de faux négatifs, car nous détectons un visage en moins.
+        \\
+        Enfin, nous faisons remarquer que nos courbes ne vont pas jusqu'à la limite théorique, qui est le point $(1,0)$. 
+        Ce point correspond au cas où il n'y a plus de faux négatifs, i.e. le système de détection nous renvoie toutes les détections possibles.
+        Ce cas n'arrivera jamais avec l'impléménetation donnée, on aura donc toujours un nombre de faux négatifs minimum.
+        Cela correspond visuellement au moment où nos courbes s'arrêtent brusquement (voir la section \ref{results}).
+
+    \subsection{Analyse des résultats}
+        
+        Un exemple de courbe obtenue se trouve sur la figure \ref{fig:minN_1}.
+        Pour le construire, nous avons parcourus le premier dossier de la base de données FDDB pour différents facteurs d'échelle et un nombre de voisins minimums fixé.
+        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes.
+        
+    \label{results}
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_1.png}
+		\caption{courbe Précision-Rappel: minNeighbours = 1, dossier: 1}
+		\label{fig:minN_1}
+	    \end{center}
+	\end{figure}
+        Nous constatons plusieurs choses.
+        \\
+        Premièrement, nous remarquons que l'AUC est nettement meilleur pour des facteurs d'échelle entre $1.05$ et $1.35$ que pour le reste des valeurs.
+        En effet, en prenant un facteur d'échelle trop grand, la pyramide d'images construite par l'algorithme risque d'être trop grossière pour capter tous les visages.
+        Visuellement, nous pouvons constater cela à deux endroits. 
+        D'une part, la courbe s'arrête plus tôt en abscisse parce que nous retirons moins d'informations pertinentes des images, i.e. $FN$ augmente.
+        Et d'autre part, la courbe baisse en ordonnée parce que la détection devient moins précise, i.e. $TP$ diminue.
 
 \section{Analyse des résultats expérimentaux}
 
@@ -52,6 +163,7 @@
 \section{Notes Auriane pour qu'elle s'en rappelle}
 
     %TODO : faire une vraie analyse sur les paramètres
+    %TODO : invariances, robustesse au bruit, à la compression
 
 \section{Analyse qualitative des détections}
     
@@ -198,9 +310,10 @@
 	
 
 \section{Bibliographie}
-
-\hspace{-1.05cm}\url{http://www.ijcttjournal.org/2015/Volume25/number-1/IJCTT-V25P110.pdf} \\
-\url{http://www-prima.inrialpes.fr/Prima/jlc/Courses/2017/PRML/Viola-Jones-CVPR2001.pdf} \\
-\url{http://www.ipol.im/pub/art/2014/104/article.pdf}
+\flushleft
+$[1]$ - \url{http://www.ijcttjournal.org/2015/Volume25/number-1/IJCTT-V25P110.pdf} \\
+$[2]$ - \url{http://www-prima.inrialpes.fr/Prima/jlc/Courses/2017/PRML/Viola-Jones-CVPR2001.pdf} \\
+$[3]$ - \url{http://www.ipol.im/pub/art/2014/104/article.pdf} \\
+$[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 
 \end{document}

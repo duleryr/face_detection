@@ -20,6 +20,7 @@ if __name__ == '__main__':
         if (len(file_number_used) == 1):
             file_number_used = "0" + file_number_used
         nb_images_testing = int(sys.argv[2])
+        min_neighbours = int(sys.argv[3])
         debug = False
     except IndexError as err:
         print("IndexError: {0}".format(err))
@@ -42,12 +43,11 @@ if __name__ == '__main__':
         print("Face detection...")
 
     scale_factor=1.1 # later we will run through these parameters
-    min_neighbours=3
 
     plt_handle_vec = []
-    for scale_factor in np.arange(1.1,2.0,0.05):
-        for min_neighbours in range(1,2,1):
-            print("scale_factor: "+str(scale_factor)+", min_neighbours: "+str(min_neighbours))
+    for scale_factor in np.arange(1.05,2.0,0.05):
+        for min_neighbours in range(min_neighbours,min_neighbours+1,1):
+            #print("scale_factor: "+str(scale_factor)+", min_neighbours: "+str(min_neighbours))
             y_true = []
             levelWeights_all=[]
             counter = 0
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             recall.append(0)
 #            print(precision)
 #            print(recall)
-            print(auc(recall,precision))
+            #print(auc(recall,precision))
                 
             # ========== OLD STRATEGY ===============
 #            for i in range(len(y_true)-1,0,-1):
@@ -134,8 +134,8 @@ if __name__ == '__main__':
 #            print(precision)
 #            print(recall)
 
-#            plt.gcf().clear()
-#            plt.plot(recall,precision)
+#    plt.gcf().clear()
+#    plt.plot(recall,precision)
             plt.step(recall, precision, where='post', label="scaleFactor: "+str(scale_factor)+", AUC: "+str(np.around(auc(recall,precision),decimals=5)))
 #    plt.title("scaleFactor: "+str(scale_factor)+", minNeighbours: "+str(min_neighbours))
     plt.title("minNeighbours: "+str(min_neighbours))
@@ -145,5 +145,5 @@ if __name__ == '__main__':
     plt.legend()
     fig = plt.gcf()
     fig.set_size_inches((16, 10), forward=False)
-    fig.savefig("figures/"+str(min_neighbours)+".png",dpi=600)
+    fig.savefig("figures/folder_"+str(file_number_used)+"_minN_"+str(min_neighbours)+".png",dpi=600)
     #plt.show()
