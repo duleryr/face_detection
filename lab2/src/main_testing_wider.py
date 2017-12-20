@@ -56,6 +56,7 @@ if __name__ == '__main__':
                 counter += 1
                 #print("img nb: "+str(counter))
                 # viola-jones works with grayscale images
+                print(img_info.img_path)
                 gray_img = cv2.imread(img_info.img_path,0) # 0 = IMREAD_GRAYSCALE
                 [detected_faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray_img,scale_factor,min_neighbours,outputRejectLevels=True)
                 img_info.img_shape = gray_img.shape
@@ -65,6 +66,7 @@ if __name__ == '__main__':
                 if(len(levelWeights)>0):
                     levelWeights = np.concatenate(levelWeights)
                     levelWeights_all.append(levelWeights)
+                    print(levelWeights)
 
             y_true = np.concatenate(y_true)
             levelWeights_all = np.concatenate(levelWeights_all)
@@ -145,5 +147,6 @@ if __name__ == '__main__':
     plt.legend()
     fig = plt.gcf()
     fig.set_size_inches((16, 10), forward=False)
+    print("ok")
     fig.savefig("figures/folder_"+str(file_number_used)+"_minN_"+str(min_neighbours)+".png",dpi=600)
     #plt.show()
