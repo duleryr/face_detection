@@ -231,16 +231,54 @@
         
         \subsection{Résultats obtenus et choix des paramètres pour une application donnée}
 
-            L'analyse que nous venons d'effectuer s'intéressait uniquement
-            \label{results}
+            L'analyse que nous venons d'effectuer s'intéressait uniquement à une utilisation moyenne. Ici, nous allons préciser quelles paramètres il faut choisir en fonction du besoin de l'utilisateur.
+            \\
+            Nous avons tracé le rappel et la précision en fonction des paramètres de la fonction \verb!detectMultiScale! respectivement sur les figures \ref{fig:recall_fine_scale_dossier_1} et \ref{fig:precision_fine_scale_dossier_1}.
+            \\
+            Nous remarquons une influence forte des deux paramètres sur le rappel.
+            \\
+            \\
+            En effet, quand minNeighbours diminue, l'exigence de l'algorithme diminue, ce qui augmente le nombre de détections.
+            Cela a comme conséquence qu'il y a moins de visages qu'on ne couvre pas avec l'ensemble des détections.
+            \\
+            De l'autre côté, quand on augmente le scaleFactor, notre analyse multi-résolution devient plus grossière, i.e. la taille de la fenêtre n'est plus adaptée pour la détection de visages pour notre jeu de données.
+            \\
+            \\
+            Quant à la précision, l'interprétation est moins évidente.
+            Nous voyons que pour augmenter la précision, il suffit d'augmenter minNeighbours.
+            Le seuil d'acceptance plus élévé assure que dans le cas d'une éventuelle détection elle a de plus fortes chances d'être un vrai positif.
+            Alors que si minNeighbours vaut $0$, nous laissons passer toutes les détections de la sortie de la cascade, ce qui augmente fortement le nombre de faux positifs.
+            \\
+            Nous remarquons que l'influence est plus nuancée que celle du minNeighbours.
+            En théorie, ce parmètre ne devrait pas avoir d'influence majeure sur la précision, i.e. sur la qualité de nos détections, car il indique uniquement à quelle échelle nous sommes susceptible de détecter un visage et non pas s'il s'agit d'un vrai ou faux positif.
+            Néanmoins, nous voyons qu'autour de $1.5$, le graphe de la figure \ref{fig:precision_fine_scale_dossier_1} présente une vallée.
+            Pour vérifier s'il s'agit d'une anomalie du au jeu de données, nous avons tracé la même courbe mais cette fois par rapport au dossier 2 de la FDDB, voir la figure \ref{fig:precision_fine_scale_2_dossier_2}
+            Nous retrouvons le même phénomène, même si c'est légèrement décalé.
+            Malheureusement, nous n'avons pas d'explications pour ce comportement.
+
 	        \begin{figure}[H]
 	            \begin{center}
-	        	\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_1.png}
-	        	\caption{courbe Précision-Rappel: minNeighbours: 1, dossier: 1}
-	        	\label{fig:minN_1}
+	        	\includegraphics[scale = 0.4]{images/courbes/recall_fine_scale_dossier_1.png}
+	        	\caption{Rappel en fonction de scaleFactor et de minNeighbours, dossier: 1}
+	        	\label{fig:recall_fine_scale_dossier_1}
 	            \end{center}
 	        \end{figure}
 
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/precision_fine_scale_dossier_1.png}
+	        	\caption{Précision en fonction de scaleFactor et de minNeighbours, dossier: 1}
+	        	\label{fig:precision_fine_scale_dossier_1}
+	            \end{center}
+	        \end{figure}
+
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/precision_fine_scale_2_dossier_2.png}
+	        	\caption{Précision en fonction de scaleFactor et de minNeighbours, dossier: 2}
+	        	\label{fig:precision_fine_scale_2_dossier_2}
+	            \end{center}
+	        \end{figure}
 
 %TODO : faire une vraie analyse sur les paramètres
 %TODO : invariances, robustesse au bruit, à la compression
@@ -423,111 +461,77 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
     \subsection{Annexes: A}
     \label{annexes_a}
 
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_2.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 2, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_7.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 7, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_8.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 8, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_9.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 9, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_10.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 10, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_2.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 2, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
 
-    \subsection{Annexes: B}
-    \label{annexes_b}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3_fine_scale.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
-%		\label{fig:minN_3_fine_scale}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4_fine_scale.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
-%		\label{fig:minN_4_fine_scale}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5_fine_scale.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
-%		\label{fig:minN_5_fine_scale}
-%	    \end{center}
-%	\end{figure}
-%
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6_fine_scale.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
-%		\label{fig:minN_6_fine_scale}
-%	    \end{center}
-%	\end{figure}
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_7.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 7, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_8.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 8, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_9.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 9, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_10.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 10, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
 
 
 \end{document}
