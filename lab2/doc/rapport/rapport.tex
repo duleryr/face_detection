@@ -568,6 +568,18 @@ En comptant le temps d'exécution de l'algorithme ainsi que le temps d'affichage
 
 Ainsi, on ne peut pas vraiment affirmer qu'il s'agisse de détection en temps réel, en tout cas pas dans ce contexte là.
 
+\section*{Conclusion}
+    
+    En comparant cette méthode avec les histogrammes de couleur du TP1, nous pouvons voir que le
+    détecteur est beaucoup moins sensible à la couleur de peau (cf photo du singe). Cela évite les
+    faux positifs comme les mains et la courbe de précision est donc bien meilleure. La méthode
+    permet aussi de reconnaître les visages à travers différents espaces de couleur, nous pouvons
+    alors détecter des visages maquillés, des images en noir et blanc (ce qui n'était pas le cas
+    pour les histogrammes). L'ajout de poids dans l'algorithme fait, quant à lui, que l'on peut
+    éviter les détections des mains ou autres artéfacts.
+    Cependant, cette méthode possède encore des problèmes comme par exemple le fait que les Haar
+    features soient sous la forme de rectangle, cela n'autorise pas de rotation (de plus de 22
+    degrés)  ou de transformations géométriques complexes (comme les détecteurs SIFT le permettent). 
 
 \section{Bibliographie}
 \flushleft
