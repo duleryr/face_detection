@@ -35,3 +35,24 @@ def get_img_info(fh):
             e_str_tmp[3],e_str_tmp[4])
         list_ellipse.append(e_tmp)
     return img_information(img_path.rstrip()+".jpg", int(nb_faces), list_ellipse)
+
+def get_img_info_wider(fh, folder_nb):
+    current = ""
+    while (current[:len(folder_nb)+1] != folder_nb + "/"):
+        current = fh.readline()
+    print(current)
+    img_path = "../dataset/WIDER_train/images/" + current
+    nb_faces = int(fh.readline())
+    
+    list_ellipse = []
+    nb_occlused = 0
+    for i in range(0,nb_faces):
+        e_str_tmp = str.split(fh.readline())
+        if (e_str_tmp[8] != "2"): # skipping heavy occlustion
+            e_tmp = ellipse(e_str_tmp[2], e_str_tmp[3], 0,
+                            float(e_str_tmp[0]) + float(e_str_tmp[2])/2,
+                            float(e_str_tmp[1]) + float(e_str_tmp[3])/2)
+            list_ellipse.append(e_tmp)
+        else:
+            nb_occlused += 1
+    return img_information(img_path.rstrip(), int(nb_faces) - nb_occlused, list_ellipse)
