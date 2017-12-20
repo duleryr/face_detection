@@ -45,9 +45,12 @@
     
     \subsection{Choix de l'évaluation}
         
-        Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel. 
+        Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel, et Précision en fonction des paramètres, ainsi que Rappel en fonction des paramètres. 
+
         Nous avons fait ce choix pour les raisons suivantes :\\\\
-        Premièrement, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC.
+
+        Premièrement, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC. De plus les vrais négatifs ont peu de sens pour un algorithme de détection et pas seulement de décision.
+
         Dans notre cas, les vrais négatifs sont les fenêtres et sous-fenêtres qui ont été rejetées par la cascade de features.
         Notre objectif dans ce TP étant d'examiner un détecteur de visages en tant que boîte noire, nous avons décidé de ne pas modifier le code source pour avoir accès au nombre de fenêtres rejetées.
         Néanmoins, nous avons essayé de récupérer ce nombre avec succès, mais nous nous sommes rendu compte qu'il était inexploitable, car il est beaucoup trop important.
