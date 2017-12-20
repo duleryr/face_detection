@@ -127,11 +127,35 @@
         Ce cas n'arrivera jamais avec l'impléménetation donnée, on aura donc toujours un nombre de faux négatifs minimum.
         Cela correspond visuellement au moment où nos courbes s'arrêtent brusquement (voir la section \ref{results}).
 
-    \subsection{Analyse des résultats}
+    \subsection{Présentation des paramètres de l'algorithme}
         
+        Afin de construire un système de détection de visage automatisé, nous devons déterminer les paramètres qui donnent les meilleurs résultats dans la plupart des cas.
+        En l'occurence, nous avons deux paramètres à régler, qui sont le {\bf scaleFactor} et {\bf minNeighbours}.
+        Avant de présenter nos résultats, voici quelques remarques.\\
+        \begin{itemize}
+            \item[$\bullet$] scaleFactor :\\\\
+                En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
+                En réalité, ce n'est pas l'image qui va être agrandit ou rétrécit plusieurs fois, mais le filtre.
+                Un scaleFactor de $1.1$ signifie que la taille du filtre va être multiplié par $1.1$ jusqu'à ce que sa taille dépasse les dimensions de l'image.
+                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisés ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
+                \\
+                Ceci implique que le temps d'exécution est linéaire en fonction du scaleFactor.
+                Alors notre système va encore être utilisable, même si nous choisissons d'augmenter la précision du filtre.\\
+            \item[$\bullet$] minNeighbours :\\\\
+                Après avoir déterminé tous les rectangles contenant éventuellement des visages, l'implémentation d'{\it OpenCV} les regroupe.
+                Ce regroupement se fait via la fonction \verb!groupRectangles! qui rejete tout rectangle n'ayant pas au moins minNeighbours rectangles voisins.
+                \\
+                Le choix de ce paramètre n'a pas de conséquence directe sur la performance de l'algorithme, mais il présente un seuil d'acceptance.
+                Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
+        \end{itemize}
+
+        \subsection{Résultats obtenus et choix des meilleurs paramètres pour un utilisateur lambda}
+
         Un exemple de courbe obtenue se trouve sur la figure \ref{fig:minN_1}.
+
         Pour la construire, nous avons parcouru le premier dossier de la base de données FDDB pour différents facteurs d'échelle et un nombre de voisins minimum fixé.
-        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes.
+
+        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes. Il s'agit d'une évaluation unique réalisant un compromis entre Précision et Rappel.
         
     \label{results}
 	\begin{figure}[H]
@@ -148,31 +172,7 @@
         Visuellement, nous pouvons constater cela à deux endroits. 
         D'une part, la courbe s'arrête plus tôt en abscisse parce que nous retirons moins d'informations pertinentes des images, i.e. $FN$ augmente.
         Et d'autre part, la courbe baisse en ordonnée parce que la détection devient moins précise, i.e. $TP$ diminue.
-
-    \subsection{Analyse des paramètres}
-        
-        Afin de construire un système de détection de visage automatisé, nous devons déterminer les paramètres qui donnent les meilleurs résultats dans la plupart des cas.
-        En l'occurence, nous avons deux paramètres à régler, qui sont le {\bf scaleFactor} et {\bf minNeighbours}.
-        Avant de présenter nos résultats, voici quelques remarques.
-        \begin{itemize}
-            \item scaleFactor
-                En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
-                En réalité, ce n'est pas l'image qui va être agrandit ou rétrécit plusieurs fois, mais le filtre.
-                Un scaleFactor de $1.1$ signifie que la taille du filtre va être multiplié par $1.1$ jusqu'à ce que sa taille dépasse les dimensions de l'image.
-                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisés ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
-                \\
-                Ceci implique que le temps d'exécution est linéaire en fonction du scaleFactor.
-                Alors notre système va encore être utilisable, même si nous choisissons d'augmenter la précision du filtre.
-            \item minNeighbours
-                Après avoir déterminé tous les rectangles contenant éventuellement des visages, l'implémentation d'{\it OpenCV} les regroupe.
-                Ce regroupement se fait via la fonction \verb!groupRectangles! qui rejete tout rectangle n'ayant pas au moins minNeighbours rectangles voisins.
-                \\
-                Le choix de ce paramètre n'a pas de conséquence directe sur la performance de l'algorithme, mais il présente un seuil d'acceptance.
-                Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
-        \end{itemize}
-
-        \subsubsection{Recherche des meilleurs paramètres moyens}
-        Nous avons parcourus des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
+        Nous avons parcouru des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
         Dans le tableau \ref{tab:parmeters}, nous avons listé les AUCs obtenues, les courbes correspondantes se trouvent en Annexe A \ref{annexes_a}.
 
         \begin{table}
@@ -229,7 +229,7 @@
         \end{table}
         Nous obtenons le meilleur résultat avec un scaleFactor de $1.04$ et un minNeighbours de $3$.
         
-        \subsubsection{Recherche de paramètres en fonction de l'application}
+        \subsection{Résultats obtenus et choix des paramètres pour une application donnée}
 
             L'analyse que nous venons d'effectuer s'intéressait uniquement
             \label{results}
