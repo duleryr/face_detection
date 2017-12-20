@@ -47,8 +47,6 @@
         
         Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel, et des visualisations 3D de la Précision et du Rappel en fonction des paramètres.
 
-        Nous avons fait ces choix pour les raisons suivantes :\\\\
-
         Tout d'abord, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC. 
         
         En réalité les vrais négatifs ont peu de sens pour un algorithme de détection et pas seulement de décision.
@@ -56,8 +54,7 @@
         Or, autant on peut compter le nombre de patients n'ayant pas la maladie, autant on ne peut pas compter le nombre d'absences de visages dans une image.
 
         Dans notre cas, on peut toujours simuler l'existence de vrais négatifs par les fenêtres et sous-fenêtres qui ont été rejetées par la cascade de features. Toutefois, contrairement à la méthode étudiée pendant le premier TP où le nombre de ROI est maîtrisable, la détection de Viola-Jones utilise des ROI et des sous-fenêtres à plusieurs échelles ce qui rend $FP$ négligeable devant $TN$.
-        Cela fait que le taux de faux positifs $FPR = \frac{FP}{FP+TN}$ sera toujours très proche de $0$.
-        \\
+        Cela fait que le taux de faux positifs $FPR = \frac{FP}{FP+TN}$ sera toujours très proche de $0$.\\\\
         La construction des courbes Précision-Rappel nécessite la classification des détections obtenues par la fonction \verb!detectMultiScale! d'{\it OpenCV} et l'affection d'un score à chaque détection, qui nous permettra de décider pour une détection donnée si l'on accepte ou pas. La construction va être décrite plus en détail dans la section  \ref{construction_courbe}.
         
     \subsection{Classification des détections}
@@ -78,8 +75,7 @@
         La méthode consiste à trouver le couplage maximal dans un graphe biparti.
         Les sommets de ce graphe sont divisés en deux ensembles, l'ensemble des détections et l'ensemble des étiquettes, i.e. des vrais visages, annotés dans la base de données.
         Chaque détection partage une arête avec chaque étiquette, dont le poids est le rapport entre l'intersection et l'union des aires des deux régions.
-        Ce poids correspond au taux de correspondance entre une détection et un vrai visage présent dans l'image.
-        \\
+        Ce poids correspond au taux de correspondance entre une détection et un vrai visage présent dans l'image.\\\\
         Nous calculons le couplage maximal grâce à la fonction \verb!scipy.optimize.linear_sum_assignment!, l'implémentation de l'algorithme hongrois.
         En sortie, nous nous intéressons à trois ensembles de sommets. 
         Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais positifs}.
@@ -136,7 +132,8 @@
         
         Afin de construire un système de détection de visage automatisé, nous devons déterminer les paramètres qui donnent les meilleurs résultats dans la plupart des cas.
         En l'occurence, nous avons deux paramètres à régler, qui sont le {\bf scaleFactor} et {\bf minNeighbours}.
-        Avant de présenter nos résultats, voici quelques remarques.\\
+        Avant de présenter nos résultats, voici quelques remarques sur les paramètres.\\
+        \newpage
         \begin{itemize}
             \item[$\bullet$] scaleFactor :\\\\
                 En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
@@ -154,13 +151,13 @@
                 Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
         \end{itemize}
 
-        \subsection{Résultats obtenus et choix des meilleurs paramètres pour un utilisateur lambda}
+        \subsection{Résultats obtenus et choix des meilleurs paramètres pour une utilisation non spécialisée}
 
         Un exemple de courbe obtenue se trouve sur la figure \ref{fig:minN_1}.
 
         Pour la construire, nous avons parcouru le premier dossier de la base de données FDDB pour différents facteurs d'échelle et un nombre de voisins minimum fixé.
 
-        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes. Il s'agit d'une évaluation unique réalisant un compromis entre Précision et Rappel.
+        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes. Il s'agit d'une évaluation unique réalisant un compromis entre Précision et Rappel. Ainsi, cette partie s'adresse à un utilisateur ne voulant pas optimiser particulièrement la Précision ou le Rappel, ce qui sera le cas dans la partie suivante.
         
     \label{results}
 	\begin{figure}[H]
@@ -236,7 +233,7 @@
         
         \subsection{Résultats obtenus et choix des paramètres pour une application donnée}
 
-            L'analyse que nous venons d'effectuer s'intéressait uniquement à une utilisation moyenne. Ici, nous allons préciser quelles paramètres il faut choisir en fonction du besoin de l'utilisateur.
+            L'analyse que nous venons d'effectuer s'intéressait uniquement à une utilisation moyenne. Ici, nous allons préciser quels paramètres il faut choisir en fonction du besoin de l'utilisateur.
             \\
             Nous avons tracé le rappel et la précision en fonction des paramètres de la fonction \verb!detectMultiScale! respectivement sur les figures \ref{fig:recall_fine_scale_dossier_1} et \ref{fig:precision_fine_scale_dossier_1}.
             \\
@@ -519,7 +516,7 @@
 	début de son expérimentation avec des primitives (à la suite de l'exposition de sculture
 	ibérique de 1905 dont il s'est inspiré). Nous reconnaissons tout de même ici un visage
 	(beaucoup plus que dans les tableaux à la fin de sa vie où c'est peut-être discutable).
-	Dans la figure suivante (figure \ref{fig:pablo}), nous avons appliqué un
+	Dans la figure suivante (figure \ref{fig:picasso}), nous avons appliqué un
 	\textit{scaleFactor} de 1.1 en mettant le \textit{minNeighbour} à 0 pour afficher toutes les
 	détections. Nous remarquons alors que le visage est détecté mais qu'on y trouve de multiples
 	FP. En effet, cela montre que l'algorithme pourrait être amélioré au niveau du choix des
