@@ -26,6 +26,7 @@
 \setlength{\topmargin}{-.5in}
 \setlength{\parskip}{1ex}
 
+
 \begin{document}
 
 \maketitle
@@ -316,6 +317,89 @@
 	    \end{center}
 	\end{figure}
 
+    \subsection{Transformations géométriques}
+
+	\subsubsection{Rotations}
+	    
+	    Nous remarquons que les rotations ne sont plus détectées à partir de 22 degrés si on prend la
+	    première photo comme étant 0 degré. Cela est dû au fait que la base d'entraînement n'est
+	    sûrement pas exhaustive vis à vis des tranformations géométriques.
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/ryan_1,2_3.png}
+		   \caption{Robustesse aux rotations du visage}
+		   \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+
+	\subsubsection{Inverse}
+
+	    La détection n'est pas robuste à l'inversion de l'image, de même cela est dû au fait que
+	    la base d'entraînement n'était pas exhaustive.
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/vis_1,2_3.png}
+		   \caption{Robustesse aux inversion de l'image}
+		   \label{fig:vis_inv}
+	        \end{center}
+	    \end{figure}
+
+	\subsubsection{Miroir}
+
+	    La détection est robuste à la symétrie axiale par rapport à l'axe des ordonnées. En effet,
+	    le visage humain étant symétrique cela n'impacte pas les détections.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/vis_miroir2_1,2_3.png}
+		    \caption{Robustesse à la symétrie verticale}
+	           \label{fig:miroir}
+	        \end{center}
+	    \end{figure}
+
+
+    \subsection{Application à un autre espace de couleur : HSV}
+	
+	On remarque que pour un espace de couleur basé sur les intensités la détection marche
+	encore. Ce qui semble logique car Viola-Jones fonctionne en niveaux de gris.
+	    
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_hsv_1,2_3.png}
+	           \caption{Robustesse au changement d'espace de couleur}
+	           \label{fig:hsv}
+	        \end{center}
+	    \end{figure}
+	
+    
+    \subsection{Compression d'image}
+
+	En compressant une image en jpeg (l'image passe de 29 kB à 4kB), la détection reste robuste.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_compression_1,21_3.png}
+	           \caption{Robustesse à la compression}
+	           \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+	
+
+    \subsection{Application d'un bruit gaussien}
+
+	La détection est aussi robuste au bruit gaussien, james crowley nous le confirme.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_crowley_bruit_gaussien_1,2_3.png}
+	           \caption{Robustesse au bruit gaussien}
+	           \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+	    
+
     \subsection{Expressions du visage}
 	
 	On pourrait se demander ce que deviennent les détections sur un visage avec des expressions
@@ -393,7 +477,8 @@
 
 	\subsubsection{Lunettes de soleil}
 
-	    Ces lunettes de soleil étant noires (figure \ref{fig:lunette}), la détection fonctionne très bien : il y a un gros
+	    Ces lunettes de soleil étant noires (figure \ref{fig:lunette}), la détection fonctionne
+	    très bien : il y a un gros
 	    différentiel d'intensité entre les lunettes et le reste du visage.
 
 	    \begin{figure}[H]
@@ -424,6 +509,40 @@
 		   \label{fig:illumination}
 	        \end{center}
 	    \end{figure}
+
+    \subsection{peinture}
+
+	Nous avons essayé l'algorithme de Viola-Jones, sur un des autoportraits de Picasso (1901), au
+	début de son expérimentation avec des primitives (à la suite de l'exposition de sculture
+	ibérique de 1905 dont il s'est inspiré). Nous reconnaissons tout de même ici un visage
+	(beaucoup plus que dans les tableaux à la fin de sa vie où c'est peut-être discutable).
+	Dans la figure suivante (figure \ref{fig:pablo}), nous avons appliqué un
+	\textit{scaleFactor} de 1.1 en mettant le \textit{minNeighbour} à 0 pour afficher toutes les
+	détections. Nous remarquons alors que le visage est détecté mais qu'on y trouve de multiples
+	FP. En effet, cela montre que l'algorithme pourrait être amélioré au niveau du choix des
+	positifs, en mettant un autre critère que les \textit{minNeighbours}.
+
+	%TODO
+
+	    \begin{figure}[H]
+		\begin{center}
+		    \includegraphics[scale = 0.6]{images/picasso-auto_1,1_0.png}
+		    \caption{Autoportrait de Pablo Picasso}
+		    \label{fig:picasso}
+		\end{center}
+	    \end{figure}
+
+	En comparant à un auto-portrait beaucoup plus réaliste (celui d'Edward
+	Hopper), nous avons une détection de visage (figure \ref{fig:edward}).
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/edward_hopper_self_portrait_1,2_3.png}
+		   \caption{Autoportrait d'Edward Hopper}
+		   \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+
 	
 
 \section{Analyse des performances temporelles et illustrations des détections en utilisant la webcam}
@@ -449,6 +568,7 @@ En comptant le temps d'exécution de l'algorithme ainsi que le temps d'affichage
 
 Ainsi, on ne peut pas vraiment affirmer qu'il s'agisse de détection en temps réel, en tout cas pas dans ce contexte là.
 
+
 \section{Bibliographie}
 \flushleft
 $[1]$ - \url{http://www.ijcttjournal.org/2015/Volume25/number-1/IJCTT-V25P110.pdf} \\
@@ -458,8 +578,8 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 
 \section{Annexes}
     
-    \subsection{Annexes: A}
-    \label{annexes_a}
+    %\subsection{Annexes: A}
+    %\label{annexes_a}
 
 	\begin{figure}[H]
 	    \begin{center}
