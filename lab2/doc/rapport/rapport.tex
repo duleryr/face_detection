@@ -38,23 +38,24 @@
     Il ne sera pas question de modifier le code fourni, par exemple pour détecter les visages de face comme de profil, mais uniquement d'évaluer la qualité de l'algorithme fourni par OpenCV.\\\\
     Plus précisément, il s'agira tout d'abord d'\textbf{analyser quantitativement la qualité des détections}, selon les critères de mesure de la précision (ou valeur prédictive positive) et du rappel (ou sensitivité). Cela inclut l'analyse des paramètres à choisir pour optimiser l'un ou l'autre des critères, selon l'usage désiré de l'utilisateur.\\
     Ensuite, nous allons d'\textbf{analyser qualitativement le comportement et les sources d'erreur} de l'algorithme.\\
-    Enfin, étant donné qu'il est question d'un algorithme voué à être utilisé en embarqué et en temps réel, une \textbf{étude des performances temporelles} sera réalisée via une webcam. Cela permettra également d'illustrer les différents comportements mis en avant dans l'aspect qualitatif.\\\\
+    Enfin, étant donné qu'il est question d'un algorithme voué à être utilisé en embarqué et en temps réel, une \textbf{étude des performances temporelles} sera réalisée via une webcam. Cela permettra également d'illustrer les différents comportements mis en avant précédemment.\\\\
     Les bases de données utilisées pour les analyses quantitative et qualitative seront la "FDDB: Face Detection Data Set and Benchmark Home" de l'université du Massachusetts, ainsi que la "WIDER FACE: A Face Detection Benchmark" de l'université de Hong Kong. 
 
 \section{Analyse quantitative}
     
     \subsection{Choix de l'évaluation}
         
-        Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel, et Précision en fonction des paramètres, ainsi que Rappel en fonction des paramètres. 
+        Pour évaluer l'algorithme, nous avons choisi d'utiliser des courbes Précision-Rappel, et des visualisations 3D de la Précision et du Rappel en fonction des paramètres.
 
-        Nous avons fait ce choix pour les raisons suivantes :\\\\
+        Nous avons fait ces choix pour les raisons suivantes :\\\\
 
-        Premièrement, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC. De plus les vrais négatifs ont peu de sens pour un algorithme de détection et pas seulement de décision.
+        Tout d'abord, l'implémentation d'{\it OpenCV} ne nous donne pas facilement accès au nombre de vrais négatifs, ce qui nous empêche de tracer des courbes ROC. 
+        
+        En réalité les vrais négatifs ont peu de sens pour un algorithme de détection et pas seulement de décision.
+        Par exemple en médecine, les critères importants sont la sensibilité ({\it sensitivity} en anglais) et la spécificité. Il s'agit simplement des True Positive Rate et True Negative Rate, afin d'identifier correctement les patients ayant la maladie, et identifier ceux ne l'ayant pas.\\
+        Or, autant on peut compter le nombre de patients n'ayant pas la maladie, autant on ne peut pas compter le nombre d'absences de visages dans une image.
 
-        Dans notre cas, les vrais négatifs sont les fenêtres et sous-fenêtres qui ont été rejetées par la cascade de features.
-        Notre objectif dans ce TP étant d'examiner un détecteur de visages en tant que boîte noire, nous avons décidé de ne pas modifier le code source pour avoir accès au nombre de fenêtres rejetées.
-        Néanmoins, nous avons essayé de récupérer ce nombre avec succès, mais nous nous sommes rendu compte qu'il était inexploitable, car il est beaucoup trop important.
-        En effet, contrairement à la méthode étudiée pendant le premier TP où le nombre de ROI est maîtrisable, la détection de Viola-Jones utilise des ROI et des sous-fenêtres à plusieurs échelles ce qui rend $FP$ négligeable devant $TN$.
+        Dans notre cas, on peut toujours simuler l'existence de vrais négatifs par les fenêtres et sous-fenêtres qui ont été rejetées par la cascade de features. Toutefois, contrairement à la méthode étudiée pendant le premier TP où le nombre de ROI est maîtrisable, la détection de Viola-Jones utilise des ROI et des sous-fenêtres à plusieurs échelles ce qui rend $FP$ négligeable devant $TN$.
         Cela fait que le taux de faux positifs $FPR = \frac{FP}{FP+TN}$ sera toujours très proche de $0$.
         \\
         La construction des courbes Précision-Rappel nécessite la classification des détections obtenues par la fonction \verb!detectMultiScale! d'{\it OpenCV} et l'affection d'un score à chaque détection, qui nous permettra de décider pour une détection donnée si l'on accepte ou pas. La construction va être décrite plus en détail dans la section  \ref{construction_courbe}.
@@ -141,7 +142,7 @@
                 En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
                 En réalité, ce n'est pas l'image qui va être agrandit ou rétrécit plusieurs fois, mais le filtre.
                 Un scaleFactor de $1.1$ signifie que la taille du filtre va être multiplié par $1.1$ jusqu'à ce que sa taille dépasse les dimensions de l'image.
-                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisés ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
+                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisées ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
                 \\
                 Ceci implique que le temps d'exécution est linéaire en fonction du scaleFactor.
                 Alors notre système va encore être utilisable, même si nous choisissons d'augmenter la précision du filtre.\\
@@ -177,7 +178,7 @@
         D'une part, la courbe s'arrête plus tôt en abscisse parce que nous retirons moins d'informations pertinentes des images, i.e. $FN$ augmente.
         Et d'autre part, la courbe baisse en ordonnée parce que la détection devient moins précise, i.e. $TP$ diminue.
         Nous avons parcouru des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
-        Dans le tableau \ref{tab:parmeters}, nous avons listé les AUCs obtenues, les courbes correspondantes se trouvent en Annexe A \ref{annexes_a}.
+        Dans le tableau \ref{tab:parmeters}, nous avons listé les AUCs obtenues, les courbes correspondantes se trouvent en Annexe.
 
         \begin{table}
             \centering
@@ -284,12 +285,11 @@
 	            \end{center}
 	        \end{figure}
 
-%TODO : faire une vraie analyse sur les paramètres
-%TODO : invariances, robustesse au bruit, à la compression
 \section{Analyse qualitative des détections}
     
     \subsection{Orientation du visage}
 	
+    Le fichier de $haar features$ utilisé ici est $frontalface\_default.xml$.\\
 	Dans l'image suivante (figure \ref{fig:visage_or1}), l'orientation du visage varie
 	progressivement, cela nous montre exactement l'orientation à partir de laquelle la
 	reconnaissance ne marche plus. Nous remarquons ici que la détection dépend de la présence
@@ -392,7 +392,7 @@
 
     \subsection{Application d'un bruit gaussien}
 
-	La détection est aussi robuste au bruit gaussien, james crowley nous le confirme.
+	La détection est aussi robuste au bruit gaussien, James Crowley nous le confirme.
 
 	    \begin{figure}[H]
 	        \begin{center}
@@ -424,7 +424,7 @@
 	relativement bas (figure \ref{fig:singe}), dès que l'on augmente à 1.06 le
 	\textit{scaleFactor} la reconnaissance ne se fait plus correctement.
 	En effet on peut supposer que les features sont moins
-	adaptés aux variations de gris des visages des singes, i.e., même en mettant le
+	adaptées aux variations de gris des visages des singes, i.e., même en mettant le
 	\textit{minNeighbours} à 0 nous avons relativement peu de détections sur le vrai visage.
 
 	\begin{figure}[H]
@@ -513,7 +513,7 @@
 	        \end{center}
 	    \end{figure}
 
-    \subsection{peinture}
+    \subsection{Peinture}
 
 	Nous avons essayé l'algorithme de Viola-Jones, sur un des autoportraits de Picasso (1901), au
 	début de son expérimentation avec des primitives (à la suite de l'exposition de sculture
@@ -570,6 +570,30 @@ Le temps d'exécution moyen de l'algorithme est de 0.011 seconde.
 En comptant le temps d'exécution de l'algorithme ainsi que le temps d'affichage de l'image et des rectangles de détection, on obtient une fréquence de rafraîchissement moyen de 9 frames par seconde.
 
 Ainsi, on ne peut pas vraiment affirmer qu'il s'agisse de détection en temps réel, en tout cas pas dans ce contexte là.
+
+\subsection{Illustration de résultat issu de l'analyse quantitative}
+
+Les captures suivantes ont été obtenues avec les paramètres \textit{scaleFactor} valant 1.45 et \textit{minNeighbour} valant 5.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.3]{frame454.jpg}
+            \caption{Frame N}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.3]{frame455.jpg}
+            \caption{Frame N+1}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+Nous constatons que la détection est très instable. En effet le résultat est différent entre les deux frames, alors qu'elles sont quasi-identiques.
+
+Cela illustre un faible rappel pour les paramètres considérés, ce qui est cohérent avec la figure \ref{fig:recall_fine_scale_dossier_1}.
 
 \section*{Conclusion}
     
