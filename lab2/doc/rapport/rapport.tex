@@ -33,6 +33,13 @@
 
 \section{Problématique et objectifs}
 
+    Notre objectif global dans ce projet est d'évaluer les performances de l'algorithme de Viola-Jones.\\
+    Il ne sera pas question de modifier le code fourni, par exemple pour détecter les visages de face comme de profil, mais uniquement d'évaluer la qualité de l'algorithme fourni par OpenCV.\\\\
+    Plus précisément, il s'agira tout d'abord d'\textbf{analyser quantitativement la qualité des détections}, selon les critères de mesure de la précision (ou valeur prédictive positive) et du rappel (ou sensitivité). Cela inclut l'analyse des paramètres à choisir pour optimiser l'un ou l'autre des critères, selon l'usage désiré de l'utilisateur.\\
+    Ensuite, nous allons d'\textbf{analyser qualitativement le comportement et les sources d'erreur} de l'algorithme.\\
+    Enfin, étant donné qu'il est question d'un algorithme voué à être utilisé en embarqué et en temps réel, une \textbf{étude des performances temporelles} sera réalisée via une webcam. Cela permettra également d'illustrer les différents comportements mis en avant dans l'aspect qualitatif.\\\\
+    Les bases de données utilisées pour les analyses quantitative et qualitative seront la "FDDB: Face Detection Data Set and Benchmark Home" de l'université du Massachusetts, ainsi que la "WIDER FACE: A Face Detection Benchmark" de l'université de Hong Kong. 
+
 \section{Analyse quantitative}
     
     \subsection{Choix de l'évaluation}
@@ -70,8 +77,8 @@
         \\
         Nous calculons le couplage maximal grâce à la fonction \verb!scipy.optimize.linear_sum_assignment!, l'implémentation de l'algorithme hongrois.
         En sortie, nous nous intéressons à trois ensembles de sommets. 
-        Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais posifits}.
-        Ceux qui comptent parmi les sommets de détections et qui ne font pas parti du couplage sont considérés comme des {\bf faux posifits}.
+        Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais positifs}.
+        Ceux qui comptent parmi les sommets de détections et qui ne font pas parti du couplage sont considérés comme des {\bf faux positifs}.
         Les sommets qui sont des étiquettes et qui ne font pas parti du couplage sont considérés comme des {\bf faux négatifs}, il s'agit d'un visage qui n'a pas été détecté.
         \\
         \\
@@ -349,7 +356,28 @@
 	    \end{figure}
 	
 
-\section{Illustrations en utilisant la webcam}
+\section{Analyse des performances temporelles et illustrations des détections en utilisant la webcam}
+
+Etant donné que l'algorithme de Viola-Jones est généralement utilisé en temps réel, dans certains smartphones Apple par exemple, nous allons analyser les performances temporelles de l'algorithmes, via une webcam.
+
+\subsection{Analyse des performances temporelles}
+\subsubsection{Conditions de mesure}
+
+Tout d'abord, nous avons utilisé la version 3.3.0 de OpenCV, en Python 3.5.2.
+
+Le processeur utilisé pour l'analyse est un Intel Core i5-2520M CPU @ 2.50GHz.
+
+Les paramètres utilisés sont un scale factor de 1.04 et un minNeighbour de 3.
+
+Le fichier de $haar features$ utilisé est $frontalface\_default.xml$
+
+\subsubsection{Résultats obtenus}
+
+Le temps d'exécution moyen de l'algorithme est de 0.011 seconde.
+
+En comptant le temps d'exécution de l'algorithme ainsi que le temps d'affichage de l'image et des rectangles de détection, on obtient une fréquence de rafraîchissement moyen de 9 frames par seconde.
+
+Ainsi, on ne peut pas vraiment affirmer qu'il s'agisse de détection en temps réel, en tout cas pas dans ce contexte là.
 
 \section{Bibliographie}
 \flushleft
