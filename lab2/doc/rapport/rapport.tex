@@ -26,12 +26,20 @@
 \setlength{\topmargin}{-.5in}
 \setlength{\parskip}{1ex}
 
+
 \begin{document}
 
 \maketitle
 \vspace{1cm}
 
 \section{Problématique et objectifs}
+
+    Notre objectif global dans ce projet est d'évaluer les performances de l'algorithme de Viola-Jones.\\
+    Il ne sera pas question de modifier le code fourni, par exemple pour détecter les visages de face comme de profil, mais uniquement d'évaluer la qualité de l'algorithme fourni par OpenCV.\\\\
+    Plus précisément, il s'agira tout d'abord d'\textbf{analyser quantitativement la qualité des détections}, selon les critères de mesure de la précision (ou valeur prédictive positive) et du rappel (ou sensitivité). Cela inclut l'analyse des paramètres à choisir pour optimiser l'un ou l'autre des critères, selon l'usage désiré de l'utilisateur.\\
+    Ensuite, nous allons d'\textbf{analyser qualitativement le comportement et les sources d'erreur} de l'algorithme.\\
+    Enfin, étant donné qu'il est question d'un algorithme voué à être utilisé en embarqué et en temps réel, une \textbf{étude des performances temporelles} sera réalisée via une webcam. Cela permettra également d'illustrer les différents comportements mis en avant dans l'aspect qualitatif.\\\\
+    Les bases de données utilisées pour les analyses quantitative et qualitative seront la "FDDB: Face Detection Data Set and Benchmark Home" de l'université du Massachusetts, ainsi que la "WIDER FACE: A Face Detection Benchmark" de l'université de Hong Kong. 
 
 \section{Analyse quantitative}
     
@@ -70,8 +78,8 @@
         \\
         Nous calculons le couplage maximal grâce à la fonction \verb!scipy.optimize.linear_sum_assignment!, l'implémentation de l'algorithme hongrois.
         En sortie, nous nous intéressons à trois ensembles de sommets. 
-        Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais posifits}.
-        Ceux qui comptent parmi les sommets de détections et qui ne font pas parti du couplage sont considérés comme des {\bf faux posifits}.
+        Les sommets qui comptent parmi les sommets de détections et qui font parti du couplage sont considérés comme des {\bf vrais positifs}.
+        Ceux qui comptent parmi les sommets de détections et qui ne font pas parti du couplage sont considérés comme des {\bf faux positifs}.
         Les sommets qui sont des étiquettes et qui ne font pas parti du couplage sont considérés comme des {\bf faux négatifs}, il s'agit d'un visage qui n'a pas été détecté.
         \\
         \\
@@ -120,11 +128,35 @@
         Ce cas n'arrivera jamais avec l'impléménetation donnée, on aura donc toujours un nombre de faux négatifs minimum.
         Cela correspond visuellement au moment où nos courbes s'arrêtent brusquement (voir la section \ref{results}).
 
-    \subsection{Analyse des résultats}
+    \subsection{Présentation des paramètres de l'algorithme}
         
+        Afin de construire un système de détection de visage automatisé, nous devons déterminer les paramètres qui donnent les meilleurs résultats dans la plupart des cas.
+        En l'occurence, nous avons deux paramètres à régler, qui sont le {\bf scaleFactor} et {\bf minNeighbours}.
+        Avant de présenter nos résultats, voici quelques remarques.\\
+        \begin{itemize}
+            \item[$\bullet$] scaleFactor :\\\\
+                En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
+                En réalité, ce n'est pas l'image qui va être agrandit ou rétrécit plusieurs fois, mais le filtre.
+                Un scaleFactor de $1.1$ signifie que la taille du filtre va être multiplié par $1.1$ jusqu'à ce que sa taille dépasse les dimensions de l'image.
+                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisés ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
+                \\
+                Ceci implique que le temps d'exécution est linéaire en fonction du scaleFactor.
+                Alors notre système va encore être utilisable, même si nous choisissons d'augmenter la précision du filtre.\\
+            \item[$\bullet$] minNeighbours :\\\\
+                Après avoir déterminé tous les rectangles contenant éventuellement des visages, l'implémentation d'{\it OpenCV} les regroupe.
+                Ce regroupement se fait via la fonction \verb!groupRectangles! qui rejete tout rectangle n'ayant pas au moins minNeighbours rectangles voisins.
+                \\
+                Le choix de ce paramètre n'a pas de conséquence directe sur la performance de l'algorithme, mais il présente un seuil d'acceptance.
+                Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
+        \end{itemize}
+
+        \subsection{Résultats obtenus et choix des meilleurs paramètres pour un utilisateur lambda}
+
         Un exemple de courbe obtenue se trouve sur la figure \ref{fig:minN_1}.
+
         Pour la construire, nous avons parcouru le premier dossier de la base de données FDDB pour différents facteurs d'échelle et un nombre de voisins minimum fixé.
-        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes.
+
+        En plus de cela, afin de les comparer, nous avons calculé l'aire sous la courbe (AUC) pour chacune des courbes. Il s'agit d'une évaluation unique réalisant un compromis entre Précision et Rappel.
         
     \label{results}
 	\begin{figure}[H]
@@ -141,30 +173,7 @@
         Visuellement, nous pouvons constater cela à deux endroits. 
         D'une part, la courbe s'arrête plus tôt en abscisse parce que nous retirons moins d'informations pertinentes des images, i.e. $FN$ augmente.
         Et d'autre part, la courbe baisse en ordonnée parce que la détection devient moins précise, i.e. $TP$ diminue.
-
-    \subsection{Analyse des paramètres}
-        
-        Afin de construire un système de détection de visage automatisé, nous devons déterminer les paramètres qui donnent les meilleurs résultats dans la plupart des cas.
-        En l'occurence, nous avons deux paramètres à régler, qui sont le {\bf scaleFactor} et {\bf minNeighbours}.
-        Avant de présenter nos résultats, voici quelques remarques.
-        \begin{itemize}
-            \item scaleFactor
-                En théorie, ce paramètre détermine le nombre de niveau intermédiaire de la pyramide d'images utilisée par l'algorithme pour être invariant à l'échelle.
-                En réalité, ce n'est pas l'image qui va être agrandit ou rétrécit plusieurs fois, mais le filtre.
-                Un scaleFactor de $1.1$ signifie que la taille du filtre va être multiplié par $1.1$ jusqu'à ce que sa taille dépasse les dimensions de l'image.
-                Contrairement à d'autres caractéristiques appliquables sous forme de filtre, comme par exemple le filtre gaussien, les features utilisés ici ont l'avantage qu'en combinaison avec des images intégrales, nous pouvons les calculer en $\mathcal{O}(1)$ peu importe la taille du feature.
-                \\
-                Ceci implique que le temps d'exécution est linéaire en fonction du scaleFactor.
-                Alors notre système va encore être utilisable, même si nous choisissons d'augmenter la précision du filtre.
-            \item minNeighbours
-                Après avoir déterminé tous les rectangles contenant éventuellement des visages, l'implémentation d'{\it OpenCV} les regroupe.
-                Ce regroupement se fait via la fonction \verb!groupRectangles! qui rejete tout rectangle n'ayant pas au moins minNeighbours rectangles voisins.
-                \\
-                Le choix de ce paramètre n'a pas de conséquence directe sur la performance de l'algorithme, mais il présente un seuil d'acceptance.
-                Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
-        \end{itemize}
-
-        Nous avons parcourus des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
+        Nous avons parcouru des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
         Dans le tableau \ref{tab:parmeters}, nous avons listé les AUCs obtenues, les courbes correspondantes se trouvent en Annexe A \ref{annexes_a}.
 
         \begin{table}
@@ -199,9 +208,78 @@
         \end{table}
 
         Nous constatons que les valeurs maximales se trouvent au bord de notre plage de valeurs de test. 
-        Nous avons donc testé des scaleFactor encore plus petits pour optimiser l'AUC.
-        
+        Nous avons donc testé des scaleFactor encore plus petits pour optimiser l'AUC. Le résultat se trouve dans le tableau \ref{tab:fine_parameters}.
 
+        \begin{table}
+            \centering
+            %\resizebox{\textwidth}{!}{\begin{tabular}{|l|*{4}r|}
+            \begin{tabular}{|l|*{4}r|}
+                \hline
+                \diagbox{scaleFactor}{minNeighbours} &3&4&5&6\\
+                \hline
+                1.01  &  0.84111 & 0.8471 & 0.84761 & 0.8521 \\
+                1.02  &  0.84331 & 0.84571 & 0.84793& 0.85284 \\
+                1.03  &  0.84735 & 0.85201 & 0.85236 & 0.85257 \\
+                1.04  &  {\bf 0.85322} & 0.85192 & 0.84903 & 0.84882 \\
+                1.05  &  0.85245 & 0.85088 & 0.85269 & 0.85011 \\
+                1.06  &  0.84775 & 0.84652 & 0.84191 & 0.83925 \\
+                \hline
+            \end{tabular}
+            \caption{AUCs obtenues pour le dossier 1}
+            \label{tab:fine_parameters}
+        \end{table}
+        Nous obtenons le meilleur résultat avec un scaleFactor de $1.04$ et un minNeighbours de $3$.
+        
+        \subsection{Résultats obtenus et choix des paramètres pour une application donnée}
+
+            L'analyse que nous venons d'effectuer s'intéressait uniquement à une utilisation moyenne. Ici, nous allons préciser quelles paramètres il faut choisir en fonction du besoin de l'utilisateur.
+            \\
+            Nous avons tracé le rappel et la précision en fonction des paramètres de la fonction \verb!detectMultiScale! respectivement sur les figures \ref{fig:recall_fine_scale_dossier_1} et \ref{fig:precision_fine_scale_dossier_1}.
+            \\
+            Nous remarquons une influence forte des deux paramètres sur le rappel.
+            \\
+            \\
+            En effet, quand minNeighbours diminue, l'exigence de l'algorithme diminue, ce qui augmente le nombre de détections.
+            Cela a comme conséquence qu'il y a moins de visages qu'on ne couvre pas avec l'ensemble des détections.
+            \\
+            De l'autre côté, quand on augmente le scaleFactor, notre analyse multi-résolution devient plus grossière, i.e. la taille de la fenêtre n'est plus adaptée pour la détection de visages pour notre jeu de données.
+            \\
+            \\
+            Quant à la précision, l'interprétation est moins évidente.
+            Nous voyons que pour augmenter la précision, il suffit d'augmenter minNeighbours.
+            Le seuil d'acceptance plus élévé assure que dans le cas d'une éventuelle détection elle a de plus fortes chances d'être un vrai positif.
+            Alors que si minNeighbours vaut $0$, nous laissons passer toutes les détections de la sortie de la cascade, ce qui augmente fortement le nombre de faux positifs.
+            \\
+            Nous remarquons que l'influence est plus nuancée que celle du minNeighbours.
+            En théorie, ce parmètre ne devrait pas avoir d'influence majeure sur la précision, i.e. sur la qualité de nos détections, car il indique uniquement à quelle échelle nous sommes susceptible de détecter un visage et non pas s'il s'agit d'un vrai ou faux positif.
+            Néanmoins, nous voyons qu'autour de $1.5$, le graphe de la figure \ref{fig:precision_fine_scale_dossier_1} présente une vallée.
+            Pour vérifier s'il s'agit d'une anomalie du au jeu de données, nous avons tracé la même courbe mais cette fois par rapport au dossier 2 de la FDDB, voir la figure \ref{fig:precision_fine_scale_2_dossier_2}
+            Nous retrouvons le même phénomène, même si c'est légèrement décalé.
+            Malheureusement, nous n'avons pas d'explications pour ce comportement.
+
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/recall_fine_scale_dossier_1.png}
+	        	\caption{Rappel en fonction de scaleFactor et de minNeighbours, dossier: 1}
+	        	\label{fig:recall_fine_scale_dossier_1}
+	            \end{center}
+	        \end{figure}
+
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/precision_fine_scale_dossier_1.png}
+	        	\caption{Précision en fonction de scaleFactor et de minNeighbours, dossier: 1}
+	        	\label{fig:precision_fine_scale_dossier_1}
+	            \end{center}
+	        \end{figure}
+
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/precision_fine_scale_2_dossier_2.png}
+	        	\caption{Précision en fonction de scaleFactor et de minNeighbours, dossier: 2}
+	        	\label{fig:precision_fine_scale_2_dossier_2}
+	            \end{center}
+	        \end{figure}
 
 %TODO : faire une vraie analyse sur les paramètres
 %TODO : invariances, robustesse au bruit, à la compression
@@ -238,6 +316,89 @@
 		\label{fig:visage_or2}
 	    \end{center}
 	\end{figure}
+
+    \subsection{Transformations géométriques}
+
+	\subsubsection{Rotations}
+	    
+	    Nous remarquons que les rotations ne sont plus détectées à partir de 22 degrés si on prend la
+	    première photo comme étant 0 degré. Cela est dû au fait que la base d'entraînement n'est
+	    sûrement pas exhaustive vis à vis des tranformations géométriques.
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/ryan_1,2_3.png}
+		   \caption{Robustesse aux rotations du visage}
+		   \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+
+	\subsubsection{Inverse}
+
+	    La détection n'est pas robuste à l'inversion de l'image, de même cela est dû au fait que
+	    la base d'entraînement n'était pas exhaustive.
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/vis_1,2_3.png}
+		   \caption{Robustesse aux inversion de l'image}
+		   \label{fig:vis_inv}
+	        \end{center}
+	    \end{figure}
+
+	\subsubsection{Miroir}
+
+	    La détection est robuste à la symétrie axiale par rapport à l'axe des ordonnées. En effet,
+	    le visage humain étant symétrique cela n'impacte pas les détections.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/vis_miroir2_1,2_3.png}
+		    \caption{Robustesse à la symétrie verticale}
+	           \label{fig:miroir}
+	        \end{center}
+	    \end{figure}
+
+
+    \subsection{Application à un autre espace de couleur : HSV}
+	
+	On remarque que pour un espace de couleur basé sur les intensités la détection marche
+	encore. Ce qui semble logique car Viola-Jones fonctionne en niveaux de gris.
+	    
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_hsv_1,2_3.png}
+	           \caption{Robustesse au changement d'espace de couleur}
+	           \label{fig:hsv}
+	        \end{center}
+	    \end{figure}
+	
+    
+    \subsection{Compression d'image}
+
+	En compressant une image en jpeg (l'image passe de 29 kB à 4kB), la détection reste robuste.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_compression_1,21_3.png}
+	           \caption{Robustesse à la compression}
+	           \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+	
+
+    \subsection{Application d'un bruit gaussien}
+
+	La détection est aussi robuste au bruit gaussien, james crowley nous le confirme.
+
+	    \begin{figure}[H]
+	        \begin{center}
+	           \includegraphics[scale = 0.6]{images/james_crowley_bruit_gaussien_1,2_3.png}
+	           \caption{Robustesse au bruit gaussien}
+	           \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+	    
 
     \subsection{Expressions du visage}
 	
@@ -316,7 +477,8 @@
 
 	\subsubsection{Lunettes de soleil}
 
-	    Ces lunettes de soleil étant noires (figure \ref{fig:lunette}), la détection fonctionne très bien : il y a un gros
+	    Ces lunettes de soleil étant noires (figure \ref{fig:lunette}), la détection fonctionne
+	    très bien : il y a un gros
 	    différentiel d'intensité entre les lunettes et le reste du visage.
 
 	    \begin{figure}[H]
@@ -347,9 +509,77 @@
 		   \label{fig:illumination}
 	        \end{center}
 	    \end{figure}
+
+    \subsection{peinture}
+
+	Nous avons essayé l'algorithme de Viola-Jones, sur un des autoportraits de Picasso (1901), au
+	début de son expérimentation avec des primitives (à la suite de l'exposition de sculture
+	ibérique de 1905 dont il s'est inspiré). Nous reconnaissons tout de même ici un visage
+	(beaucoup plus que dans les tableaux à la fin de sa vie où c'est peut-être discutable).
+	Dans la figure suivante (figure \ref{fig:pablo}), nous avons appliqué un
+	\textit{scaleFactor} de 1.1 en mettant le \textit{minNeighbour} à 0 pour afficher toutes les
+	détections. Nous remarquons alors que le visage est détecté mais qu'on y trouve de multiples
+	FP. En effet, cela montre que l'algorithme pourrait être amélioré au niveau du choix des
+	positifs, en mettant un autre critère que les \textit{minNeighbours}.
+
+	%TODO
+
+	    \begin{figure}[H]
+		\begin{center}
+		    \includegraphics[scale = 0.6]{images/picasso-auto_1,1_0.png}
+		    \caption{Autoportrait de Pablo Picasso}
+		    \label{fig:picasso}
+		\end{center}
+	    \end{figure}
+
+	En comparant à un auto-portrait beaucoup plus réaliste (celui d'Edward
+	Hopper), nous avons une détection de visage (figure \ref{fig:edward}).
+
+	    \begin{figure}[H]
+	        \begin{center}
+		   \includegraphics[scale = 0.6]{images/edward_hopper_self_portrait_1,2_3.png}
+		   \caption{Autoportrait d'Edward Hopper}
+		   \label{fig:edward}
+	        \end{center}
+	    \end{figure}
+
 	
 
-\section{Illustrations en utilisant la webcam}
+\section{Analyse des performances temporelles et illustrations des détections en utilisant la webcam}
+
+Etant donné que l'algorithme de Viola-Jones est généralement utilisé en temps réel, dans certains smartphones Apple par exemple, nous allons analyser les performances temporelles de l'algorithmes, via une webcam.
+
+\subsection{Analyse des performances temporelles}
+\subsubsection{Conditions de mesure}
+
+Tout d'abord, nous avons utilisé la version 3.3.0 de OpenCV, en Python 3.5.2.
+
+Le processeur utilisé pour l'analyse est un Intel Core i5-2520M CPU @ 2.50GHz.
+
+Les paramètres utilisés sont un scale factor de 1.04 et un minNeighbour de 3.
+
+Le fichier de $haar features$ utilisé est $frontalface\_default.xml$
+
+\subsubsection{Résultats obtenus}
+
+Le temps d'exécution moyen de l'algorithme est de 0.011 seconde.
+
+En comptant le temps d'exécution de l'algorithme ainsi que le temps d'affichage de l'image et des rectangles de détection, on obtient une fréquence de rafraîchissement moyen de 9 frames par seconde.
+
+Ainsi, on ne peut pas vraiment affirmer qu'il s'agisse de détection en temps réel, en tout cas pas dans ce contexte là.
+
+\section*{Conclusion}
+    
+    En comparant cette méthode avec les histogrammes de couleur du TP1, nous pouvons voir que le
+    détecteur est beaucoup moins sensible à la couleur de peau (cf photo du singe). Cela évite les
+    faux positifs comme les mains et la courbe de précision est donc bien meilleure. La méthode
+    permet aussi de reconnaître les visages à travers différents espaces de couleur, nous pouvons
+    alors détecter des visages maquillés, des images en noir et blanc (ce qui n'était pas le cas
+    pour les histogrammes). L'ajout de poids dans l'algorithme fait, quant à lui, que l'on peut
+    éviter les détections des mains ou autres artéfacts.
+    Cependant, cette méthode possède encore des problèmes comme par exemple le fait que les Haar
+    features soient sous la forme de rectangle, cela n'autorise pas de rotation (de plus de 22
+    degrés)  ou de transformations géométriques complexes (comme les détecteurs SIFT le permettent). 
 
 \section{Bibliographie}
 \flushleft
@@ -360,89 +590,80 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 
 \section{Annexes}
     
-    \subsection{Annexes: A}
-    \label{annexes_a}
+    %\subsection{Annexes: A}
+    %\label{annexes_a}
 
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_2.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 2, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_7.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 7, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_8.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 8, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_9.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 9, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
-%
-%    \label{results}
-%	\begin{figure}[H]
-%	    \begin{center}
-%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_10.png}
-%		\caption{courbe Précision-Rappel: minNeighbours: 10, dossier: 1}
-%		\label{fig:minN_2}
-%	    \end{center}
-%	\end{figure}
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_2.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 2, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_7.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 7, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_8.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 8, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_9.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 9, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \begin{center}
+		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_10.png}
+		\caption{courbe Précision-Rappel: minNeighbours: 10, dossier: 1}
+		\label{fig:minN_2}
+	    \end{center}
+	\end{figure}
 
 
 \end{document}

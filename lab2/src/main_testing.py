@@ -45,16 +45,16 @@ if __name__ == '__main__':
     scale_factor=1.1 # later we will run through these parameters
 
     plt_handle_vec = []
-    for scale_factor in np.arange(1.05,2.0,0.05):
+    for scale_factor in np.arange(1.01,1.06,0.01):
         for min_neighbours in range(min_neighbours,min_neighbours+1,1):
-            #print("scale_factor: "+str(scale_factor)+", min_neighbours: "+str(min_neighbours))
+            print("scale_factor: "+str(scale_factor)+", min_neighbours: "+str(min_neighbours))
             y_true = []
             levelWeights_all=[]
             counter = 0
             FN = 0
             for img_info in img_info_vec:
                 counter += 1
-                #print("img nb: "+str(counter))
+                print("img nb: "+str(counter))
                 # viola-jones works with grayscale images
                 gray_img = cv2.imread(img_info.img_path,0) # 0 = IMREAD_GRAYSCALE
                 [detected_faces,rejectLevels,levelWeights] = face_cascade.detectMultiScale3(gray_img,scale_factor,min_neighbours,outputRejectLevels=True)
