@@ -171,6 +171,7 @@
                 Il s'agit d'un post-traitement, appliqué aux détections à la sortie de la cascade.
         \end{itemize}
 
+        \subsubsection{Recherche des meilleurs paramètres moyens}
         Nous avons parcourus des scaleFactor de $1.05$ à $1.95$ avec un pas de $0.05$ et des minNeighbours de $1$ à $10$.
         Dans le tableau \ref{tab:parmeters}, nous avons listé les AUCs obtenues, les courbes correspondantes se trouvent en Annexe A \ref{annexes_a}.
 
@@ -206,8 +207,39 @@
         \end{table}
 
         Nous constatons que les valeurs maximales se trouvent au bord de notre plage de valeurs de test. 
-        Nous avons donc testé des scaleFactor encore plus petits pour optimiser l'AUC.
+        Nous avons donc testé des scaleFactor encore plus petits pour optimiser l'AUC. Le résultat se trouve dans le tableau \ref{tab:fine_parameters}.
+
+        \begin{table}
+            \centering
+            %\resizebox{\textwidth}{!}{\begin{tabular}{|l|*{4}r|}
+            \begin{tabular}{|l|*{4}r|}
+                \hline
+                \diagbox{scaleFactor}{minNeighbours} &3&4&5&6\\
+                \hline
+                1.01  &  0.84111 & 0.8471 & 0.84761 & 0.8521 \\
+                1.02  &  0.84331 & 0.84571 & 0.84793& 0.85284 \\
+                1.03  &  0.84735 & 0.85201 & 0.85236 & 0.85257 \\
+                1.04  &  {\bf 0.85322} & 0.85192 & 0.84903 & 0.84882 \\
+                1.05  &  0.85245 & 0.85088 & 0.85269 & 0.85011 \\
+                1.06  &  0.84775 & 0.84652 & 0.84191 & 0.83925 \\
+                \hline
+            \end{tabular}
+            \caption{AUCs obtenues pour le dossier 1}
+            \label{tab:fine_parameters}
+        \end{table}
+        Nous obtenons le meilleur résultat avec un scaleFactor de $1.04$ et un minNeighbours de $3$.
         
+        \subsubsection{Recherche de paramètres en fonction de l'application}
+
+            L'analyse que nous venons d'effectuer s'intéressait uniquement
+            \label{results}
+	        \begin{figure}[H]
+	            \begin{center}
+	        	\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_1.png}
+	        	\caption{courbe Précision-Rappel: minNeighbours: 1, dossier: 1}
+	        	\label{fig:minN_1}
+	            \end{center}
+	        \end{figure}
 
 
 %TODO : faire une vraie analyse sur les paramètres
@@ -391,7 +423,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
     \subsection{Annexes: A}
     \label{annexes_a}
 
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_2.png}
@@ -400,7 +431,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3.png}
@@ -409,7 +439,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4.png}
@@ -418,7 +447,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5.png}
@@ -427,7 +455,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6.png}
@@ -436,7 +463,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_7.png}
@@ -445,7 +471,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_8.png}
@@ -454,7 +479,6 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_9.png}
@@ -463,12 +487,45 @@ $[4]$ - \url{http://vis-www.cs.umass.edu/fddb/fddb.pdf}
 %	    \end{center}
 %	\end{figure}
 %
-%    \label{results}
 %	\begin{figure}[H]
 %	    \begin{center}
 %		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_10.png}
 %		\caption{courbe Précision-Rappel: minNeighbours: 10, dossier: 1}
 %		\label{fig:minN_2}
+%	    \end{center}
+%	\end{figure}
+
+    \subsection{Annexes: B}
+    \label{annexes_b}
+%	\begin{figure}[H]
+%	    \begin{center}
+%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_3_fine_scale.png}
+%		\caption{courbe Précision-Rappel: minNeighbours: 3, dossier: 1}
+%		\label{fig:minN_3_fine_scale}
+%	    \end{center}
+%	\end{figure}
+%
+%	\begin{figure}[H]
+%	    \begin{center}
+%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_4_fine_scale.png}
+%		\caption{courbe Précision-Rappel: minNeighbours: 4, dossier: 1}
+%		\label{fig:minN_4_fine_scale}
+%	    \end{center}
+%	\end{figure}
+%
+%	\begin{figure}[H]
+%	    \begin{center}
+%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_5_fine_scale.png}
+%		\caption{courbe Précision-Rappel: minNeighbours: 5, dossier: 1}
+%		\label{fig:minN_5_fine_scale}
+%	    \end{center}
+%	\end{figure}
+%
+%	\begin{figure}[H]
+%	    \begin{center}
+%		\includegraphics[scale = 0.4]{images/courbes/folder_01_minN_6_fine_scale.png}
+%		\caption{courbe Précision-Rappel: minNeighbours: 6, dossier: 1}
+%		\label{fig:minN_6_fine_scale}
 %	    \end{center}
 %	\end{figure}
 
