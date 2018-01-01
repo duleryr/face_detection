@@ -24,3 +24,6 @@ class ROI:
 
     def get_roi_content(self, img):
         return img[(self.c[1]-self.half_window_size):(self.c[1]+self.half_window_size),(self.c[0]-self.half_window_size):(self.c[0]+self.half_window_size)]
+
+    def reset_pos(self):
+        self.c = np.array([self.half_window_size,self.half_window_size])

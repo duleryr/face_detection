@@ -28,21 +28,21 @@ if __name__ == '__main__':
         print("    int2 : nombre d'images à utiliser pour les tests de détection")
         exit(1)
 
+    # Hyper-parameters
+    N = 11 # ROI-size
+
     # Load FDDB data
     fddb = fddb_manager.Manager()
     fddb.set_train_folders([1,2])
     fddb.set_test_folders([3])
     fddb.set_fddb_dir("../dataset")
     fddb.load_img_descriptors()
-    print(len(fddb.train_img_info_vec))
-    print(len(fddb.test_img_info_vec))
-    print(fddb.train_img_info_vec[0].img_path)
-    fddb.set_window_size(101)
-
-    fddb.next_batch_aux(5,fddb.train_img_info_vec,fddb.train_img_counter,fddb.train_batch_counter,fddb.train_roi)
+    fddb.set_window_size(N)
     
     # Construct CNN
 
     # Train network
+    batch = fddb.next_batch_train(500)
+    print(len(batch))
 
     # Evaluate network

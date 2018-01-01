@@ -19,10 +19,12 @@ class Manager:
         self.test_batch_counter = 0
         self.window_size = 11
         self.train_roi = roi.ROI(self.window_size)
+        self.test_roi = roi.ROI(self.window_size)
     
     def set_window_size(self, window_size_input):
         self.window_size = window_size_input
         self.train_roi = roi.ROI(self.window_size)
+        self.test_roi = roi.ROI(self.window_size)
 
     def set_train_folders(self, train_folders_vec_input):
         self.train_folders_vec = train_folders_vec_input
@@ -56,11 +58,22 @@ class Manager:
         batch = []
         if(img_counter>len(img_info_vec)):
             return batch
-        img_info = img_info_vec[img_counter]
-        img = cv2.imread(img_info.img_path)
+        img = cv2.imread(img_info_vec[img_counter].img_path)
         graphical_tools.showImg("test",img)
-        # TODO: when roi is out of bounds, switch to next image
         for i in range(batch_size):
             # move the roi forward
             batch.append(roi.get_roi_content(img))
             roi.next_step(img.shape)
+            if(roi.c[0] == -1): # roi is out of bounds
+                roi.reset_pos()
+                img_counter += 1 # pass on to the next image
+                if(img_counter>len(img_info_vec)):
+                    return batch
+                img = cv2.imread(img_info_vec[img_counter].img_path)
+        return batch
+
+    def next_batch_train(self, batch_size):
+        return self.next_batch_aux(batch_size,self.train_img_info_vec,self.train_img_counter,self.train_batch_counter,self.train_roi)
+
+    def next_batch_test(self, batch_size):
+        return self.next_batch_aux(batch_size,self.test_img_info_vec,self.test_img_counter,self.test_batch_counter,self.test_roi)
