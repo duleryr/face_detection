@@ -54,28 +54,35 @@ if __name__ == '__main__':
     #print(ground_truth)
 
     # Build the graph for the deep net
-    y_conv, x_hold,y_hold,keep_prob = cnn.construct_cnn(N)
-    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_hold,
-                                                            logits=y_conv)
-    cross_entropy = tf.reduce_mean(cross_entropy)
-    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_hold, 1))
-    correct_prediction = tf.cast(correct_prediction, tf.float32)
-    accuracy = tf.reduce_mean(correct_prediction)
+    y_conv, x_hold,y_hold,keep_prob,summary = cnn.construct_cnn(N)
+    with tf.name_scope("xEntropy"):
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_hold,
+                                                                logits=y_conv)
+        cross_entropy = tf.reduce_mean(cross_entropy)
+    with tf.name_scope("train"):
+        train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+    with tf.name_scope("accuracy"):
+        correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_hold, 1))
+        correct_prediction = tf.cast(correct_prediction, tf.float32)
+        accuracy = tf.reduce_mean(correct_prediction)
 
+    writer = tf.summary.FileWriter("/tmp/fddb")
     # Train network
 
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
+      writer.add_graph(sess.graph)
       for i in range(1000):
         #print("hmm")
-        batch = fddb.next_batch_train(1000)
+        batch = fddb.next_batch_train(100)
         #print(len(batch[1][0]))
         #print(batch[0].shape)
         if i % 100 == 0:
             train_accuracy = accuracy.eval(feed_dict={
                 x_hold: batch[0], y_hold: batch[1], keep_prob: 0.5})
             print('step %d, training accuracy %g' % (i, train_accuracy))
+            s = sess.run(summary, feed_dict={x_hold: batch[0], y_hold: batch[1], keep_prob: 0.5})
+            writer.add_summary(s, i)
         train_step.run(feed_dict={x_hold: batch[0], y_hold: batch[1], keep_prob: 0.5})
 
     # Evaluate network

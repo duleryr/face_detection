@@ -76,8 +76,9 @@ class Manager:
                     print("NOOO more images left")
                     return batch
                 img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
-                graphical_tools.showImg("test",img)
+                #graphical_tools.showImg("test",img)
                 ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
+        #print(np.sum(batch[1],axis=0))
         batch[0] = np.concatenate(batch[0])
         batch[0] = np.asarray(batch[0],dtype=np.float32)
         return batch
