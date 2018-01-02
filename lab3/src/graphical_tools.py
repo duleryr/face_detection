@@ -10,9 +10,20 @@ import roi
 
 #define _ITERATOR_DEBUG_LEVEL=0
 
+def calc_mask(img, img_info):
+    mask = img.copy()
+    #creating a mask for the histogram
+    mask[:] = (0, 0, 0)
+    
+    for i in range(0, img_info.nb_faces):
+        e_tmp = img_info.list_ellipse[i]
+        cv2.ellipse(mask,(int(e_tmp.c_x),int(e_tmp.c_y)),(int(e_tmp.r_a),
+            int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255, 255, 255), -1)
+    return mask
+
 def showImg(name, img):
     cv2.imshow(name, img)
-    cv2.waitKey(100)
+    cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 def showROI(img, roi):

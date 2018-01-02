@@ -12,6 +12,8 @@ import graphical_tools
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
 import fddb_manager
+import cnn
+import tensorflow as tf
 
 if __name__ == '__main__':
     """ Initialization : Choice of the files used for the training/testing """
@@ -39,10 +41,41 @@ if __name__ == '__main__':
     fddb.load_img_descriptors()
     fddb.set_window_size(N)
     
+    #batch = fddb.next_batch_train(10)
     # Construct CNN
+    #cnn.construct_cnn(batch[0],batch[1],N)
+
+    # Create the model
+    #x = tf.placeholder(tf.float32, [None, 11,3])
+    #print(x)
+
+    ## Define loss and optimizer
+    #ground_truth = tf.placeholder(tf.float32, [None,2])
+    #print(ground_truth)
+
+    # Build the graph for the deep net
+    y_conv, x_hold,y_hold,keep_prob = cnn.construct_cnn(N)
+    cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_hold,
+                                                            logits=y_conv)
+    cross_entropy = tf.reduce_mean(cross_entropy)
+    train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+    correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_hold, 1))
+    correct_prediction = tf.cast(correct_prediction, tf.float32)
+    accuracy = tf.reduce_mean(correct_prediction)
 
     # Train network
-    batch = fddb.next_batch_train(500)
-    print(len(batch))
+
+    with tf.Session() as sess:
+      sess.run(tf.global_variables_initializer())
+      for i in range(1000):
+        #print("hmm")
+        batch = fddb.next_batch_train(1000)
+        #print(len(batch[1][0]))
+        #print(batch[0].shape)
+        if i % 100 == 0:
+            train_accuracy = accuracy.eval(feed_dict={
+                x_hold: batch[0], y_hold: batch[1], keep_prob: 0.5})
+            print('step %d, training accuracy %g' % (i, train_accuracy))
+        train_step.run(feed_dict={x_hold: batch[0], y_hold: batch[1], keep_prob: 0.5})
 
     # Evaluate network
