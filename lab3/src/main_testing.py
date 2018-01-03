@@ -53,8 +53,11 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
         writer.add_graph(sess.graph)
-        for i in range(10000):
-          batch = fddb.next_batch_train(100)
+        for i in range(1000):
+          #batch, full_batch = fddb.next_batch_train(100)
+          batch, full_batch = fddb.next_balanced_batch_train(1000)
+          if(not full_batch):
+            break
           if i % 100 == 0:
               train_accuracy = sess.run(accuracy, feed_dict={
                   x_hold: batch[0], y_true: batch[1]})

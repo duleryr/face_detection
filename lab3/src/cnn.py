@@ -73,10 +73,10 @@ def construct_cnn(N):
     num_classes = 2
 
     # Input variables
-    x_hold = tf.placeholder(tf.float32,shape=[None,N,D], name="x")
+    x_hold = tf.placeholder(tf.float32,shape=[None,N,num_channels], name="x")
     y_true = tf.placeholder(tf.float32,shape=[None,2], name="labels")
 
-    xt = tf.reshape(x_hold,[-1,N,N,D])
+    xt = tf.reshape(x_hold,[-1,N,N,num_channels])
     tf.summary.image("input_batch", xt)
 
     # Define CNN
