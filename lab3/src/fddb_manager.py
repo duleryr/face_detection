@@ -92,6 +92,7 @@ class Manager:
                 self.img_counter_vec[img_counter_vec_index] += 1
                 if(self.img_counter_vec[img_counter_vec_index]>=len(img_info_vec)):
                     print("NO more images left")
+                    print("img_counter: "+str(self.img_counter_vec[img_counter_vec_index]))
                     return batch, False
                 img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
                 #graphical_tools.showImg("test",img)

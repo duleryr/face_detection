@@ -8,8 +8,8 @@ class ROI:
         # the center of the roi
         self.c = np.array([self.half_window_size,self.half_window_size])
         # stride in x and y
-        #self.stride = np.array([1,1])
-        self.stride = np.array([self.half_window_size,self.half_window_size])
+        self.stride = np.array([1,1])
+        #self.stride = np.array([self.half_window_size,self.half_window_size])
 
     def next_step(self, img_dim):
         img_dim = np.array(img_dim[0:2])

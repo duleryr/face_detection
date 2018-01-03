@@ -113,19 +113,33 @@ def construct_cnn(N):
     # Define Post-processing
     y_pred = tf.nn.softmax(layer_fc2,name="y_pred")
     
-    with tf.name_scope("train"):
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc2,
-                                                            labels=y_true)
-        cost = tf.reduce_mean(cross_entropy)
-        optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
-
     with tf.name_scope("accuracy"):
         y_pred_cls = tf.argmax(y_pred,dimension=1)
         y_true_cls = tf.argmax(y_true,dimension=1)
         correct_prediction = tf.equal(y_pred_cls, y_true_cls)
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    
-    tf.Session().run(tf.initialize_all_variables())
+        tf.summary.scalar("accuracy",accuracy)
 
+    with tf.name_scope("train"):
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=layer_fc2,
+                                                            labels=y_true)
+        # since we are dealing with mutually exclusive labels, we could try
+        # another cost function
+        # After trial: doesn't work, minimizes the cost function, but reduces the accuracy
+        #y_true_exclusive = tf.cast(y_true[:,0],dtype=tf.int32)
+        #cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=layer_fc2,
+        #                                                    labels=y_true_exclusive)
+        #cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc2,
+        #                                                    targets=y_true,pos_weight=2)
+        cost = tf.reduce_mean(cross_entropy)
+        tf.summary.scalar("cost",cost)
+        # OPTIONAL: decayed learning rate
+        starter_learning_rate = 1e-4
+        global_step = tf.Variable(0, trainable=False)
+        learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,
+                                                   10, 0.96, staircase=True)
+        #optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost,global_step=global_step)
+        optimizer = tf.train.AdamOptimizer(starter_learning_rate).minimize(cost,global_step=global_step)
+    
     merged = tf.summary.merge_all()
-    return y_pred, y_true, x_hold, optimizer, accuracy, merged
+    return y_pred, y_true, x_hold, optimizer, accuracy, merged, cost, learning_rate
