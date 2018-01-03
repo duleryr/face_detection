@@ -61,8 +61,6 @@ def create_fc_layer(input_tensor, num_inputs,num_outputs,
 # N is the roi size
 def construct_cnn(N):
 
-    # Depth, i.e. number of channels
-    D = 3
     # Define the CNN by its parameters
     num_channels = 3
     filter_size_conv1 = 3
@@ -76,12 +74,9 @@ def construct_cnn(N):
 
     # Input variables
     x_hold = tf.placeholder(tf.float32,shape=[None,N,D], name="x")
-    #y_hold = tf.placeholder(tf.float32,shape=[None,2], name="labels")
     y_true = tf.placeholder(tf.float32,shape=[None,2], name="labels")
-    #keep_prob = tf.placeholder(tf.float32, name = "keep_prob")
 
     xt = tf.reshape(x_hold,[-1,N,N,D])
-    #xt, y_hold = tf.train.shuffle_batch([xt,y_hold], batch_size=100,capacity=20,min_after_dequeue=10, enqueue_many=True)
     tf.summary.image("input_batch", xt)
 
     # Define CNN
@@ -130,49 +125,7 @@ def construct_cnn(N):
         correct_prediction = tf.equal(y_pred_cls, y_true_cls)
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     
-    ##Layer 1 - 5x5 convolution
-    # length(tensor_output) = 4*length(tensor_input)
-    #with tf.name_scope("Conv1"):
-    #    w1 = weight_variable([5,5,D,4])
-    #    b1 = bias_variable([4])
-    #    c1 = tf.nn.relu(tf.nn.conv2d(xt,w1,strides=[1,1,1,1],padding='SAME')+b1)
-    #    o1 = c1
-
-    ##Layer 2 - 3x3 convolution
-    #with tf.name_scope("Conv2"):
-    #    w2 = weight_variable([3,3,4,16])
-    #    b2 = bias_variable([16])
-    #    c2 = tf.nn.relu(tf.nn.conv2d(o1,w2,strides=[1,1,1,1],padding='SAME')+b2)
-    #    o2 = c2
-
-    ##Layer 3 - 3x3 convolution
-    #with tf.name_scope("Conv3"):
-    #    w3 = weight_variable([3,3,16,32])
-    #    b3 = bias_variable([32])
-    #    c3 = tf.nn.relu(tf.nn.conv2d(o2,w3,strides=[1,1,1,1],padding='SAME')+b3)
-    #    o3 = c3
-
-    ## dim = input_dim * 1st-layer * 2nd-layer * 3rd-layer
-    #dim = N*N*4*4*2
-    #    
-    ##Fully connected layer - 600 units
-    #with tf.name_scope("Fc1"):
-    #    of = tf.reshape(o3,[-1,dim])
-    #    w4 = weight_variable([dim,600])
-    #    b4 = bias_variable([600])
-    #    o4 = tf.nn.relu(tf.matmul(of,w4)+b4)
-
-    #with tf.name_scope("Dropout"):
-    #    o4 = tf.nn.dropout(o4, keep_prob)
-
-    ##Output softmax layer - 2 units
-    #with tf.name_scope("Softmax"):
-    #    w5 = weight_variable([600,2])
-    #    b5 = bias_variable([2])
-    #    y = tf.nn.softmax(tf.matmul(o4,w5)+b5, name="final_result")
-
     tf.Session().run(tf.initialize_all_variables())
 
     merged = tf.summary.merge_all()
-    #return y,x_hold,y_hold,keep_prob,merged
     return y_pred, y_true, x_hold, optimizer, accuracy, merged

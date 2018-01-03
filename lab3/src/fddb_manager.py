@@ -71,20 +71,17 @@ class Manager:
             if(roi.c[0] == -1): # roi is out of bounds
                 roi.reset_pos()
                 self.img_counter_vec[img_counter_vec_index] += 1
-                #print("change: self.img_counter_vec[img_counter_vec_index]: "+str(self.img_counter_vec[img_counter_vec_index]))
                 if(self.img_counter_vec[img_counter_vec_index]>len(img_info_vec)):
                     print("NOOO more images left")
                     return batch
                 img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
                 #graphical_tools.showImg("test",img)
                 ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
-        #print(np.sum(batch[1],axis=0))
         batch[0] = np.concatenate(batch[0])
         batch[0] = np.asarray(batch[0],dtype=np.float32)
         return batch
 
     def next_batch_train(self, batch_size):
-        #print("img_counter: "+str(self.train_img_counter))
         return self.next_batch_aux(batch_size,self.train_img_info_vec,0,self.train_roi)
 
     def next_batch_test(self, batch_size):
