@@ -44,10 +44,6 @@ if __name__ == '__main__':
     # Restore model
     saver = tf.train.Saver()
 
-    tp_vec = []
-    fp_vec = []
-    tn_vec = []
-    fn_vec = []
     scores = []
     labels = []
     # Evaluate network
@@ -69,34 +65,5 @@ if __name__ == '__main__':
     labels = np.concatenate(labels)
     scores_labels = zip(scores,labels)
     scores, labels = zip(*sorted(scores_labels))
-    #print(scores)
-    #print(labels)
-#    TP = 0
-#    FP = 0
-#    FN = np.sum(labels)
-#    TN = len(labels)-FN
-#    print("TP: "+str(TP))
-#    print("FP: "+str(FP))
-#    print("TN: "+str(TN))
-#    print("FN: "+str(FN))
-#    tpr = [0.0] # TP = 0
-#    fpr = [0.0] # FP = 0
-#    for i in range(len(labels)-1,-1,-1):
-#        if(labels[i]):
-#            FN -= 1
-#            TP += 1
-#        else:
-#            TN -= 1
-#            FP += 1
-#        tpr.append(float(TP)/float(TP+FP))
-#        fpr.append(float(FP)/float(FP+TN))
-#        #print("next step")
-#        #print("TP: "+str(TP))
-#        #print("FP: "+str(FP))
-#        #print("TN: "+str(TN))
-#        #print("FN: "+str(FN))
 
-    #print(labels)
-    #print(tpr)
-    #print(fpr)
     graphical_tools.plot_roc_curve(labels,scores)
