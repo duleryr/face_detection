@@ -66,7 +66,7 @@ class Manager:
         total_counter = 0
         if(self.img_counter_vec[img_counter_vec_index]>len(img_info_vec)):
             return batch
-        img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
+        img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
         ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
         #graphical_tools.showImg("test",img)
         #graphical_tools.showImg("vérité terrain",ground_truth)
@@ -75,7 +75,11 @@ class Manager:
         while((false_counter<half_batch_size) or (true_counter<half_batch_size)):
             sub_image = roi.get_roi_content(img)
             total_counter += 1
-            is_in_face = ground_truth[roi.c[0],roi.c[1]][0]>0
+            is_in_face = (ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
+                        ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]+roi.half_window_size]>0 and
+                        ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
+                        ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]+roi.half_window_size]>0)
+
             if(is_in_face and (true_counter<half_batch_size)):
                 batch_true[0].append(sub_image)
                 batch_true[1].append([float(is_in_face), float(not is_in_face)])
@@ -94,7 +98,7 @@ class Manager:
                     print("NO more images left")
                     print("img_counter: "+str(self.img_counter_vec[img_counter_vec_index]))
                     return batch, False
-                img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
+                img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
                 #graphical_tools.showImg("test",img)
                 ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
 
@@ -107,6 +111,7 @@ class Manager:
         for i in range(batch_size):
             if(random_order[i]):
                 batch[0].append(batch_true[0][true_counter])
+                #graphical_tools.showImg("batch",batch_true[0][true_counter])
                 batch[1].append(batch_true[1][true_counter])
                 true_counter += 1
             else:
@@ -124,28 +129,27 @@ class Manager:
         batch = [[],[]]
         if(self.img_counter_vec[img_counter_vec_index]>len(img_info_vec)):
             return batch
-        img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
+        img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
         ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
-        #graphical_tools.showImg("test",img)
-        #graphical_tools.showImg("vérité terrain",ground_truth)
         for i in range(batch_size):
             # move the roi forward
             batch[0].append(roi.get_roi_content(img))
-            is_in_face = ground_truth[roi.c[0],roi.c[1]][0]>0
+            #is_in_face = ground_truth[roi.c[0],roi.c[1]][0]>0
+            is_in_face = ground_truth[roi.c[0],roi.c[1]]>0 # BW
             batch[1].append([float(is_in_face), float(not is_in_face)])
             roi.next_step(img.shape)
             if(roi.c[0] == -1): # roi is out of bounds
                 roi.reset_pos()
                 self.img_counter_vec[img_counter_vec_index] += 1
-                if(self.img_counter_vec[img_counter_vec_index]>len(img_info_vec)):
+                if(self.img_counter_vec[img_counter_vec_index]>=len(img_info_vec)):
                     print("NOOO more images left")
-                    return batch
-                img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
+                    return batch, False
+                img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
                 #graphical_tools.showImg("test",img)
                 ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
         batch[0] = np.concatenate(batch[0])
         batch[0] = np.asarray(batch[0],dtype=np.float32)
-        return batch
+        return batch, True
 
     def next_batch_train(self, batch_size):
         return self.next_batch_aux(batch_size,self.train_img_info_vec,0,self.train_roi)

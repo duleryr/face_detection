@@ -62,7 +62,7 @@ def create_fc_layer(input_tensor, num_inputs,num_outputs,
 def construct_cnn(N):
 
     # Define the CNN by its parameters
-    num_channels = 3
+    num_channels = 1
     filter_size_conv1 = 3
     num_filters_conv1 = 32
     filter_size_conv2 = 3
@@ -73,7 +73,8 @@ def construct_cnn(N):
     num_classes = 2
 
     # Input variables
-    x_hold = tf.placeholder(tf.float32,shape=[None,N,num_channels], name="x")
+    #x_hold = tf.placeholder(tf.float32,shape=[None,N,num_channels], name="x")
+    x_hold = tf.placeholder(tf.float32,shape=[None,N], name="x")
     y_true = tf.placeholder(tf.float32,shape=[None,2], name="labels")
 
     xt = tf.reshape(x_hold,[-1,N,N,num_channels])

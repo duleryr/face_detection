@@ -7,18 +7,40 @@ import numpy as np
 #from pyqtgraph.Qt import QtCore, QtGui
 import sys
 import roi
+from matplotlib import pyplot as plt
+from sklearn.metrics import roc_curve
+from sklearn.metrics import auc
 
 #define _ITERATOR_DEBUG_LEVEL=0
+
+def plot_roc_curve(labels, scores):
+
+    fpr,tpr, _ = roc_curve(labels,scores)
+    plt.figure()
+    lw = 2
+    plt.plot(fpr, tpr, color='darkorange',
+        lw=lw, label='ROC curve (area = %0.2f)' % auc(fpr,tpr))
+    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating curve')
+    plt.legend(loc="lower right")
+    plt.show()
 
 def calc_mask(img, img_info):
     mask = img.copy()
     #creating a mask for the histogram
-    mask[:] = (0, 0, 0)
+    #mask[:] = (0, 0, 0)
+    mask[:] = 0
     
     for i in range(0, img_info.nb_faces):
         e_tmp = img_info.list_ellipse[i]
+        #cv2.ellipse(mask,(int(e_tmp.c_x),int(e_tmp.c_y)),(int(e_tmp.r_a),
+        #    int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255, 255, 255), -1)
         cv2.ellipse(mask,(int(e_tmp.c_x),int(e_tmp.c_y)),(int(e_tmp.r_a),
-            int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255, 255, 255), -1)
+            int(e_tmp.r_b)),int(e_tmp.theta),0,360,(255), -1)
     return mask
 
 def showImg(name, img):
