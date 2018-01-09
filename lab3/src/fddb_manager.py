@@ -4,6 +4,7 @@ import graphical_tools
 import numpy as np
 import cv2
 import random
+import wider_loader
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
 
@@ -26,6 +27,10 @@ class Manager:
         self.window_size = window_size_input
         self.train_roi = roi.ROI(self.window_size)
         self.test_roi = roi.ROI(self.window_size)
+
+    def get_WIDER_img_info(self, bbx_file_name):
+        wider_vec = wider_loader.get_all_img_info(bbx_file_name)
+        self.train_img_info_vec.extend(wider_vec)
 
     def set_train_folders(self, train_folders_vec_input):
         self.train_folders_vec = train_folders_vec_input
