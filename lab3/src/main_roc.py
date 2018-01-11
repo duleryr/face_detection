@@ -65,5 +65,15 @@ if __name__ == '__main__':
     labels = np.concatenate(labels)
     scores_labels = zip(scores,labels)
     scores, labels = zip(*sorted(scores_labels))
+    # manually checking TP,FP
+    tp = 0
+    fp = 0
+    for i in range(len(scores)):
+        if(scores[i]>0.99):
+            if(labels[i]):
+                tp += 1
+            else:
+                fp += 1
+    print("tp: "+str(tp)+", fp :"+str(fp))
 
     graphical_tools.plot_roc_curve(labels,scores)

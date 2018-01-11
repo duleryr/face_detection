@@ -73,24 +73,24 @@ def construct_cnn(N):
     # Define the CNN by its parameters
     num_channels = 1
 
-    #filter_size_conv1 = 3
-    #num_filters_conv1 = 32
-    filter_size_conv1 = 5
-    num_filters_conv1 = 4
+#    filter_size_conv1 = 5
+#    num_filters_conv1 = 4
+#
+#    filter_size_conv2 = 3
+#    num_filters_conv2 = 16
+#
+#    filter_size_conv3 = 3
+#    num_filters_conv3 = 32
 
-    #filter_size_conv2 = 3
-    #num_filters_conv2 = 32
+    filter_size_conv1 = 11
+    num_filters_conv1 = 16
 
-    filter_size_conv2 = 3
-    num_filters_conv2 = 16
+    filter_size_conv2 = 11
+    num_filters_conv2 = 64
 
-    #filter_size_conv3 = 3
-    #num_filters_conv3 = 64
+    filter_size_conv3 = 11
+    num_filters_conv3 = 128
 
-    filter_size_conv3 = 3
-    num_filters_conv3 = 32
-
-    #fc_layer_size = 128
     fc_layer_size = 600 
     num_classes = 2
 
@@ -151,8 +151,10 @@ def construct_cnn(N):
         tf.summary.scalar("accuracy",accuracy)
 
     with tf.name_scope("train"):
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y_pred,
-                                                            labels=y_true)
+        #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y_pred,
+        #                                                    labels=y_true)
+        #cost = tf.reduce_mean(cross_entropy)
+        cost = tf.losses.hinge_loss(logits=y_pred,labels=y_true)
         # since we are dealing with mutually exclusive labels, we could try
         # another cost function
         # After trial: doesn't work, minimizes the cost function, but reduces the accuracy
@@ -161,7 +163,6 @@ def construct_cnn(N):
         #                                                    labels=y_true_exclusive)
         #cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc2,
         #                                                    targets=y_true,pos_weight=2)
-        cost = tf.reduce_mean(cross_entropy)
         beta = 0.01
         cost += beta*tf.nn.l2_loss(weights_conv1) +\
                 beta*tf.nn.l2_loss(bias_conv1) +\

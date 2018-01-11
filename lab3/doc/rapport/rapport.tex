@@ -37,6 +37,9 @@
 \section{Utilisation de notre propre réseau de neurones}
 \subsection{Architecture utilisée}
 \subsection{Entraînement et choix de paramètres}
+- taux d'apprentissage: adaptative
+- si cost décroit, mais la précision n'augmente plus, ça veut dire que la capacité du réseau à capter le problème est saturée => augmenter la complexité du modèle
+- la fonction loss: l'entropie croisée n'augmente pas forcément l'accuracy
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
 \subsubsection{Visualisation des filtres obtenus}
@@ -51,5 +54,7 @@
 \subsection{Méthodes de complétion}
 
 \section{Annexes}
+\section{Bibliographie}
+http://ydwen.github.io/papers/WenECCV16.pdf
 
 \end{document}

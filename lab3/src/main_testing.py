@@ -64,6 +64,7 @@ if __name__ == '__main__':
     old_eval_c = 100.0
     start_l_rate = 1e-4
     l_rate = start_l_rate
+    desired_cost = 1.0
     # Train network
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -84,12 +85,12 @@ if __name__ == '__main__':
                 s = sess.run(summary, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
                 writer.add_summary(s, i)
                 # We stop if we can't further optimize the network
-                if(c>old_eval_c):
+                if(c>old_eval_c and c<desired_cost):
                     break
                 old_eval_c = c
             else:
                 # Adaptive learning rate
-                c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
+                c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: True, learning_rate: l_rate})
                 while(c>old_c):
                     #print(l_rate)
                     l_rate /= 10
@@ -97,7 +98,7 @@ if __name__ == '__main__':
                         #print("c: "+str(c)+", old_c: "+str(old_c))
                         #print("BREAK: "+str(l_rate))
                         break
-                    c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
+                    c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: True, learning_rate: l_rate})
                 opti,c =  sess.run([optimizer,cost], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
                 l_rate = start_l_rate
 
