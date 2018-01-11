@@ -80,10 +80,11 @@ class Manager:
         while((false_counter<half_batch_size) or (true_counter<half_batch_size)):
             sub_image = roi.get_roi_content(img)
             total_counter += 1
-            is_in_face = (ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
-                        ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]+roi.half_window_size]>0 and
-                        ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
-                        ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]+roi.half_window_size]>0)
+            #is_in_face = (ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
+            #            ground_truth[roi.c[0]-roi.half_window_size,roi.c[1]+roi.half_window_size]>0 and
+            #            ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]-roi.half_window_size]>0 and
+            #            ground_truth[roi.c[0]+roi.half_window_size,roi.c[1]+roi.half_window_size]>0)
+            is_in_face = (ground_truth[roi.c[0],roi.c[1]]>0)
 
             if(is_in_face and (true_counter<half_batch_size)):
                 batch_true[0].append(sub_image)
@@ -99,6 +100,7 @@ class Manager:
             if(roi.c[0] == -1): # roi is out of bounds
                 roi.reset_pos()
                 self.img_counter_vec[img_counter_vec_index] += 1
+                #print(self.img_counter_vec[img_counter_vec_index])
                 if(self.img_counter_vec[img_counter_vec_index]>=len(img_info_vec)):
                     print("NO more images left")
                     print("img_counter: "+str(self.img_counter_vec[img_counter_vec_index]))
@@ -146,6 +148,7 @@ class Manager:
             if(roi.c[0] == -1): # roi is out of bounds
                 roi.reset_pos()
                 self.img_counter_vec[img_counter_vec_index] += 1
+                #print(self.img_counter_vec[img_counter_vec_index])
                 if(self.img_counter_vec[img_counter_vec_index]>=len(img_info_vec)):
                     print("NOOO more images left")
                     return batch, False

@@ -44,38 +44,66 @@ if __name__ == '__main__':
     fddb.get_WIDER_img_info("../dataset/wider_face_split/wider_face_train_bbx_gt.txt")
     fddb.set_window_size(N)
     print(len(fddb.train_img_info_vec))
+
+#    nb = 15226
+#    img = cv2.imread(fddb.train_img_info_vec[nb].img_path)
+#    print(fddb.train_img_info_vec[nb].img_path)
+#    print(img.shape)
+#    mask = graphical_tools.calc_mask(img,fddb.train_img_info_vec[nb])
+#    graphical_tools.showImg("img",img)
+#    #graphical_tools.showImg("mask",mask)
     
     # Build the graph for the deep net
-    y_pred, y_true, x_hold, optimizer,accuracy, summary, cost, learning_rate = cnn.construct_cnn(N)
+    y_pred, y_true, x_hold, optimizer,accuracy, summary, cost, learning_rate, dropout = cnn.construct_cnn(N)
 
     # Debug and save
     writer = tf.summary.FileWriter("/tmp/fddb")
     saver = tf.train.Saver()
-
+    
+    old_c = 100.0
+    old_eval_c = 100.0
+    start_l_rate = 1e-4
+    l_rate = start_l_rate
     # Train network
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         writer.add_graph(sess.graph)
-        for i in range(1000):
+        for i in range(1000000):
             #print("step: "+str(i))
-            #batch, full_batch = fddb.next_batch_train(100)
-            batch, full_batch = fddb.next_balanced_batch_train(1000)
+            batch, full_batch = fddb.next_batch_train(1000)
+            #batch, full_batch = fddb.next_balanced_batch_train(1000)
             if(not full_batch):
               break
             if (i % 100 == 0) and (i != 0):
                 train_accuracy, c, l = sess.run([accuracy,cost,learning_rate], feed_dict={
-                    x_hold: batch[0], y_true: batch[1]})
+                    x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
                 print('step %d, training accuracy %g' % (i, train_accuracy))
                 print("cost: "+str(c))
                 #print("learning_rate: "+str(l))
                 #print("number of face-batches: "+str(np.sum(batch[1],axis=0)))
-                s = sess.run(summary, feed_dict={x_hold: batch[0], y_true: batch[1]})
+                s = sess.run(summary, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
                 writer.add_summary(s, i)
-            sess.run(optimizer, feed_dict={x_hold: batch[0], y_true: batch[1]})
+                # We stop if we can't further optimize the network
+                if(c>old_eval_c):
+                    break
+                old_eval_c = c
+            else:
+                # Adaptive learning rate
+                c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
+                while(c>old_c):
+                    #print(l_rate)
+                    l_rate /= 10
+                    if(l_rate < 1e-30):
+                        #print("c: "+str(c)+", old_c: "+str(old_c))
+                        #print("BREAK: "+str(l_rate))
+                        break
+                    c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
+                opti,c =  sess.run([optimizer,cost], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
+                l_rate = start_l_rate
 
         # Save model
         save_path = saver.save(sess, "./tmp_model/cnn_model")
         print("Model saved in file: %s" % save_path)
 
 
-    # Evaluate network
+   # Evaluate network
