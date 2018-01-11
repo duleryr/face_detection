@@ -46,10 +46,24 @@
 
 \section{Apprentissage par transfert : Réseaux de neurones préentraînés}
 \subsection{Présentation de la méthode utilisée}
+
+L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécialisation de l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau préentraîné sur une grande base de données, en continuant de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
+
+Etant donné que les bases de données originales sont énormes, le modèle pré-entraîné aura déjà appris des features pertinentes pour notre problème.
+
+Par ailleurs, l'apprentissage par transfert est applicable à notre problème car il n'est pas trop spécifique, sinon les modèles pré-entraînés seraient inaptes à nous aider.
+
+Etant donné que notre base de données de test est relativement petite, l'apprentissage par transfert pourrait amener au surapprentissage (\textit{overfitting}), on utilise donc des stratégies de complétion des données d'entrée, comme présenté dans la partie \ref{sec:completion}.
+
 \subsection{Entraînement}
 \subsection{Evaluation des résultats}
 
 \section{Complétion de la base de données d'entrée}
+\label{sec:completion}
+
+https://fr.wikipedia.org/wiki/Surapprentissage \\
+https://en.wikipedia.org/wiki/Overfitting
+
 \subsection{Nécessité de compléter la base de données}
 \subsection{Méthodes de complétion}
     \subsection{Notes Auriane}
