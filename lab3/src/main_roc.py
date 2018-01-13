@@ -33,13 +33,13 @@ if __name__ == '__main__':
     # Load FDDB data
     fddb = fddb_manager.Manager()
     fddb.set_train_folders([1])
-    fddb.set_test_folders([3,4,5,6])
+    fddb.set_test_folders([10])
     fddb.set_fddb_dir("../dataset")
     fddb.load_img_descriptors()
     fddb.set_window_size(N)
 
     # Build the graph for the deep net
-    y_pred, y_true, x_hold, optimizer,accuracy, summary, cost, learning_rate, dropout = cnn.construct_cnn(N)
+    y_pred, y_true, x_hold, optimizer,accuracy, cost, learning_rate, dropout, keep_prob, summary = cnn.construct_cnn(N)
 
     # Restore model
     saver = tf.train.Saver()
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         batch, full_batch = fddb.next_batch_test(1000)
         while(full_batch):
         #for i in range(0,1000):
-            out, true_face_tmp = sess.run([y_pred, y_true], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False})
+            out, true_face_tmp = sess.run([y_pred, y_true], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, keep_prob: 1})
             batch, full_batch = fddb.next_batch_test(1000)
             scores.append(out[:,0])
             labels.append(true_face_tmp[:,0])

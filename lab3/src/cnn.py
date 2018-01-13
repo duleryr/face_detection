@@ -29,10 +29,7 @@ def create_convolutional_layer(input_tensor, num_input_channels,
         
         layer += bias
         
-        layer = tf.cond(dropout,lambda: tf.nn.dropout(layer,keep_prob),lambda: layer)
-        #dropout_bool = tf.where(dropout,True,False)
-        #if dropout_bool:
-        #    layer = tf.nn.dropout(layer, keep_prob)
+        #layer = tf.cond(dropout,lambda: tf.nn.dropout(layer,keep_prob),lambda: layer)
         ## We shall be using max-pooling.  
         layer = tf.nn.max_pool(value=layer,
                 ksize=[1, 2, 2, 1],
@@ -59,11 +56,9 @@ def create_fc_layer(input_tensor, num_inputs,num_outputs,
         biases = bias_variable(num_outputs)
         
         layer = tf.matmul(input_tensor, weights) + biases
-        if use_relu:
-            layer = tf.nn.relu(layer)
-        layer = tf.cond(dropout,lambda: tf.nn.dropout(layer,keep_prob),lambda: layer)
-        #if dropout:
-        #    layer = tf.nn.dropout(layer, keep_prob)
+        #if use_relu:
+        layer = tf.nn.relu(layer)
+        #layer = tf.cond(dropout,lambda: tf.nn.dropout(layer,keep_prob),lambda: layer)
         
         return layer, weights, biases
 
@@ -82,27 +77,27 @@ def construct_cnn(N):
 #    filter_size_conv3 = 3
 #    num_filters_conv3 = 32
 
-    filter_size_conv1 = 11
-    num_filters_conv1 = 16
+    filter_size_conv1 = 5
+    num_filters_conv1 = 4
 
-    filter_size_conv2 = 11
-    num_filters_conv2 = 64
+    filter_size_conv2 = 3
+    num_filters_conv2 = 16
 
-    filter_size_conv3 = 11
-    num_filters_conv3 = 128
+    filter_size_conv3 = 3
+    num_filters_conv3 = 32
 
     fc_layer_size = 600 
     num_classes = 2
 
     # Input variables
     #x_hold = tf.placeholder(tf.float32,shape=[None,N,num_channels], name="x")
-    x_hold = tf.placeholder(tf.float32,shape=[None,N], name="x")
+    x_hold = tf.placeholder(tf.float32,shape=[None,N,N], name="x")
     y_true = tf.placeholder(tf.float32,shape=[None,2], name="labels")
     dropout = tf.placeholder(tf.bool)
     learning_rate = tf.placeholder(tf.float32)
+    keep_prob = tf.placeholder(tf.float32)
 
     xt = tf.reshape(x_hold,[-1,N,N,num_channels])
-    tf.summary.image("input_batch", xt)
 
     # Define CNN
     layer_conv1,weights_conv1,bias_conv1 = create_convolutional_layer(input_tensor=xt,
@@ -133,12 +128,16 @@ def construct_cnn(N):
         num_outputs=fc_layer_size,
         dropout=dropout,
         use_relu=True, name="Fc1")
+    layer_fc1 = tf.nn.dropout(layer_fc1,keep_prob)
     
-    layer_fc2,weights_fc2,bias_fc2 = create_fc_layer(input_tensor=layer_fc1,
-        num_inputs=fc_layer_size,
-        num_outputs=num_classes,
-        dropout=dropout,
-        use_relu=False,name="Fc2")
+    #layer_fc2,weights_fc2,bias_fc2 = create_fc_layer(input_tensor=layer_fc1,
+    #    num_inputs=fc_layer_size,
+    #    num_outputs=num_classes,
+    #    dropout=dropout,
+    #    use_relu=False,name="Fc2")
+    weights = weight_variable(shape=[fc_layer_size, num_classes])
+    biases = bias_variable(num_classes)
+    layer_fc2 = tf.matmul(layer_fc1, weights) + biases
 
     # Define Post-processing
     y_pred = tf.nn.softmax(layer_fc2,name="y_pred")
@@ -154,7 +153,9 @@ def construct_cnn(N):
         #cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=y_pred,
         #                                                    labels=y_true)
         #cost = tf.reduce_mean(cross_entropy)
-        cost = tf.losses.hinge_loss(logits=y_pred,labels=y_true)
+        cost = tf.reduce_mean(-tf.reduce_sum(y_true*tf.log(y_pred+1e-10), reduction_indices=[1]))
+        tf.summary.scalar("cost",cost)
+        #cost = tf.losses.hinge_loss(logits=y_pred,labels=y_true)
         # since we are dealing with mutually exclusive labels, we could try
         # another cost function
         # After trial: doesn't work, minimizes the cost function, but reduces the accuracy
@@ -163,29 +164,28 @@ def construct_cnn(N):
         #                                                    labels=y_true_exclusive)
         #cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc2,
         #                                                    targets=y_true,pos_weight=2)
-        beta = 0.01
-        cost += beta*tf.nn.l2_loss(weights_conv1) +\
-                beta*tf.nn.l2_loss(bias_conv1) +\
-                beta*tf.nn.l2_loss(weights_conv2) +\
-                beta*tf.nn.l2_loss(bias_conv2) +\
-                beta*tf.nn.l2_loss(weights_conv3) +\
-                beta*tf.nn.l2_loss(bias_conv3) +\
-                beta*tf.nn.l2_loss(weights_fc1) +\
-                beta*tf.nn.l2_loss(bias_fc1) +\
-                beta*tf.nn.l2_loss(weights_fc2) +\
-                beta*tf.nn.l2_loss(bias_fc2)
-        tf.summary.scalar("cost",cost)
+        #beta = 0.01
+        #cost += beta*tf.nn.l2_loss(weights_conv1) +\
+        #        beta*tf.nn.l2_loss(bias_conv1) +\
+        #        beta*tf.nn.l2_loss(weights_conv2) +\
+        #        beta*tf.nn.l2_loss(bias_conv2) +\
+        #        beta*tf.nn.l2_loss(weights_conv3) +\
+        #        beta*tf.nn.l2_loss(bias_conv3) +\
+        #        beta*tf.nn.l2_loss(weights_fc1) +\
+        #        beta*tf.nn.l2_loss(bias_fc1) +\
+        #        beta*tf.nn.l2_loss(weights_fc2) +\
+        #        beta*tf.nn.l2_loss(bias_fc2)
         # OPTIONAL: decayed learning rate
         #starter_learning_rate = 1e-5
         #global_step = tf.Variable(0, trainable=False)
         #learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,
         #                                           10, 0.96, staircase=True)
         #optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost,global_step=global_step)
-        optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,epsilon=1e-8).minimize(cost)
         # FaceFinder
 #        cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_true*tf.log(y_pred+1e-10), reduction_indices=[1]))
 #        optimizer = tf.train.AdamOptimizer(learning_rate=0.5,epsilon=1e-8).minimize(cross_entropy)
+        summary = tf.summary.merge_all()
     
-    merged = tf.summary.merge_all()
-    return y_pred, y_true, x_hold, optimizer, accuracy, merged, cost, learning_rate, dropout
+    return y_pred, y_true, x_hold, optimizer, accuracy, cost, learning_rate, dropout, keep_prob, summary
     #return y_pred, y_true, x_hold, optimizer, accuracy, merged, cross_entropy, learning_rate, dropout

@@ -12,6 +12,7 @@ import graphical_tools
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import auc
 import fddb_manager
+import fddb_crop
 import cnn
 import tensorflow as tf
 import random
@@ -31,30 +32,13 @@ if __name__ == '__main__':
         print("    int2 : nombre d'images à utiliser pour les tests de détection")
         exit(1)
 
-    # Hyper-parameters
-    N = 31 # ROI-size, should be odd
-
+    N = 31
     # Load FDDB data
-    fddb = fddb_manager.Manager()
-    fddb.set_train_folders([1,2,3,4,5,6,7,8,9,10])
-    fddb.set_test_folders([3])
-    fddb.set_fddb_dir("../dataset")
-    fddb.load_img_descriptors()
-    # WIDER
-    fddb.get_WIDER_img_info("../dataset/wider_face_split/wider_face_train_bbx_gt.txt")
-    fddb.set_window_size(N)
-    print(len(fddb.train_img_info_vec))
+    fddb = fddb_crop.Manager()
+    fddb.load_images()
 
-#    nb = 15226
-#    img = cv2.imread(fddb.train_img_info_vec[nb].img_path)
-#    print(fddb.train_img_info_vec[nb].img_path)
-#    print(img.shape)
-#    mask = graphical_tools.calc_mask(img,fddb.train_img_info_vec[nb])
-#    graphical_tools.showImg("img",img)
-#    #graphical_tools.showImg("mask",mask)
-    
     # Build the graph for the deep net
-    y_pred, y_true, x_hold, optimizer,accuracy, summary, cost, learning_rate, dropout = cnn.construct_cnn(N)
+    y_pred, y_true, x_hold, optimizer,accuracy, cost, learning_rate, dropout, keep_prob, summary = cnn.construct_cnn(N)
 
     # Debug and save
     writer = tf.summary.FileWriter("/tmp/fddb")
@@ -65,46 +49,38 @@ if __name__ == '__main__':
     start_l_rate = 1e-4
     l_rate = start_l_rate
     desired_cost = 1.0
+    avg_acc = 0
+    avg_cost = 0
+    batch_size = 100
+    nb_batches = 1763
+    nb_epochs = 10
     # Train network
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         writer.add_graph(sess.graph)
-        for i in range(1000000):
-            #print("step: "+str(i))
-            batch, full_batch = fddb.next_batch_train(1000)
-            #batch, full_batch = fddb.next_balanced_batch_train(1000)
-            if(not full_batch):
-              break
-            if (i % 100 == 0) and (i != 0):
+        for e in range(nb_epochs):
+            for i in range(nb_batches):
+                batch, full_batch = fddb.next_batch_train(batch_size)
+                if(not full_batch):
+                  break
                 train_accuracy, c, l = sess.run([accuracy,cost,learning_rate], feed_dict={
-                    x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
-                print('step %d, training accuracy %g' % (i, train_accuracy))
-                print("cost: "+str(c))
-                #print("learning_rate: "+str(l))
-                #print("number of face-batches: "+str(np.sum(batch[1],axis=0)))
-                s = sess.run(summary, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
-                writer.add_summary(s, i)
-                # We stop if we can't further optimize the network
-                if(c>old_eval_c and c<desired_cost):
-                    break
-                old_eval_c = c
-            else:
-                # Adaptive learning rate
-                c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: True, learning_rate: l_rate})
-                while(c>old_c):
-                    #print(l_rate)
-                    l_rate /= 10
-                    if(l_rate < 1e-30):
-                        #print("c: "+str(c)+", old_c: "+str(old_c))
-                        #print("BREAK: "+str(l_rate))
-                        break
-                    c = sess.run(cost, feed_dict={x_hold: batch[0], y_true: batch[1], dropout: True, learning_rate: l_rate})
-                opti,c =  sess.run([optimizer,cost], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate})
-                l_rate = start_l_rate
+                    x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate, keep_prob: 1})
+                avg_acc += train_accuracy
+                avg_cost += c
+                opti,c =  sess.run([optimizer,cost], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: True, learning_rate: l_rate, keep_prob: 0.5})
+                s = sess.run(summary, feed_dict={
+                    x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate, keep_prob: 1})
+                writer.add_summary(s, i+e*nb_batches)
+
+            avg_acc /= nb_batches
+            avg_cost /= nb_batches
+            print("Epoch: "+str(e))
+            print("accuracy: "+str(avg_acc))
+            print("cost: "+str(avg_cost))
+            avg_acc = 0
+            avg_cost = 0
+            fddb.reset_img_counter()
 
         # Save model
         save_path = saver.save(sess, "./tmp_model/cnn_model")
         print("Model saved in file: %s" % save_path)
-
-
-   # Evaluate network

@@ -141,7 +141,6 @@ class Manager:
         for i in range(batch_size):
             # move the roi forward
             batch[0].append(roi.get_roi_content(img))
-            #is_in_face = ground_truth[roi.c[0],roi.c[1]][0]>0
             is_in_face = ground_truth[roi.c[0],roi.c[1]]>0 # BW
             batch[1].append([float(is_in_face), float(not is_in_face)])
             roi.next_step(img.shape)
@@ -155,7 +154,7 @@ class Manager:
                 img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
                 #graphical_tools.showImg("test",img)
                 ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
-        batch[0] = np.concatenate(batch[0])
+        #batch[0] = np.concatenate(batch[0])
         batch[0] = np.asarray(batch[0],dtype=np.float32)
         return batch, True
 
