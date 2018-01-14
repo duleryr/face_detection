@@ -8,10 +8,10 @@ import random
 import wider_loader
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
-#FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
-#NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
-FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_face_finder/"
-NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_face_finder/"
+FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
+NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
+#FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_face_finder/"
+#NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_face_finder/"
 #IN_SIZE = (32,32)  #face finder 
 IN_SIZE = (31,31)
 POS = [1,0]
@@ -68,7 +68,6 @@ class Manager:
                 file_name = ""
                 if is_in_face:
                     file_name = positive_path+"/"+str(crop_counter)+".png"
-                    print(file_name)
                 else:
                     file_name = negative_path+"/"+str(crop_counter)+".png"
                 cv2.imwrite(file_name,self.roi.get_roi_content(img))

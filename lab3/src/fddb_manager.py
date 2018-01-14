@@ -149,7 +149,7 @@ class Manager:
                 self.img_counter_vec[img_counter_vec_index] += 1
                 #print(self.img_counter_vec[img_counter_vec_index])
                 if(self.img_counter_vec[img_counter_vec_index]>=len(img_info_vec)):
-                    print("NOOO more images left")
+                    #print("NOOO more images left")
                     return batch, False
                 img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
                 #graphical_tools.showImg("test",img)
@@ -169,3 +169,9 @@ class Manager:
 
     def next_balanced_batch_test(self, batch_size):
         return self.next_balanced_batch_aux(batch_size,self.test_img_info_vec,1,self.test_roi)
+
+    def reset_img_counter(self):
+        self.img_counter_vec[0] = 0
+        self.img_counter_vec[1] = 0
+        self.train_roi.reset_pos()
+        self.test_roi.reset_pos()
