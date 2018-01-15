@@ -8,8 +8,10 @@ import random
 import wider_loader
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
-FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
-NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
+FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/positives/"
+NON_FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/negatives/"
+#FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
+#NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
 #FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_face_finder/"
 #NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_face_finder/"
 #IN_SIZE = (32,32)  #face finder 
@@ -60,7 +62,7 @@ class Manager:
         #counter = 0
         crop_counter = 0
         for img_info in self.img_info_vec:
-            print(img_info.img_path)
+            #print(img_info.img_path)
             img = cv2.imread(img_info.img_path,0)
             ground_truth = graphical_tools.calc_mask(img,img_info)
             while(self.roi.c[0] != -1): # roi is out of bounds
@@ -77,12 +79,44 @@ class Manager:
             #counter += 1
             #if counter > 0:
             #    break
+    
+    def noise(self, im):
+        row,col = im.shape
+        mean = 0
+        var = 0.1
+        sigma = var**0.5
+        gauss = np.random.normal(mean,sigma,(row,col))
+        gauss = gauss.reshape(row,col)
+        output = im + gauss
+        return output
+
+    def crop_images_noise(self, positive_path, negative_path):
+        #counter = 0
+        crop_counter = 0
+        for img_info in self.img_info_vec:
+            #print(img_info.img_path)
+            img = cv2.imread(img_info.img_path,0)
+            img = self.noise(img)
+            ground_truth = graphical_tools.calc_mask(img,img_info)
+            while(self.roi.c[0] != -1): # roi is out of bounds
+                is_in_face = ground_truth[self.roi.c[0],self.roi.c[1]]>0 # BW
+                file_name = ""
+                if is_in_face:
+                    file_name = positive_path+"/"+str(crop_counter)+".png"
+                else:
+                    file_name = negative_path+"/"+str(crop_counter)+".png"
+                cv2.imwrite(file_name,self.roi.get_roi_content(img))
+                self.roi.next_step(img.shape)
+                crop_counter += 1
+            self.roi.reset_pos()
+
     def load_images(self):
         batch = []
         #Load faces (positive samples)
         for n in os.listdir(FACE_PATH):
             name = FACE_PATH+n
             img_path = name
+            #print(img_path)
             img = cv2.imread(img_path,0)
             t_img = cv2.resize(img,IN_SIZE)
             batch.append((t_img, POS))

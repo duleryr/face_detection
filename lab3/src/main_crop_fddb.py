@@ -24,7 +24,7 @@ fddb_crop = fddb_crop.Manager()
 fddb_crop.set_folders([1])
 fddb_crop.set_fddb_dir("../dataset")
 fddb_crop.load_img_descriptors()
-fddb_crop.crop_images("../crops/positives","../crops/negatives")
+fddb_crop.crop_images_noise("../crops/positives","../crops/negatives")
 
 # load images
 #fddb_crop.load_images()
