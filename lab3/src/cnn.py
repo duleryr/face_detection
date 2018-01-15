@@ -77,13 +77,13 @@ def construct_cnn(N):
 #    filter_size_conv3 = 3
 #    num_filters_conv3 = 32
 
-    filter_size_conv1 = 5
+    filter_size_conv1 = 7
     num_filters_conv1 = 4
 
     filter_size_conv2 = 3
     num_filters_conv2 = 16
 
-    filter_size_conv3 = 3
+    filter_size_conv3 = 3 
     num_filters_conv3 = 32
 
     fc_layer_size = 600 
