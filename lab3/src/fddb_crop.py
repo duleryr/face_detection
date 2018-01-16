@@ -80,7 +80,6 @@ class Manager:
             #counter += 1
             #if counter > 0:
             #    break
-<<<<<<< 38e94817e82dc6cf9dc07a20603e4a8397f6a327
     
     def noise(self, im):
         row,col = im.shape
@@ -111,8 +110,6 @@ class Manager:
                 self.roi.next_step(img.shape)
                 crop_counter += 1
             self.roi.reset_pos()
-=======
->>>>>>> pour pull
 
     def load_images(self):
         batch = []
