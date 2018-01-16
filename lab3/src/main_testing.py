@@ -67,6 +67,7 @@ if __name__ == '__main__':
     #nb_batches = 1763
     nb_batches = 130
     nb_epochs = 20
+    #nb_batches = 3578 #folder 1,5
 
     # plot training and test accuracy
     train_acc_vec = []

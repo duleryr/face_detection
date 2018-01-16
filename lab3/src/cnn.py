@@ -164,17 +164,17 @@ def construct_cnn(N):
         #                                                    labels=y_true_exclusive)
         #cross_entropy = tf.nn.weighted_cross_entropy_with_logits(logits=layer_fc2,
         #                                                    targets=y_true,pos_weight=2)
-        #beta = 0.01
-        #cost += beta*tf.nn.l2_loss(weights_conv1) +\
-        #        beta*tf.nn.l2_loss(bias_conv1) +\
-        #        beta*tf.nn.l2_loss(weights_conv2) +\
-        #        beta*tf.nn.l2_loss(bias_conv2) +\
-        #        beta*tf.nn.l2_loss(weights_conv3) +\
-        #        beta*tf.nn.l2_loss(bias_conv3) +\
-        #        beta*tf.nn.l2_loss(weights_fc1) +\
-        #        beta*tf.nn.l2_loss(bias_fc1) +\
-        #        beta*tf.nn.l2_loss(weights_fc2) +\
-        #        beta*tf.nn.l2_loss(bias_fc2)
+        beta = 0.01
+        cost += beta*tf.nn.l2_loss(weights_conv1) +\
+                beta*tf.nn.l2_loss(bias_conv1) +\
+                beta*tf.nn.l2_loss(weights_conv2) +\
+                beta*tf.nn.l2_loss(bias_conv2) +\
+                beta*tf.nn.l2_loss(weights_conv3) +\
+                beta*tf.nn.l2_loss(bias_conv3) +\
+                beta*tf.nn.l2_loss(weights_fc1) +\
+                beta*tf.nn.l2_loss(bias_fc1) +\
+                beta*tf.nn.l2_loss(weights) +\
+                beta*tf.nn.l2_loss(biases)
         # OPTIONAL: decayed learning rate
         #starter_learning_rate = 1e-5
         #global_step = tf.Variable(0, trainable=False)

@@ -66,7 +66,7 @@ class Manager:
         #counter = 0
         crop_counter = 0
         for img_info in self.img_info_vec:
-            #print(img_info.img_path)
+            print(img_info.img_path)
             img = cv2.imread(img_info.img_path,0)
             ground_truth = graphical_tools.calc_mask(img,img_info)
             while(self.roi.c[0] != -1): # roi is out of bounds
@@ -88,20 +88,21 @@ class Manager:
     def noise(self, im):
         row,col = im.shape
         mean = 0
-        var = 0.1
-        sigma = var**0.5
+        sigma = 0.4*im.std()
         gauss = np.random.normal(mean,sigma,(row,col))
-        gauss = gauss.reshape(row,col)
         output = im + gauss
+        output = np.clip(output,0,255)
+        output = output.astype(np.uint8)
         return output
 
     def crop_images_noise(self, positive_path, negative_path):
-        #counter = 0
+        counter = 0
         crop_counter = 0
         for img_info in self.img_info_vec:
             #print(img_info.img_path)
             img = cv2.imread(img_info.img_path,0)
-            img = self.noise(img)
+            counter += 1
+            #img = self.noise(img)
             ground_truth = graphical_tools.calc_mask(img,img_info)
             while(self.roi.c[0] != -1): # roi is out of bounds
                 is_in_face = ground_truth[self.roi.c[0],self.roi.c[1]]>0 # BW
@@ -114,6 +115,7 @@ class Manager:
                 self.roi.next_step(img.shape)
                 crop_counter += 1
             self.roi.reset_pos()
+        print(counter)
 
     def load_images(self):
         batch = []
