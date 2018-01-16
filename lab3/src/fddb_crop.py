@@ -6,6 +6,8 @@ import numpy as np
 import cv2
 import random
 import wider_loader
+from scipy import ndimage
+from sklearn.decomposition import PCA
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
 FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/positives/"
@@ -120,8 +122,14 @@ class Manager:
             #print(img_path)
             img = cv2.imread(img_path,0)
             t_img = cv2.resize(img,IN_SIZE)
+            #original image
             batch.append((t_img, POS))
+            #horizontal flipped image
             batch.append((cv2.flip(t_img,1),POS)) #Use the horizontal mirror image
+            #rotated image (-90,0,90)
+            angle = np.random.randint(-1,1,1)*90
+            batch.append(ndimage.rotate(t_img,angle,reshape=False))
+            #TODO alterate intensities
         print(len(batch))
         nbatch = []
         #Load faces (positive samples)
