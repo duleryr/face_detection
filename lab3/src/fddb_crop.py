@@ -10,14 +10,16 @@ from scipy import ndimage
 from sklearn.decomposition import PCA
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
-FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/positives/"
-NON_FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/negatives/"
+#FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/positives/"
+#NON_FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/negatives/"
 #FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
 #NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
+FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_small/"
+NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_small/"
 #FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_face_finder/"
 #NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_face_finder/"
-#IN_SIZE = (32,32)  #face finder 
-IN_SIZE = (31,31)
+IN_SIZE = (31,31)  
+#IN_SIZE = (99,99)
 POS = [1,0]
 NEG = [0,1]
 
@@ -28,7 +30,7 @@ class Manager:
         self.fddb_dir = "../dataset/"
         # img_counter_vec holds the image counters for the train and the test set
         self.img_counter = 0
-        self.window_size = 32
+        self.window_size = 31
         self.roi = roi.ROI(self.window_size)
         self.batch = []
     

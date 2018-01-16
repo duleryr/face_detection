@@ -35,6 +35,7 @@ if __name__ == '__main__':
         exit(1)
 
     N = 31
+    #N = 99
     # Load train data
     print("load train data")
     fddb = fddb_crop.Manager()
@@ -57,14 +58,15 @@ if __name__ == '__main__':
     
     old_c = 100.0
     old_eval_c = 100.0
-    start_l_rate = 1e-4
+    start_l_rate = 1e-1
     l_rate = start_l_rate
     desired_cost = 1.0
     avg_acc = 0
     avg_cost = 0
     batch_size = 100
-    nb_batches = 1763
-    nb_epochs = 200
+    #nb_batches = 1763
+    nb_batches = 130
+    nb_epochs = 20
 
     # plot training and test accuracy
     train_acc_vec = []
