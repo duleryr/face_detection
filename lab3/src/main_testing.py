@@ -58,14 +58,14 @@ if __name__ == '__main__':
     
     old_c = 100.0
     old_eval_c = 100.0
-    start_l_rate = 1e-1
+    start_l_rate = 1e-4
     l_rate = start_l_rate
     desired_cost = 1.0
     avg_acc = 0
     avg_cost = 0
     batch_size = 100
-    #nb_batches = 1763
-    nb_batches = 130
+    nb_batches = 1763
+    #nb_batches = 130
     nb_epochs = 20
     #nb_batches = 3578 #folder 1,5
 

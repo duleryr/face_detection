@@ -136,7 +136,7 @@ class Manager:
         batch = [[],[]]
         if(self.img_counter_vec[img_counter_vec_index]>len(img_info_vec)):
             return batch
-        print(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
+        #print(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path)
         img = cv2.imread(img_info_vec[self.img_counter_vec[img_counter_vec_index]].img_path,0)
         ground_truth = graphical_tools.calc_mask(img,img_info_vec[self.img_counter_vec[img_counter_vec_index]])
         for i in range(batch_size):
