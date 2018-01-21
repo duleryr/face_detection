@@ -38,16 +38,15 @@ if __name__ == '__main__':
     #N = 99
     # Load train data
     print("load train data")
-    fddb = fddb_crop.Manager()
-    fddb.load_images()
-    # Load test data
-    print("load test data")
-    fddb_test = fddb_manager.Manager()
-    fddb_test.set_train_folders([1])
-    fddb_test.set_test_folders([10])
-    fddb_test.set_fddb_dir("../dataset")
-    fddb_test.load_img_descriptors()
-    fddb_test.set_window_size(N)
+    fddb_train = fddb_crop.Manager()
+    fddb_train.load_images()
+
+    #fddb_test = fddb_manager.Manager()
+    #fddb_test.set_train_folders([1,2,3,4,5,6,7,8,9])
+    #fddb_test.set_test_folders([10])
+    #fddb_test.set_fddb_dir("../dataset")
+    #fddb_test.load_img_descriptors()
+    #fddb_test.set_window_size(N)
 
     # Build the graph for the deep net
     y_pred, y_true, x_hold, optimizer,accuracy, cost, learning_rate, dropout, keep_prob, summary = cnn.construct_cnn(N)
@@ -64,8 +63,11 @@ if __name__ == '__main__':
     avg_acc = 0
     avg_cost = 0
     batch_size = 100
-    nb_batches = 1763
-    #nb_batches = 130
+    #nb_batches = 1763
+    #nb_batches = 93
+    #nb_batches = int(len(fddb_train.batch[0])/batch_size)
+    #print("nb_batches: "+str(nb_batches))
+    nb_batches = 500
     nb_epochs = 20
     #nb_batches = 3578 #folder 1,5
 
@@ -79,9 +81,9 @@ if __name__ == '__main__':
         writer.add_graph(sess.graph)
         for e in range(nb_epochs):
             for i in range(nb_batches):
-                batch, full_batch = fddb.next_batch_train(batch_size)
+                batch, full_batch = fddb_train.next_batch_train(batch_size)
                 if(not full_batch):
-                  break
+                    break
                 train_accuracy, c, l = sess.run([accuracy,cost,learning_rate], feed_dict={
                     x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate, keep_prob: 1})
                 avg_acc += train_accuracy
@@ -92,7 +94,7 @@ if __name__ == '__main__':
                 writer.add_summary(s, i+e*nb_batches)
 
             # test the cnn
-            test_batch, test_full_batch = fddb_test.next_batch_test(batch_size)
+            test_batch, test_full_batch = fddb_train.next_batch_test(batch_size)
             scores = []
             labels = []
             avg_test_acc = 0
@@ -100,7 +102,7 @@ if __name__ == '__main__':
             while(full_batch):
                 out, true_face_tmp, test_acc = sess.run([y_pred, y_true,accuracy], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, keep_prob: 1})
                 avg_test_acc += test_acc
-                batch, full_batch = fddb_test.next_batch_test(batch_size)
+                batch, full_batch = fddb_train.next_batch_test(batch_size)
                 scores.append(out[:,0])
                 labels.append(true_face_tmp[:,0])
                 if(not full_batch):
@@ -111,7 +113,8 @@ if __name__ == '__main__':
             fpr,tpr, _ = roc_curve(labels,scores)
             test_auc = auc(fpr,tpr)
             avg_test_acc /= nb_test_batches
-            fddb_test.reset_img_counter()
+            #fddb_test.reset_img_counter()
+            fddb_train.reset_train_img_counter()
 
             # Display information
             avg_acc /= nb_batches
@@ -126,7 +129,7 @@ if __name__ == '__main__':
             test_auc_vec.append(test_auc)
             avg_acc = 0
             avg_cost = 0
-            fddb.reset_img_counter()
+            fddb_train.reset_test_img_counter()
 
         train_plot = plt.plot(train_acc_vec, label = "Training accuracy")
         test_plot = plt.plot(test_acc_vec, label = "Test accuracy")

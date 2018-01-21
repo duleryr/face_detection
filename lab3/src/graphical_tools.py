@@ -13,6 +13,10 @@ from sklearn.metrics import auc
 
 #define _ITERATOR_DEBUG_LEVEL=0
 
+def resize_img(img,scale_factor):
+    new_size = (int(img.shape[0]*scale_factor),int(img.shape[1]*scale_factor))
+    return cv2.resize(img,(new_size[1],new_size[0]))
+
 def plot_roc_curve(labels, scores):
 
     fpr,tpr, _ = roc_curve(labels,scores)
@@ -59,8 +63,10 @@ def showROI(img, roi):
     cv2.destroyAllWindows()
 
 def showFaces(img, faces):
-    for(x,y,w,h) in faces:
-        cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    #for(x,y,w,h) in faces:
+    #    cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    for(x1,y1,x2,y2) in faces:
+        cv2.rectangle(img,(x1,y1),(x2,y2),(255,0,0),2)
     cv2.namedWindow("face_detections", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("face_detections", img.shape[1], img.shape[0])
     if(img.shape[0]>2000 or img.shape[1]>2000):

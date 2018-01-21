@@ -5,8 +5,12 @@ import numpy as np
 import cv2
 import random
 import wider_loader
+import os
 
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
+FACE_PATH = "../crops/faces/"
+NON_FACE_PATH = "../crops/non_faces/"
+IN_SIZE = (31,31)  
 
 class Manager:
     def __init__(self):
@@ -22,6 +26,8 @@ class Manager:
         self.window_size = 11
         self.train_roi = roi.ROI(self.window_size)
         self.test_roi = roi.ROI(self.window_size)
+        self.scale_factor = 0.8
+        self.test_scale_level = 0
     
     def set_window_size(self, window_size_input):
         self.window_size = window_size_input
@@ -29,6 +35,7 @@ class Manager:
         self.test_roi = roi.ROI(self.window_size)
 
     def get_WIDER_img_info(self, bbx_file_name):
+        print("get_WIDER_img_info")
         wider_vec = wider_loader.get_all_img_info(bbx_file_name)
         self.train_img_info_vec.extend(wider_vec)
 
@@ -177,3 +184,132 @@ class Manager:
         self.img_counter_vec[1] = 0
         self.train_roi.reset_pos()
         self.test_roi.reset_pos()
+    
+    # returns batch_size batches with the appropriate labels
+    def next_test_batch_scale(self, batch_size):
+        batch = [[],[]]
+        # scale_levels contains the scale_level for every batch, so that we can reconstruct the bounding boxes
+        full_batch = False
+        while (len(batch[0])<batch_size):
+            if(self.img_counter_vec[1]>=len(self.test_img_info_vec)):
+                return batch, False
+            img_info = self.test_img_info_vec[self.img_counter_vec[1]]
+            img = cv2.imread(img_info.img_path,0)
+            ground_truth = graphical_tools.calc_mask(img,img_info)
+            # resize img to the last scale level
+            for i in range(self.test_scale_level):
+                img = graphical_tools.resize_img(img,self.scale_factor)
+                ground_truth = graphical_tools.resize_img(ground_truth,self.scale_factor)
+            # parse through the leftover scales
+            while(img.shape[0] >self.test_roi.window_size and img.shape[1] > self.test_roi.window_size):
+                #print(self.test_scale_level)
+                # parse through the leftover roi positions
+                while (self.test_roi.c[0]!=-1):
+                    sub_image = self.test_roi.get_roi_content(img)
+                    # rgb
+                    #is_in_face = ground_truth[self.test_roi.c[0],self.test_roi.c[1]][0]>0
+                    # bw
+                    is_in_face = (ground_truth[self.test_roi.c[0],self.test_roi.c[1]]>0)
+                    # DEBUG: check if we got the ground_truth right
+                    #if(is_in_face):
+                    #    cv2.rectangle(img,(self.test_roi.c[1]-self.test_roi.half_window_size,self.test_roi.c[0]-self.test_roi.half_window_size),
+                    #        (self.test_roi.c[1]+self.test_roi.half_window_size,self.test_roi.c[0]+self.test_roi.half_window_size),(255,0,0),2)
+                    batch[0].append(sub_image)
+                    batch[1].append((is_in_face, not is_in_face))
+                    self.test_roi.next_step(img.shape)
+                    if(len(batch[0])>=batch_size):
+                        full_batch = True
+                        break
+
+                if(full_batch):
+                    break
+                # prepare next iteration
+                img = graphical_tools.resize_img(img,self.scale_factor)
+                ground_truth = graphical_tools.resize_img(ground_truth,self.scale_factor)
+                self.test_roi.reset_pos()
+                self.test_scale_level += 1
+
+                #graphical_tools.showImg("test_scale", img)
+                #graphical_tools.showImg("test_scale", ground_truth)
+            if(full_batch):
+                break
+            self.img_counter_vec[1] += 1
+            self.test_roi.reset_pos()
+            self.test_scale_level = 0
+        batch[0] = np.asarray(batch[0],dtype=np.float32)
+        return batch, full_batch
+
+
+    # the function goes through the entire image pyramid
+    def go_through_pyramid_face(self,img_info):
+        img = cv2.imread(img_info.img_path,0)
+        ground_truth = graphical_tools.calc_mask(img,img_info)
+        while(img.shape[0] >self.train_roi.window_size and img.shape[1] > self.train_roi.window_size):
+            new_size = (int(img.shape[0]*self.scale_factor),int(img.shape[1]*self.scale_factor))
+            img = cv2.resize(img,(new_size[1],new_size[0]))
+            ground_truth = cv2.resize(ground_truth,(new_size[1],new_size[0]))
+            graphical_tools.showImg("pyrDown",img)
+            graphical_tools.showImg("pyrDown",ground_truth)
+        
+
+    def extract_faces(self):
+        face_counter = 0
+        print(face_counter)
+        for img_info in self.train_img_info_vec:
+            img = cv2.imread(img_info.img_path)
+            print(img_info.img_path)
+            ellipse_counter = 0
+            for f in img_info.list_ellipse:
+                #print("ellipse_counter: "+str(ellipse_counter))
+                #print(f.c_x)
+                #print(f.c_y)
+                #print(f.r_a)
+                #print(f.r_b)
+                pt1 = (int(f.c_x-f.r_b),int(f.c_y-f.r_a))
+                pt2 = (int(f.c_x+f.r_b),int(f.c_y+f.r_a))
+                sub_image = img[max(0,pt1[1]):min(img.shape[0],pt2[1]),max(0,pt1[0]):min(img.shape[1],pt2[0])]
+                #print(sub_image.shape)
+                #print(pt1)
+                #print(pt2)
+                #print(max(0,pt1[1]))
+                #print(min(img.shape[0],pt2[1]))
+                #print(max(0,pt1[0]))
+                #print(min(img.shape[1],pt2[0]))
+                if((sub_image.shape[0] != 0) and (sub_image.shape[1] != 0)):
+                    cv2.imwrite(FACE_PATH+str(face_counter)+".png",cv2.resize(sub_image,IN_SIZE))
+                    face_counter += 1
+                ellipse_counter += 1
+
+    def create_non_faces(self):
+        # get number of small faces
+        nb_faces = len(os.listdir(FACE_PATH))
+        # get a random non-face roi from each image
+        self.train_roi.reset_pos()
+        non_face_counter = 0
+        for img_info in self.train_img_info_vec:
+            print(img_info.img_path)
+            img = cv2.imread(img_info.img_path)
+            ground_truth = graphical_tools.calc_mask(img,img_info)
+            #if((img.shape[0] == 683) and (img.shape[1] == 1024)):
+            #    graphical_tools.showImg("img", img)
+            print(str(img.shape) +", "+str(len(img_info.list_ellipse)))
+            ellipse_counter = 0
+            for f in range(len(img_info.list_ellipse)):
+                print(ellipse_counter)
+                found_patch = False
+                random_counter = 0
+                while (not found_patch) and (random_counter <  10):
+                    self.train_roi.reset_pos()
+                    random_step = random.randint(0,int(img.shape[0]*img.shape[1]/(self.train_roi.window_size*self.train_roi.window_size/2)))
+                    random_counter += 1
+                    for i in range(random_step):
+                        self.train_roi.next_step(img.shape)
+                        if(self.train_roi.c[0] == -1):
+                            self.train_roi.reset_pos()
+                    found_patch = bool(ground_truth[self.train_roi.c[0],self.train_roi.c[1]][0]==0)
+                    if found_patch:
+                        #graphical_tools.showImg("roi",self.train_roi.get_roi_content(img))
+                        file_write_check = cv2.imwrite(NON_FACE_PATH+str(non_face_counter)+".png",self.train_roi.get_roi_content(img))
+                        non_face_counter += 1
+                ellipse_counter += 1
+

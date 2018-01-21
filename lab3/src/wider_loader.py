@@ -13,7 +13,8 @@ def get_all_img_info_aux(fd, folder_name, nb_images):
 def get_all_img_info(bbx_file_name):
     fd = open(bbx_file_name)
     img_info_vec = []
-    img_info_vec.append(get_all_img_info_aux(fd,"0--Parade",460))
+    #img_info_vec.append(get_all_img_info_aux(fd,"0--Parade",460))
+    img_info_vec.append(get_all_img_info_aux(fd,"0--Parade",459))
     img_info_vec.append(get_all_img_info_aux(fd,"1--Handshaking",121))
     img_info_vec.append(get_all_img_info_aux(fd,"10--People_Marching",223))
     img_info_vec.append(get_all_img_info_aux(fd,"11--Meeting",130))
