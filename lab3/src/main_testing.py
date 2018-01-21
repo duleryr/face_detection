@@ -65,10 +65,10 @@ if __name__ == '__main__':
     batch_size = 100
     #nb_batches = 1763
     #nb_batches = 93
-    #nb_batches = int(len(fddb_train.batch[0])/batch_size)
-    #print("nb_batches: "+str(nb_batches))
-    nb_batches = 500
-    nb_epochs = 20
+    nb_batches = int(len(fddb_train.batch_vec[0][0])/batch_size)
+    print("nb_batches: "+str(nb_batches))
+    #nb_batches = 3821
+    nb_epochs = 200
     #nb_batches = 3578 #folder 1,5
 
     # plot training and test accuracy
@@ -93,19 +93,21 @@ if __name__ == '__main__':
                     x_hold: batch[0], y_true: batch[1], dropout: False, learning_rate: l_rate, keep_prob: 1})
                 writer.add_summary(s, i+e*nb_batches)
 
+            fddb_train.reset_train_img_counter()
+
             # test the cnn
             test_batch, test_full_batch = fddb_train.next_batch_test(batch_size)
             scores = []
             labels = []
             avg_test_acc = 0
             nb_test_batches = 1
-            while(full_batch):
-                out, true_face_tmp, test_acc = sess.run([y_pred, y_true,accuracy], feed_dict={x_hold: batch[0], y_true: batch[1], dropout: False, keep_prob: 1})
+            while(test_full_batch):
+                out, true_face_tmp, test_acc = sess.run([y_pred, y_true,accuracy], feed_dict={x_hold: test_batch[0], y_true: test_batch[1], dropout: False, keep_prob: 1})
                 avg_test_acc += test_acc
-                batch, full_batch = fddb_train.next_batch_test(batch_size)
+                batch, test_full_batch = fddb_train.next_batch_test(batch_size)
                 scores.append(out[:,0])
                 labels.append(true_face_tmp[:,0])
-                if(not full_batch):
+                if(not test_full_batch):
                     break
                 nb_test_batches += 1
             scores = np.concatenate(scores)
@@ -114,7 +116,6 @@ if __name__ == '__main__':
             test_auc = auc(fpr,tpr)
             avg_test_acc /= nb_test_batches
             #fddb_test.reset_img_counter()
-            fddb_train.reset_train_img_counter()
 
             # Display information
             avg_acc /= nb_batches

@@ -33,6 +33,7 @@ class Manager:
         self.window_size = 31
         self.roi = roi.ROI(self.window_size)
         self.batch_vec = [[],[]]
+        self.img_counter_vec = [0,0]
     
     def set_window_size(self, window_size_input):
         self.window_size = window_size_input
@@ -163,10 +164,10 @@ class Manager:
         self.load_images_aux(1,FACE_PATH_TEST,NON_FACE_PATH_TEST)
 
     def reset_train_img_counter(self):
-        self.train_img_counter = 0
+        self.img_counter_vec[0] = 0
 
     def reset_test_img_counter(self):
-        self.test_img_counter = 0
+        self.img_counter_vec[1] = 0
 
     def next_random_batch_train(self, n):
         batch =[[],[]]
@@ -181,13 +182,13 @@ class Manager:
     def next_batch_aux(self, n, batch_nb):
         batch =[[],[]]
         full_batch = True
-        for i in range(self.test_img_counter, self.test_img_counter+n):
+        for i in range(self.img_counter_vec[batch_nb], self.img_counter_vec[batch_nb]+n):
             if(i >= len(self.batch_vec[1][0])):
                 full_batch = False
                 break # no data left
             batch[0].append(self.batch_vec[batch_nb][0][i])
             batch[1].append(self.batch_vec[batch_nb][1][i])
-        self.test_img_counter += n
+        self.img_counter_vec[batch_nb] += n
         return batch, full_batch
 
     def next_batch_train(self, n):
