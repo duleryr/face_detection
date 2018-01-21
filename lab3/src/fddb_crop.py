@@ -12,10 +12,8 @@ from sklearn.decomposition import PCA
 nb_images_per_folder = [290,285,274,302,298,302,279,276,259,280]
 #FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/positives/"
 #NON_FACE_PATH = "/home/emily/Documents/Ensimag/3A/Pattern_Recognition/pattern_recognition/lab3/crops/negatives/"
-#FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives/"
-#NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives/"
-FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_small/"
-NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_small/"
+FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/second_git/pattern_recognition/lab3/crops/positives/"
+NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/second_git/pattern_recognition/lab3/crops/negatives/"
 #FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/positives_face_finder/"
 #NON_FACE_PATH = "/home/felix/Documents/cours3A/reconnaissance_formes/pattern_recognition/lab3/crops/negatives_face_finder/"
 IN_SIZE = (31,31)  
@@ -132,7 +130,7 @@ class Manager:
             batch.append((cv2.flip(t_img,1),POS)) #Use the horizontal mirror image
             #rotated image (-90,0,90)
             angle = np.random.randint(-1,1,1)*90
-            batch.append(ndimage.rotate(t_img,angle,reshape=False))
+            #batch.append(ndimage.rotate(t_img,angle,reshape=False))
             #TODO alterate intensities
         print(len(batch))
         nbatch = []
