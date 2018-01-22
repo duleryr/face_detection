@@ -12,6 +12,7 @@
 \usepackage{enumitem}
 \usepackage[T1]{fontenc}
 \usepackage[]{algorithm2e}
+\usepackage{url}
 \graphicspath{{images/}}
 
 \title{Reconnaissance de formes et apprentissage automatique Projet 3}
@@ -50,7 +51,7 @@
     \begin{itemize}
         \item
             Nous avons au moins besoin de 3 couches convolutionnelles si nous voulons détecter des feautures de bas niveau, moyen niveau et haut niveau.
-            Ce comportement a été montré dans les travaux de Zeiler et al. [2].
+            Ce comportement a été montré dans les travaux de Zeiler et al. \cite{zeiler2014visualizing}.
             Chacune de ces couches se construit par aggrégation de parties de la couche précédente.
         \item
             Après les couches convolutionnelles, nous retrouvons souvent au moins une couche complètement connectée avec un nombre de neurones important.
@@ -63,7 +64,7 @@
             Par rapport à notre problème, cela veut dire que nous avons deux neurones de sortie, donnant la probabilité que l'imagette appartient à un visage ou pas.
     \end{itemize}
 
-    Étant donné qu'il s'agit de notre première expérience construction de réseaux de neurones, nous nous sommes fortement inspirés d'un réseau d'un projet \textit{GitHub} existant, accomplissant la même tâche avec approximativement la même taille de données d'entrée.
+    Étant donné qu'il s'agit de notre première expérience construction de réseaux de neurones, nous nous sommes fortement inspirés d'un réseau d'un projet \textit{GitHub} \cite{face_detect} existant, accomplissant la même tâche avec approximativement la même taille de données d'entrée.
 
 
     
