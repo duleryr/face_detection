@@ -117,6 +117,73 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 \subsection{Entraînement}
 \subsection{Evaluation des résultats}
 
+\section{Utilisation d'un modèle plus complexe : Facenet}
+
+Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
+
+\subsection{Analyse qualitative des résultats}
+
+Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de visages flous, ou la non-détection de visages qui sont en réalité une projection sur un écran :\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.58\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetTP1.png}
+            \caption{Détection d'un visage flou en arrière plan}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.35\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetTP2.png}
+            \caption{Non détection d'un visage projeté sur un écran}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+Par ailleurs, il y a des situations où le résultat est erroné, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.60]{facenetFP1.png}
+            \caption{Faux positif lié à l'apprentissage de la corrélation visage-casquette}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFP2.png}
+            \caption{Faux positif lié à la présence d'un visage en arrière-plan}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \begin{center}
+        \includegraphics[scale=0.45]{facenetFP5.png}
+        \caption{Faux positif lié à l'apparence de la voiture en arrière-plan}
+    \end{center}
+\end{figure}
+
+Enfin, il y a également des faux positifs non explicables, bien que ceux-ci soient très peu nombreux :\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.50\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFP3.png}
+            \caption{Faux positif inexplicable}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFP4.png}
+            \caption{Faux positif inexplicable}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
 \section{Complétion de la base de données d'entrée}
 \label{sec:completion}
     

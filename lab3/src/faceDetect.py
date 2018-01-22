@@ -37,7 +37,7 @@ with tf.Graph().as_default():
     # Load FDDB data
     fddb = fddb_manager.Manager()
     fddb.set_train_folders([1])
-    fddb.set_test_folders([10])
+    fddb.set_test_folders([6])
     fddb.set_fddb_dir("../dataset")
     fddb.load_img_descriptors()
     fddb.set_window_size(N)
@@ -72,10 +72,6 @@ with tf.Graph().as_default():
                 plt.show()
                 FP += 1
             print ('Accuracy score', acc)
-        #   save a new file with the boxed face
-        #cv2.imsave('faceBoxed'+i, img)
-        #   show the boxed face
-
         #plt.figure()
         #plt.imshow(batch[0][i])
         #plt.show()

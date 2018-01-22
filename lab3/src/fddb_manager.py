@@ -313,3 +313,15 @@ class Manager:
                         non_face_counter += 1
                 ellipse_counter += 1
 
+    def next_batch_faceDetect(self, img_info_vec, img_counter_vec_index):
+        batch = [[],[]]
+        img = cv2.imread(img_info_vec[0].img_path)
+        ground_truth = graphical_tools.calc_mask(img,img_info_vec[0])
+        batch[0].append(img)
+        batch[1].append(ground_truth)
+        for i in range(nb_images_per_folder[self.test_folders_vec[0]-1]):
+            img = cv2.imread(img_info_vec[i].img_path)
+            ground_truth = graphical_tools.calc_mask(img,img_info_vec[i])
+            batch[0].append(img)
+            batch[1].append(ground_truth)
+        return batch
