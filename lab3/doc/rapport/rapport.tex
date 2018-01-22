@@ -60,18 +60,40 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 
 \section{Complétion de la base de données d'entrée}
 \label{sec:completion}
+    
+    \subsection{Nécessité de compléter la base de données}
 
-https://fr.wikipedia.org/wiki/Surapprentissage \\
-https://en.wikipedia.org/wiki/Overfitting
+	La nécessité d'augmenter la base de données provient du fait que la performance des
+	algorithmes de deep learning est directement proportionnelle à la taille de la base de
+	données (figure \ref{data1}). Il est donc intéressant d'augmenter les données déjà présentes
+	quand nous n'avons pas de données supplémentaire à utiliser.
 
-\subsection{Nécessité de compléter la base de données}
-\subsection{Méthodes de complétion}
-    \subsection{Notes Auriane}
-    Dans quelle mesure faut il appliquer les transformations sur toutes les images de la base ?
-    (l'application sur 1/4 de la base ne suffirait-elle pas ?)
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{deeplearning_data.png}
+	    \caption{Graphe de performance en fonction du nombre de données}
+	    \label{fig:data1}
+	\end{figure}
+
+    \subsection{Méthodes de complétion}
+
+	Pour ce qui est des différentes méthodes d'augmentation, nous pouvons performer des
+	transformations géométriques (translations, symétries, rotations) ou encore des
+	déformations pour pouvoir reconnaître les photos prises avec des cameras "fisheyes".
+	Il peut être intéressant d'altérer l'intensité de l'image de façon à reconnaître les images
+	de test même si elles ont une amplitude d'intensité très variables. Nous pouvons par exemple
+	citer la méthode de l'article AlexNet \cite{einstein}
+
+
+    \subsection{Efficacité de l'augmentation}
+
+	Dans quelle mesure le nombre de données augmentées influent sur la performance ?
 
 \section{Annexes}
-\section{Bibliographie}
-http://ydwen.github.io/papers/WenECCV16.pdf
+%\section{Bibliographie}
+%http://ydwen.github.io/papers/WenECCV16.pdf
+%https://machinelearningmastery.com/improve-deep-learning-performance/
+\bibliographystyle{unsrt}
+\bibliography{sample}
 
 \end{document}
