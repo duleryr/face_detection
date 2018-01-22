@@ -13,6 +13,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[]{algorithm2e}
 \usepackage{url}
+\usepackage{array}
 \graphicspath{{images/}}
 
 \title{Reconnaissance de formes et apprentissage automatique Projet 3}
@@ -65,14 +66,39 @@
     \end{itemize}
 
     Étant donné qu'il s'agit de notre première expérience construction de réseaux de neurones, nous nous sommes fortement inspirés d'un réseau d'un projet \textit{GitHub} \cite{face_detect} existant, accomplissant la même tâche avec approximativement la même taille de données d'entrée.
+    \\
+    L'architecture utilisée est resumée dans la table \ref{tab:network_architecture}. Le réseau prend en entrée des imagettes de taille $32\times32$.
+    \\
+    En plus des considérations précédentes, nous pouvons remarquer que chaque couche convolutionnelle est suivie d'une couche de sous-échantillonnage qui sert à réduire le nombre de paramètres filtrant les plus importants.
+    \begin{table}
+        \begin{tabular}{|l|c|c|c|c|c|c|c|r|}
+            
+            \hline
+            \textbf{Layer} & Conv1 & MaxPool & Conv2 & MaxPool & Conv3 & MaxPool & Fc1 & Fc2 \\
+            %colonne 1 & colonne 2 & colonne 3 & colonne 4 \\
+            \hline
+            \textbf{Kernel Size} & 5x5 & 2x2 & 3x3 & 2x2 & 3x3 & 2x2 & -  & - \\
+            \textbf{Features} & 4 & - & 16 & - & 32 & - & 600  & 2 \\
+            \hline
+        \end{tabular}
+        \caption{Architecture du réseau de neurones}
+        \label{tab:network_architecture}
+    \end{table}
 
-
+\subsection{Entraînement du réseau de neurones}
     
+    Pendant l'entraînement du réseau, il est important de pouvoir le diagnostiquer.
+    Pour cela, il est utile d'afficher la précision d'entraînement et la précision de test.
+    Ce que nous entendons ici par précision, c'est en fait l'\textit{accuracy} qui est donnée par $\frac{TP+TN}{TP+FP+TN+FN}$.
+    Il s'agit du ratio de bonnes classifications.
+    %Alors que cette métrique n'est peut-être pas la métrique la plus représentative 
+    Cette métrique a deux avantages. 
+    Premièrement, elle tient compte du problème de classification que nous voulons résoudre.
+    Deuxièmement, elle est facile à obtenir, car elle est calculée directement à la sortie du réseau de neurones pour le calcul de la fonction de coût.
 
-\subsection{Entraînement et choix de paramètres}
-- taux d'apprentissage: adaptative
-- si cost décroit, mais la précision n'augmente plus, ça veut dire que la capacité du réseau à capter le problème est saturée => augmenter la complexité du modèle
-- la fonction loss: l'entropie croisée n'augmente pas forcément l'accuracy
+    \subsubsection{Données d'entrée}
+
+
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
 \subsubsection{Visualisation des filtres obtenus}
