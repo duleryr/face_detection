@@ -35,7 +35,39 @@
 \section{Problématique et objectifs}
 
 \section{Utilisation de notre propre réseau de neurones}
-\subsection{Architecture utilisée}
+
+    Pour se rendre compte de l'éventail des difficultés liées au Deep Learning et afin de mieux comprendre son fonctionnement, il est important d'implémenter et d'entraîner son propre réseau de neurones.
+    En effet, nous pouvons distinguer deux étapes bien différentes, la construction du réseau de neurones et son entraînement.
+
+\subsection{Construction du réseau de neurones}
+    
+    Le choix du design d'un réseau de neurones est loin d'être une tâche triviale.
+    Selon la problématique, la taille des données d'entrée et le temps que nous avons à notre disposition, l'architecture appropriée peut largement varier.
+    Même pour un problème donné, les architectures ont beaucoup varier pendant les dernières décennies, grâce à l'amélioration du matérial utilisé et la programmabilité croissante du GPU.
+    Effectivement, la complexité d'un réseau de neurones est directement liée au temps d'entraînement ce qui nous conduit à opter pour des réseaus plus profonds et des couches plus larges pendant ces dernières années.
+    \\
+    Alors qu'il est difficile de théoriser l'architecture à choisir, nous pouvons quand même faire quelques remarques par rapport à notre problème:
+    \begin{itemize}
+        \item
+            Nous avons au moins besoin de 3 couches convolutionnelles si nous voulons détecter des feautures de bas niveau, moyen niveau et haut niveau.
+            Ce comportement a été montré dans les travaux de Zeiler et al. [2].
+            Chacune de ces couches se construit par aggrégation de parties de la couche précédente.
+        \item
+            Après les couches convolutionnelles, nous retrouvons souvent au moins une couche complètement connectée avec un nombre de neurones important.
+            Cette couche sert à mettre en relation les feautures de haut niveau. 
+            Par exemple, un visage dispose de 2 yeux alignées.
+            Tandis que la couche convolutionnelle de haut niveau va détecter la présence d'un oeil, la couche complètement connectée va pouvoir nous dire si nous en avons deux juste au-dessus du nez.
+        \item
+            En sortie de la toute dernière couche, nous retrouvons autant de neurones que de classes à distinguer.
+            Ici, il est important à noter que le problème de détection peut être considéré comme un problème de détection appliqué à des sous-images.
+            Par rapport à notre problème, cela veut dire que nous avons deux neurones de sortie, donnant la probabilité que l'imagette appartient à un visage ou pas.
+    \end{itemize}
+
+    Étant donné qu'il s'agit de notre première expérience construction de réseaux de neurones, nous nous sommes fortement inspirés d'un réseau d'un projet \textit{GitHub} existant, accomplissant la même tâche avec approximativement la même taille de données d'entrée.
+
+
+    
+
 \subsection{Entraînement et choix de paramètres}
 - taux d'apprentissage: adaptative
 - si cost décroit, mais la précision n'augmente plus, ça veut dire que la capacité du réseau à capter le problème est saturée => augmenter la complexité du modèle
@@ -95,5 +127,10 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 %https://machinelearningmastery.com/improve-deep-learning-performance/
 \bibliographystyle{unsrt}
 \bibliography{sample}
+%\section{Bibliographie}
+%\flushleft [1] http://ydwen.github.io/papers/WenECCV16.pdf 
+%\newline
+%[2] Zeiler, M. D., \& Fergus, R. (2014, September). Visualizing and understanding convolutional networks. In European conference on computer vision (pp. 818-833). Springer, Cham.
+%\newline
 
 \end{document}
