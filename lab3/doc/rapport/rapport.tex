@@ -85,54 +85,19 @@
         \label{tab:network_architecture}
     \end{table}
 
-\subsection{Paramètres d'entraînement}
-
-    Pour nos premières expériences d'entraînement, nous avons utilisé des paramètres d'entraînement communément utilisé dans le cadre du framework \textit{Tensorflow}.
-    \begin{itemize}
-        \item{\textit{Fonction d'activation}} Softmax
-        \item{\textit{Fonction de coût}} Entropie croisée
-        \item{\textit{Taux d'apprentissage}} \verb$1e-4$
-        \item{\textit{Taille des batchs}} $100$
-    \end{itemize}
-
 \subsection{Entraînement du réseau de neurones}
     
-    Pendant la phase d'entraînement, nous avons besoin de pouvoir diagnostiquer le comportement du réseau.
-    Pour cela, il est souvent utile d'afficher la précision d'entraînement et la précision de test.
-    Ce que nous entendons ici par la précision, c'est en fait l'\textit{accuracy} qui est donnée par $\frac{TP+TN}{TP+FP+TN+FN}$.
+    Pendant l'entraînement du réseau, il est important de pouvoir le diagnostiquer.
+    Pour cela, il est utile d'afficher la précision d'entraînement et la précision de test.
+    Ce que nous entendons ici par précision, c'est en fait l'\textit{accuracy} qui est donnée par $\frac{TP+TN}{TP+FP+TN+FN}$.
     Il s'agit du ratio de bonnes classifications.
+    %Alors que cette métrique n'est peut-être pas la métrique la plus représentative 
     Cette métrique a deux avantages. 
     Premièrement, elle tient compte du problème de classification que nous voulons résoudre.
-    Deuxièmement, elle est facile à obtenir, car elle est calculée directement à la sortie du réseau de neurones et sert ensuite pour le calcul de la fonction de coût.
-    \\
-    Quand nous proposons un modèle, nous sommes toujours confronté à la question de savoir si il comporte trop de paramètres ou si il n'y en a pas assez, compte tenu de la complexité du problème.
-    On dit qu'on est confronté à un problème de \textit{sur-ajustement} ou de \textit{sous-ajustement}.
-    L'affichage des deux précisions nous permet de savoir dans lesquels des deux cas on se trouve.
-    Sur la figure \ref{fig:overfitting_1}, nous constatons que la précision de test diminue, alors que celle d'entraînement ne cesse d'augmenter.
-    En plus, les oscillations de la courbe de précision de test indiquent que le modèle utilisé n'arrive pas à généraliser les informations d'entrée de manière fiable.
-    Nous sommes alors confrontés à un problème de sur-ajustement.
-    Pour résoudre ces problèmes, nous avons appliqué des méthodes de régularisation (voir la section \ref{sec:regularization}.
+    Deuxièmement, elle est facile à obtenir, car elle est calculée directement à la sortie du réseau de neurones pour le calcul de la fonction de coût.
 
-	\begin{figure}[H]
-	    \centering
-	    \includegraphics[scale=0.3]{overfitting_1.png}
-	    \caption{Graphe des deux précisions. Nous sommes confrontés à un sur-ajustement du modèle.}
-	    \label{fig:overfitting_1}
-	\end{figure}
+    \subsubsection{Données d'entrée}
 
-\subsection{Méthodes de régularisation}
-\label{sec:regularization}
-    
-    Pour mieux comprendre la régularisation d'un réseau de neurones, il est utile de se rappeler son fonctionnement.
-    Un réseau de neurones est une méthode d'optimisation.
-    Grâce à l'algorithme de \textit{rétropropagation du gradient}, il arrive à minimiser la fonction du coût en modifiant les poids et les bias.
-    Autrement dit, l'algorithme cherche la meilleure solution dans l'espace des vecteurs de poids pour une fonction de coût donnée.
-    Lors du sur-ajustement, quelques éléments de ce vecteur peuvent être disproportionnés par rapport au reste, il est alors biasé dans une certaine direction.
-    L'algorithme d'optimisation va alors plus difficilement pouvoir explorer d'autres directions de l'espace de solutions.
-    \\
-    Les méthodes de régularisation visent à limiter la présence de ces poids abbérants.
-
-    
 
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
@@ -157,6 +122,7 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
 
 \subsection{Analyse qualitative des résultats}
+\subsubsection{True positives}
 
 Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de visages flous, ou la non-détection de visages qui sont en réalité une projection sur un écran :\\
 
@@ -172,11 +138,16 @@ Facenet a réussi à faire face à des situations compliquées, comme par exempl
         \begin{center}
             \includegraphics[scale=0.45]{facenetTP2.png}
             \caption{Non détection d'un visage projeté sur un écran}
+            \label{fig:proj_ecran}
         \end{center}
     \end{minipage}
 \end{figure}
 
-Par ailleurs, il y a des situations où le résultat est erroné, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
+En réalité le visage projeté de la figure \ref{fig:proj_ecran} est considéré comme ground truth par FDDB mais cela peut être contestable étant donné la qualité de l'écran. De plus le visage projeté est détecté en utilisant des seuils plus permissifs.\\
+
+\subsubsection{False positives}
+
+Par ailleurs, il y a des situations où la détection est erronée, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
 
 \begin{figure}[H]
     \centering
@@ -201,7 +172,7 @@ Par ailleurs, il y a des situations où le résultat est erroné, mais pour lesq
     \end{center}
 \end{figure}
 
-Enfin, il y a également des faux positifs non explicables, bien que ceux-ci soient très peu nombreux :\\
+Il y a également des faux positifs non explicables :\\
 
 \begin{figure}[H]
     \centering
@@ -219,6 +190,42 @@ Enfin, il y a également des faux positifs non explicables, bien que ceux-ci soi
     \end{minipage}
 \end{figure}
 
+\subsubsection{False negatives}
+
+La très grande majorité des faux négatifs sont dus à des situations compliquées, comme des soucis de luminosité, des visages tronqués, ou des visages flous en arrière-plan.\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFN1.png}
+            \caption{Faux négatif du à la luminosité}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.50\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.47]{facenetFN2.png}
+            \caption{Faux négatif du à la position du visage}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.50\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFN3.png}
+            \caption{Faux négatif du au flou}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.52]{facenetFN4.png}
+            \caption{Faux négatif du au flou}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
 \section{Complétion de la base de données d'entrée}
 \label{sec:completion}
     
@@ -226,7 +233,7 @@ Enfin, il y a également des faux positifs non explicables, bien que ceux-ci soi
 
 	La nécessité d'augmenter la base de données provient du fait que la performance des
 	algorithmes de deep learning est directement proportionnelle à la taille de la base de
-	données (figure \ref{fig:data1}). Il est donc intéressant d'augmenter les données déjà présentes
+	données (figure \ref{data1}). Il est donc intéressant d'augmenter les données déjà présentes
 	quand nous n'avons pas de données supplémentaire à utiliser.
 
 	\begin{figure}[H]

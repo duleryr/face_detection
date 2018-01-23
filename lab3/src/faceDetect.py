@@ -7,6 +7,7 @@ from scipy import misc
 import tensorflow as tf
 import os
 import align.detect_face
+import sys
 
 import fddb_manager
 import graphical_tools
@@ -17,9 +18,9 @@ import matplotlib.pyplot as plt
 
 #   setup facenet parameters
 gpu_memory_fraction = 1.0
-minsize = 50 # minimum size of face
-threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
-factor = 0.709 # scale factor
+minsize = 30 # minimum size of face
+threshold = [ 0.55, 0.60, 0.65 ]  # three steps's threshold
+factor = 0.85 # scale factor
 
 #   Start code from facenet/src/compare.py
 print('Creating networks and loading parameters')
@@ -37,13 +38,13 @@ with tf.Graph().as_default():
     # Load FDDB data
     fddb = fddb_manager.Manager()
     fddb.set_train_folders([1])
-    fddb.set_test_folders([6])
+    fddb.set_test_folders([int(sys.argv[1])])
     fddb.set_fddb_dir("../dataset")
     fddb.load_img_descriptors()
     fddb.set_window_size(N)
 
     batch = fddb.next_batch_faceDetect(fddb.test_img_info_vec, 1)
-
+    
     TP = 0
     FP = 0
     FN = 0
@@ -54,6 +55,7 @@ with tf.Graph().as_default():
         #   run detect_face from the facenet library
         bounding_boxes, _ = align.detect_face.detect_face(batch[0][i], minsize, pnet,
                 rnet, onet, threshold, factor)
+        tmp_FP = 0
 
         #   for each box
         for (x1, y1, x2, y2, acc) in bounding_boxes:
@@ -62,18 +64,29 @@ with tf.Graph().as_default():
             #   plot the box using cv2
             cv2.rectangle(batch[0][i],(int(x1),int(y1)),(int(x1+w),
                 int(y1+h)),(255,0,0),2)
+            cv2.rectangle(batch[1][i],(int(x1),int(y1)),(int(x1+w),
+                int(y1+h)),(255,0,0),2)
             bb_center = [int((y1+y2)/2), int((x1+x2)/2)]
-            print(batch[1][i][bb_center[0]][bb_center[1]][0])
             if batch[1][i][bb_center[0]][bb_center[1]][0] == 255:
                 TP += 1
             else:
-                plt.figure()
-                plt.imshow(batch[0][i])
-                plt.show()
+                # DECOMMENTER POUR AFFICHER LES FP
                 FP += 1
-            print ('Accuracy score', acc)
-        #plt.figure()
-        #plt.imshow(batch[0][i])
-        #plt.show()
+                tmp_FP += 1
+                #plt.figure()
+                #plt.imshow(batch[0][i])
+                #plt.show()
+            #print ('Accuracy score', acc)
+        if (batch[2][i] > len(bounding_boxes)):
+            FN += batch[2][i] - len(bounding_boxes) + tmp_FP
+        # DECOMMENTER POUR AFFICHER LES FN
+            print(batch[2][i])
+            plt.figure()
+            plt.imshow(batch[0][i])
+            plt.show()
+            #plt.figure()
+            #plt.imshow(batch[1][i])
+            #plt.show()
     print(TP)
     print(FP)
+    print(FN)
