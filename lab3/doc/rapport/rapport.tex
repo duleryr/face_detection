@@ -240,26 +240,33 @@ Enfin, il y a également des faux positifs non explicables, bien que ceux-ci soi
 
 	Pour ce qui est des différentes méthodes d'augmentation, nous pouvons performer des
 	transformations géométriques (translations, symétries, rotations) ou encore des
-	déformations pour pouvoir reconnaître les photos prises avec des cameras "fisheyes".
+	déformations pour pouvoir reconnaître les photos prises avec des cameras "fisheyes".\\
+
 	Il peut être intéressant d'altérer l'intensité de l'image de façon à reconnaître les images
 	de test même si elles ont une amplitude d'intensité très variables. Nous pouvons par exemple
-	citer la méthode de l'article AlexNet \cite{einstein}
+	citer la méthode de l'article AlexNet \cite{alexnet} qui prend l'intensité d'un pixel et lui
+	rajoute un multiple des composantes principales de l'image (pour garder la valeur
+	intrinsèque de l'image. Le multiple dépend des vecteurs propres de la matrice 3x3 de
+	covariance du pixel et des valeurs propres de cette dernière multiplié par un coefficient
+	de gaussienne de moyenne nulle et de variance $0.1$.\\
 
+	Notre dernière idée consiste à appliquer un bruit blanc aux images afin de rendre
+	l'algorithme moins sensible aux particularités d'une image mais plus au \textit{pattern}
+	recherché.\\
+
+	La représentation en RGB des images rajoutent de la complexité (plus de dimensions) mais
+	elle permet une meilleure performance du fait que la couleur humaine est particulière et se
+	différencie grandement des couleurs d'arrière plan.
 
     \subsection{Efficacité de l'augmentation}
 
 	Dans quelle mesure le nombre de données augmentées influent sur la performance ?
 
 \section{Annexes}
-%\section{Bibliographie}
 %http://ydwen.github.io/papers/WenECCV16.pdf
-%https://machinelearningmastery.com/improve-deep-learning-performance/
 \bibliographystyle{unsrt}
 \bibliography{sample}
-%\section{Bibliographie}
 %\flushleft [1] http://ydwen.github.io/papers/WenECCV16.pdf 
-%\newline
 %[2] Zeiler, M. D., \& Fergus, R. (2014, September). Visualizing and understanding convolutional networks. In European conference on computer vision (pp. 818-833). Springer, Cham.
-%\newline
 
 \end{document}
