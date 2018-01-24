@@ -14,6 +14,7 @@
 \usepackage[]{algorithm2e}
 \usepackage{url}
 \usepackage{array}
+\usepackage{amsmath}
 \graphicspath{{images/}}
 
 \title{Reconnaissance de formes et apprentissage automatique Projet 3}
@@ -98,6 +99,74 @@
 
     \subsubsection{Données d'entrée}
 
+\subsection{Méthodes de régularisation}
+\label{sec:regularization}
+    
+    Pour mieux comprendre la régularisation d'un réseau de neurones, il est utile de se rappeler son fonctionnement.
+    Un réseau de neurones est une méthode d'optimisation.
+    Grâce à l'algorithme de \textit{rétropropagation du gradient}, il arrive à minimiser la fonction du coût en modifiant les poids et les bias.
+    Autrement dit, l'algorithme cherche la meilleure solution dans l'espace des vecteurs de poids pour une fonction de coût donnée.
+    Lors du sur-ajustement, quelques éléments de ce vecteur peuvent être disproportionnés par rapport au reste, il est alors biasé dans une certaine direction.
+    L'algorithme d'optimisation va alors plus difficilement pouvoir explorer d'autres directions de l'espace de solutions.
+    \\
+    Les méthodes de régularisation visent à limiter la présence de ces poids abbérants.
+    Nous avons testé les deux méthodes suivantes. 
+    \begin{itemize}
+        \item{\textit{Dropout}}
+
+            La technique de dropout simule le disfonctionnement temporaire de nos neurones cérébrales.
+            Elle s'applique à une ou plusieurs couches du réseau où elle enlève aléatoirement un certain nombre des neurones.
+            Cela favorise la participation égale de toutes les neurones de la couche.
+            Une illustration de cette méthode se trouve sur la figure \ref{fig:dropout_illustration}. 
+
+        \item{\textit{La pénalisation des poids}}
+            La méthode des pénalisations des poids consiste à rajouter un terme auxiliaire à la fonction de coût qui dépende de manière directe de la norme des poids du réseau.
+            Voici un exemple de pénalisation de poids pour la norme $\mathcal{L}^2$.
+            \begin{equation*}
+                c = c_0 + \frac{\lambda}{n}\sum_{i=1}^n w_i^2
+            \end{equation*}
+        Remarquons que cette méthode va uniquement régulariser le réseau au sens de la norme utilisée.
+    \end{itemize}
+
+    Nous avons implémenté ces deux méthodes.
+    Les résultats de la méthode de dropout se trouvent sur les figures \ref{fig:overfitting_with_dropout} et \ref{fig:overfitting_without_dropout}.
+    Nous constatons que le sur-ajustement commence plus tard, environ à partir de l'époque 15 au lieu de l'époque 5, et que la précision de test a globalement augmenté.
+    \\
+    Sur la figure \ref{fig:l2_regularization}, nous avons visulaisé les résultats de l'entraînement en utilisant la deuxième méthode.
+    Nous n'obtenons plus de sur-ajustement et des AUC (\textit{area under the curve}) de $0.891$ pour notre ensemble de test.
+    À partir de l'époque 100, nous remarquons que les deux courbes sont plafonnées, alors qu'on obtient des performances comparables au premier projet qui utilisait des histogrammes RGB.
+    Ce phénomène de saturation nous indique qu'on est maintenant confronté à un problème de sous-ajustement qui va être décrit dans la section \ref{sec:sous-ajustement}.
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.5]{dropout_illustration.png}
+	    \caption{Illustration de la méthode de dropout. Les neurones en pointillés ne vont pas être "oubliés".}
+	    \label{fig:dropout_illustration}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{overfitting_without_dropout.png}
+	    \caption{Entraînement sans dropout}
+	    \label{fig:overfitting_without_dropout}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{overfitting_with_dropout.png}
+	    \caption{Entraînement avec dropout}
+	    \label{fig:overfitting_with_dropout}
+	\end{figure}
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{l2_regularization_200.png}
+	    \caption{Entraînement avec pénalisation de poids $\mathcal{L}^2$}
+	    \label{fig:l2_regularization}
+	\end{figure}
+
+\subsection{Sous-ajustement}
+\label{sec:sous-ajustement}
 
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
