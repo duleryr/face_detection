@@ -45,7 +45,7 @@
     
     Le choix du design d'un réseau de neurones est loin d'être une tâche triviale.
     Selon la problématique, la taille des données d'entrée et le temps que nous avons à notre disposition, l'architecture appropriée peut largement varier.
-    Même pour un problème donné, les architectures ont beaucoup varier pendant les dernières décennies, grâce à l'amélioration du matérial utilisé et la programmabilité croissante du GPU.
+    Même pour un problème donné, les architectures ont beaucoup varié pendant les dernières décennies, grâce à l'amélioration du matérial utilisé et la programmabilité croissante du GPU.
     Effectivement, la complexité d'un réseau de neurones est directement liée au temps d'entraînement ce qui nous conduit à opter pour des réseaus plus profonds et des couches plus larges pendant ces dernières années.
     \\
     Alors qu'il est difficile de théoriser l'architecture à choisir, nous pouvons quand même faire quelques remarques par rapport à notre problème:
@@ -56,7 +56,7 @@
             Chacune de ces couches se construit par aggrégation de parties de la couche précédente.
         \item
             Après les couches convolutionnelles, nous retrouvons souvent au moins une couche complètement connectée avec un nombre de neurones important.
-            Cette couche sert à mettre en relation les feautures de haut niveau. 
+            Cette couche sert à mettre en relation les features de haut niveau. 
             Par exemple, un visage dispose de 2 yeux alignées.
             Tandis que la couche convolutionnelle de haut niveau va détecter la présence d'un oeil, la couche complètement connectée va pouvoir nous dire si nous en avons deux juste au-dessus du nez.
         \item
@@ -247,7 +247,7 @@ La très grande majorité des faux négatifs sont dus à des situations compliqu
 
 	Pour ce qui est des différentes méthodes d'augmentation, nous pouvons performer des
 	transformations géométriques (translations, symétries, rotations) ou encore des
-	déformations pour pouvoir reconnaître les photos prises avec des cameras "fisheyes".\\
+	déformations afin de reconnaître les photos prises avec des cameras "fisheyes".\\
 
 	Il peut être intéressant d'altérer l'intensité de l'image de façon à reconnaître les images
 	de test même si elles ont une amplitude d'intensité très variables. Nous pouvons par exemple
@@ -261,7 +261,7 @@ La très grande majorité des faux négatifs sont dus à des situations compliqu
 	l'algorithme moins sensible aux particularités d'une image mais plus au \textit{pattern}
 	recherché.\\
 
-	La représentation en RGB des images rajoutent de la complexité (plus de dimensions) mais
+	La représentation en RGB des images rajoute de la complexité (plus de dimensions) mais
 	elle permet une meilleure performance du fait que la couleur humaine est particulière et se
 	différencie grandement des couleurs d'arrière plan.
 
