@@ -168,18 +168,66 @@
 \subsection{Sous-ajustement}
 \label{sec:sous-ajustement}
 
+    Nous sommes face à un problème de sous-ajustement dans un des deux cas suivants.
+    \begin{itemize}
+        \item 
+            Notre modèle n'est pas assez complèxe, i.e. ne comporte pas assez de paramètres, pour modéliser les données.
+            Dans ce cas, il suffit d'augmenter la complexité du réseau de neurones, c'est-à-dire d'ajouter des couches ou d'augmenter le nombre de feautures par couche.
+            Nous avons complexifié l'architecture de notre réseau, mais cela n'a pas augmenté sa performance.
+
+        \item
+            Les données utilisées pour l'entraînement ne sont pas asses représentatives pour modéliser le problème.
+            Cela signifie dans notre cas, que des simples imagettes de taille $32\times32$ ne contiennent pas assez d'informations pour mener notre algorithme à la bonne décision.
+            Nous avons pu vérifier cette hypothèse avec la méthode de \textit{transert learning} décrite dans la section \ref{sec:transfert_learning}.
+            Nous avons entraîné un réseau avec deux tailles d'imagettes différentes.
+            La précision finale est nettement meilleure avec des imagettes plus grandes en entrée. 
+    \end{itemize}
+
+    Nous nous sommes rendus compte que la détection basée sur des parties trop petites du visage pose des problèmes.
+    Pour pallier le problème d'ajustement de la taille des imagettes, nous avons implémenté une pyramide d'images, comme l'a présenté un groupe pendant la séance de présentations.
+
+\subsection{Pyramide d'images}
+
+    L'idée de la pyramide d'images est de ne plus traiter l'image qu'à l'échelle originale, mais de traiter un ensemble d'images composé de l'image d'entrée à plusieurs échelles.
+    L'avantage de cette structure par rapport à notre problème est que nous pouvons donner des visages entiers à notre réseau de neurones.
+    Étant donné que l'imagette contient tout le visage, le réseau aura toutes les informations nécessaires pour prendre une décision.
+    \\
+    En pratique, nous extrayons tous les visages de la base de données \textit{WIDER} que nous redimensionnons.
+    Ces images constituent notre ensemble d'images positives.
+    Pour construire l'ensemble négatif, nous prenons un patch n'appartenant pas à une région de visage au hasard pour chaque visage extrait précédemment.
+    À part des données d'entrées, nous n'avons rien changé par rapport à l'entraînement précédent.
+
+\subsubsection{Détection de visages}
+    
+    Après avoir entrainé notre réseau, nous devons changer la manière que nous détectons des visages sur des nouvelles images.
+    Pour cela, nous parcourons l'image à plusieurs échelles et nous redimensionnons les détections positives.
+    Nous avons alors en sortie un ensemble de rectangles, que nous regroupons en utilisant la fonction \verb$groupRectangles$ de \textit{OpenCV}.
+
+\subsubsection{Résultats}
+
+    Nous avons entrainé le réseau en 200 époques et nous l'avons appliqué à des images provenant de la base de données \textit{FDDB}.
+    Les résultats se trouvent sur les figures \ref{fig:first_scale} à \ref{last_scale}.
+
+%	\begin{figure}[H]
+%	    \centering
+%	    \includegraphics[scale=0.3]{l2_regularization_200.png}
+%	    \caption{Entraînement avec pénalisation de poids $\mathcal{L}^2$}
+%	    \label{fig:l2_regularization}
+%	\end{figure}
+
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
 \subsubsection{Visualisation des filtres obtenus}
 
 \section{Apprentissage par transfert : Réseaux de neurones pré-entraînés}
 \subsection{Présentation de la méthode utilisée}
+\label{sec:transfert_learning}
 
 L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécialisation de
 l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau pré-entraîné sur
 une grande base de données, et continuer de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
 
-Etant donné que les bases de données originales sont énormes, le modèle pré-entraîné aura déjà appris des features pertinentes pour notre problème.
+Etant donné que les bases de données originales sont énormes, le modèle pré-entraîné aura déjà appris des features pertinents pour notre problème.
 
 Par ailleurs, l'apprentissage par transfert est applicable à notre problème car il est généralisable
 lorsque l'on enlève les couches supérieures.

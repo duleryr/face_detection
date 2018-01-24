@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     # Hyper-parameters
     N = 31 # ROI-size
-    CONF_THRESH = 0.95
-    scale_factor = 0.9
+    CONF_THRESH = 0.99
+    scale_factor = 0.95
 
     # Build the graph for the deep net
     y_pred, y_true, x_hold, optimizer,accuracy, cost, learning_rate, dropout, keep_prob, summary = cnn.construct_cnn(N)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
             img = graphical_tools.resize_img(img,scale_factor)
             #color_img = graphical_tools.resize_img(color_img,scale_factor)
             inverse_scale /= scale_factor
-        grouped_faces, weights_list = cv2.groupRectangles(face_rect,3)
+        grouped_faces, weights_list = cv2.groupRectangles(face_rect,4)
         print(len(grouped_faces))
         print(len(face_rect))
         #graphical_tools.showFaces(color_img,face_rect)
