@@ -25,7 +25,7 @@
 \setlength{\parindent}{30pt}
 \setlength{\textwidth}{15cm}
 \setlength{\textheight}{24cm}
-\setlength{\topmargin}{-.5in}
+\setlength{\topmargin}{-.3in}
 \setlength{\parskip}{1ex}
 
 
@@ -103,128 +103,139 @@
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
 \subsubsection{Visualisation des filtres obtenus}
 
-\section{Apprentissage par transfert : Réseaux de neurones préentraînés}
+\section{Apprentissage par transfert : Réseaux de neurones pré-entraînés}
 \subsection{Présentation de la méthode utilisée}
 
-L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécialisation de l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau préentraîné sur une grande base de données, en continuant de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
+L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécialisation de
+l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau pré-entraîné sur
+une grande base de données, et continuer de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
 
 Etant donné que les bases de données originales sont énormes, le modèle pré-entraîné aura déjà appris des features pertinentes pour notre problème.
 
-Par ailleurs, l'apprentissage par transfert est applicable à notre problème car il n'est pas trop spécifique, sinon les modèles pré-entraînés seraient inaptes à nous aider.
+Par ailleurs, l'apprentissage par transfert est applicable à notre problème car il est généralisable
+lorsque l'on enlève les couches supérieures.
 
 Etant donné que notre base de données de test est relativement petite, l'apprentissage par transfert pourrait amener au surapprentissage (\textit{overfitting}), on utilise donc des stratégies de complétion des données d'entrée, comme présenté dans la partie \ref{sec:completion}.
 
-\subsection{Entraînement}
-\subsection{Evaluation des résultats}
+    \subsection{Entraînement}
+    \subsection{Evaluation des résultats}
 
 \section{Utilisation d'un modèle plus complexe : Facenet}
 
-Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
+    Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
 
-\subsection{Analyse qualitative des résultats}
-\subsubsection{True positives}
+    \subsection{Analyse qualitative des résultats}
+	\subsubsection{True positives}
 
-Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de visages flous, ou la non-détection de visages qui sont en réalité une projection sur un écran :\\
+	    Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de visages flous, ou la non-détection de visages qui sont en réalité une projection sur un écran :\\
+	    
+	    \begin{figure}[H]
+	        \centering
+	        \begin{minipage}[c]{0.58\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetTP1.png}
+	                \caption{Détection d'un visage flou en arrière plan}
+	            \end{center}
+	        \end{minipage} \hfill
+	        \begin{minipage}[c]{0.35\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetTP2.png}
+	                \caption{Non détection d'un visage projeté sur un écran}
+	                \label{fig:proj_ecran}
+	            \end{center}
+	        \end{minipage}
+	    \end{figure}
+	    
+	    En réalité le visage projeté de la figure \ref{fig:proj_ecran} est considéré comme ground truth par FDDB mais cela peut être contestable étant donné la qualité de l'écran. De plus le visage projeté est détecté en utilisant des seuils plus permissifs.\\
+	    
+	\subsubsection{False positives}
+	    
+	    Par ailleurs, il y a des situations où la détection est erronée, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
+	    
+	    \begin{figure}[H]
+	        \centering
+	        \begin{minipage}[c]{0.45\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.60]{facenetFP1.png}
+	                \caption{Faux positif lié à l'apprentissage de la corrélation visage-casquette}
+	            \end{center}
+	        \end{minipage} \hfill
+	        \begin{minipage}[c]{0.45\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetFP2.png}
+	                \caption{Faux positif lié à la présence d'un visage en arrière-plan}
+			\label{fig:fp}
+	            \end{center}
+	        \end{minipage}
+	    \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[c]{0.58\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetTP1.png}
-            \caption{Détection d'un visage flou en arrière plan}
-        \end{center}
-    \end{minipage} \hfill
-    \begin{minipage}[c]{0.35\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetTP2.png}
-            \caption{Non détection d'un visage projeté sur un écran}
-            \label{fig:proj_ecran}
-        \end{center}
-    \end{minipage}
-\end{figure}
-
-En réalité le visage projeté de la figure \ref{fig:proj_ecran} est considéré comme ground truth par FDDB mais cela peut être contestable étant donné la qualité de l'écran. De plus le visage projeté est détecté en utilisant des seuils plus permissifs.\\
-
-\subsubsection{False positives}
-
-Par ailleurs, il y a des situations où la détection est erronée, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[c]{0.45\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.60]{facenetFP1.png}
-            \caption{Faux positif lié à l'apprentissage de la corrélation visage-casquette}
-        \end{center}
-    \end{minipage} \hfill
-    \begin{minipage}[c]{0.45\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetFP2.png}
-            \caption{Faux positif lié à la présence d'un visage en arrière-plan}
-        \end{center}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \begin{center}
-        \includegraphics[scale=0.45]{facenetFP5.png}
-        \caption{Faux positif lié à l'apparence de la voiture en arrière-plan}
-    \end{center}
-\end{figure}
-
-Il y a également des faux positifs non explicables :\\
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[c]{0.50\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetFP3.png}
-            \caption{Faux positif inexplicable}
-        \end{center}
-    \end{minipage} \hfill
-    \begin{minipage}[c]{0.45\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetFP4.png}
-            \caption{Faux positif inexplicable}
-        \end{center}
-    \end{minipage}
-\end{figure}
-
-\subsubsection{False negatives}
-
-La très grande majorité des faux négatifs sont dus à des situations compliquées, comme des soucis de luminosité, des visages tronqués, ou des visages flous en arrière-plan.\\
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[c]{0.45\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetFN1.png}
-            \caption{Faux négatif du à la luminosité}
-        \end{center}
-    \end{minipage} \hfill
-    \begin{minipage}[c]{0.50\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.47]{facenetFN2.png}
-            \caption{Faux négatif du à la position du visage}
-        \end{center}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[c]{0.50\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.45]{facenetFN3.png}
-            \caption{Faux négatif du au flou}
-        \end{center}
-    \end{minipage} \hfill
-    \begin{minipage}[c]{0.45\linewidth}
-        \begin{center}
-            \includegraphics[scale=0.52]{facenetFN4.png}
-            \caption{Faux négatif du au flou}
-        \end{center}
-    \end{minipage}
-\end{figure}
+	    Dans la figure \ref{fig:fp}, la figure detectée derrière la main peut être considérée comme
+	    juste (par un humain) du fait qu'un visage est bien présent derrière. Il est cependant consiéré comme
+	    faux positif car il n'y a pas de vérité terrain à cet endroit là. Cela est peut-être du
+	    au fait que la base de données FDDB n'est pas considérée comme étant une base de données
+	    difficile.
+	    
+	    \begin{figure}[H]
+	        \begin{center}
+	            \includegraphics[scale=0.45]{facenetFP5.png}
+	            \caption{Faux positif lié à l'apparence de la voiture en arrière-plan}
+	        \end{center}
+	    \end{figure}
+	    
+	    \newpage
+	    Il y a également des faux positifs non explicables :\\
+	    
+	    \begin{figure}[H]
+	        \centering
+	        \begin{minipage}[c]{0.50\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetFP3.png}
+	                \caption{Faux positif inexplicable}
+	            \end{center}
+	        \end{minipage} \hfill
+	        \begin{minipage}[c]{0.45\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetFP4.png}
+	                \caption{Faux positif inexplicable}
+	            \end{center}
+	        \end{minipage}
+	    \end{figure}
+	    
+	    \subsubsection{False negatives}
+	    
+	    La très grande majorité des faux négatifs sont dus à des situations compliquées, comme des soucis de luminosité, des visages tronqués, ou des visages flous en arrière-plan.\\
+	    
+	    \begin{figure}[H]
+	        \centering
+	        \begin{minipage}[c]{0.45\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetFN1.png}
+	                \caption{Faux négatif du à la luminosité}
+	            \end{center}
+	        \end{minipage} \hfill
+	        \begin{minipage}[c]{0.50\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.47]{facenetFN2.png}
+	                \caption{Faux négatif du à la position du visage}
+	            \end{center}
+	        \end{minipage}
+	    \end{figure}
+	    
+	    \begin{figure}[H]
+	        \centering
+	        \begin{minipage}[c]{0.50\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.45]{facenetFN3.png}
+	                \caption{Faux négatif du au flou}
+	            \end{center}
+	        \end{minipage} \hfill
+	        \begin{minipage}[c]{0.45\linewidth}
+	            \begin{center}
+	                \includegraphics[scale=0.52]{facenetFN4.png}
+	                \caption{Faux négatif du au flou}
+	            \end{center}
+	        \end{minipage}
+	    \end{figure}
 
 \section{Complétion de la base de données d'entrée}
 \label{sec:completion}
@@ -233,8 +244,8 @@ La très grande majorité des faux négatifs sont dus à des situations compliqu
 
 	La nécessité d'augmenter la base de données provient du fait que la performance des
 	algorithmes de deep learning est directement proportionnelle à la taille de la base de
-	données (figure \ref{data1}). Il est donc intéressant d'augmenter les données déjà présentes
-	quand nous n'avons pas de données supplémentaire à utiliser.
+	données (figure \ref{fig:data1}). Il est donc intéressant d'augmenter les données déjà présentes
+	lorsque nous n'avons pas de données supplémentaire à utiliser.
 
 	\begin{figure}[H]
 	    \centering
@@ -265,10 +276,7 @@ La très grande majorité des faux négatifs sont dus à des situations compliqu
 	elle permet une meilleure performance du fait que la couleur humaine est particulière et se
 	différencie grandement des couleurs d'arrière plan.
 
-    \subsection{Efficacité de l'augmentation}
-
-	Dans quelle mesure le nombre de données augmentées influent sur la performance ?
-
+\newpage
 \section{Annexes}
 %http://ydwen.github.io/papers/WenECCV16.pdf
 \bibliographystyle{unsrt}
