@@ -230,14 +230,43 @@
 \subsubsection{Résultats}
 
     Nous avons entrainé le réseau en 200 époques et nous l'avons appliqué à des images provenant de la base de données \textit{FDDB}.
-    Les résultats se trouvent sur les figures \ref{fig:first_scale} à \ref{last_scale}.
+    Des exemples testés se trouvent sur les figures \ref{fig:first_scale} à \ref{last_scale}.
 
-%	\begin{figure}[H]
-%	    \centering
-%	    \includegraphics[scale=0.3]{l2_regularization_200.png}
-%	    \caption{Entraînement avec pénalisation de poids $\mathcal{L}^2$}
-%	    \label{fig:l2_regularization}
-%	\end{figure}
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{first_scale.png}
+	    \caption{Image évaluée avec la pyramide d'images}
+	    \label{fig:first_scale}
+	\end{figure}
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{scale_2.png}
+	    \caption{Image évaluée avec la pyramide d'images}
+	    \label{fig:scale_2}
+	\end{figure}
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{scale_3.png}
+	    \caption{Image évaluée avec la pyramide d'images}
+	    \label{fig:scale_3}
+	\end{figure}
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{last_scale.png}
+	    \caption{Image évaluée avec la pyramide d'images}
+	    \label{fig:last_scale}
+	\end{figure}
+
+    Nos tests nous montrent qu'on a obtenu une bonne amélioration grâce à l'utilisation de la pyramide d'images.
+    En plus de cela, le regroupement des détections positives filtre davantage les faux positifs.
+    Un exemple sans filtrage se trouve sur la figure \ref{fig:without_filter}.
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{without_filter.png}
+	    \caption{Figure \ref{fig:first_scale} sans regroupement de rectangles}
+	    \label{fig:without_filter}
+	\end{figure}
 
 \subsection{Evaluation des résultats}
 \subsubsection{Evaluation par courbes ROC et Precision-Recall}
