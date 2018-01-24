@@ -322,6 +322,7 @@ class Manager:
         batch[2].append(len(img_info_vec[0].list_ellipse))
         for i in range(nb_images_per_folder[self.test_folders_vec[0]-1]):
             img = cv2.imread(img_info_vec[i].img_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             ground_truth = graphical_tools.calc_mask(img,img_info_vec[i])
             batch[0].append(img)
             batch[1].append(ground_truth)

@@ -309,119 +309,122 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 
 \section{Utilisation d'un modèle plus complexe : Facenet}
 
-    Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
+Facenet est un outil de reconnaissance faciale, fondé sur un MTCNN (multi-task CNN) pré-entraîné pour la détection de visage. Nous avons utilisé une implémentation Tensorflow de l'article \href{https://arxiv.org/abs/1503.03832}{FaceNet: A Unified Embedding for Face Recognition and Clustering}
 
-    \subsection{Analyse qualitative des résultats}
-	\subsubsection{True positives}
+\subsection{Analyse qualitative des résultats}
+\subsubsection{True positives}
 
-	    Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de visages flous, ou la non-détection de visages qui sont en réalité une projection sur un écran :\\
-	    
-	    \begin{figure}[H]
-	        \centering
-	        \begin{minipage}[c]{0.58\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetTP1.png}
-	                \caption{Détection d'un visage flou en arrière plan}
-	            \end{center}
-	        \end{minipage} \hfill
-	        \begin{minipage}[c]{0.35\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetTP2.png}
-	                \caption{Non détection d'un visage projeté sur un écran}
-	                \label{fig:proj_ecran}
-	            \end{center}
-	        \end{minipage}
-	    \end{figure}
-	    
-	    En réalité le visage projeté de la figure \ref{fig:proj_ecran} est considéré comme ground truth par FDDB mais cela peut être contestable étant donné la qualité de l'écran. De plus le visage projeté est détecté en utilisant des seuils plus permissifs.\\
-	    
-	\subsubsection{False positives}
-	    
-	    Par ailleurs, il y a des situations où la détection est erronée, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
-	    
-	    \begin{figure}[H]
-	        \centering
-	        \begin{minipage}[c]{0.45\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.60]{facenetFP1.png}
-	                \caption{Faux positif lié à l'apprentissage de la corrélation visage-casquette}
-	            \end{center}
-	        \end{minipage} \hfill
-	        \begin{minipage}[c]{0.45\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetFP2.png}
-	                \caption{Faux positif lié à la présence d'un visage en arrière-plan}
-			\label{fig:fp}
-	            \end{center}
-	        \end{minipage}
-	    \end{figure}
+Facenet a réussi à faire face à des situations compliquées, comme par exemple la détection de petits visages en arrière-plan ou de visages flous :
 
-	    Dans la figure \ref{fig:fp}, la figure detectée derrière la main peut être considérée comme
-	    juste (par un humain) du fait qu'un visage est bien présent derrière. Il est cependant consiéré comme
-	    faux positif car il n'y a pas de vérité terrain à cet endroit là. Cela est peut-être du
-	    au fait que la base de données FDDB n'est pas considérée comme étant une base de données
-	    difficile.
-	    
-	    \begin{figure}[H]
-	        \begin{center}
-	            \includegraphics[scale=0.45]{facenetFP5.png}
-	            \caption{Faux positif lié à l'apparence de la voiture en arrière-plan}
-	        \end{center}
-	    \end{figure}
-	    
-	    Il y a également des faux positifs non explicables :\\
-	    
-	    \begin{figure}[H]
-	        \centering
-	        \begin{minipage}[c]{0.50\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetFP3.png}
-	                \caption{Faux positif inexplicable}
-	            \end{center}
-	        \end{minipage} \hfill
-	        \begin{minipage}[c]{0.45\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetFP4.png}
-	                \caption{Faux positif inexplicable}
-	            \end{center}
-	        \end{minipage}
-	    \end{figure}
-	    
-	    \subsubsection{False negatives}
-	    
-	    La très grande majorité des faux négatifs sont dus à des situations compliquées, comme des soucis de luminosité, des visages tronqués, ou des visages flous en arrière-plan.\\
-	    
-	    \begin{figure}[H]
-	        \centering
-	        \begin{minipage}[c]{0.45\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetFN1.png}
-	                \caption{Faux négatif du à la luminosité}
-	            \end{center}
-	        \end{minipage} \hfill
-	        \begin{minipage}[c]{0.50\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.47]{facenetFN2.png}
-	                \caption{Faux négatif du à la position du visage}
-	            \end{center}
-	        \end{minipage}
-	    \end{figure}
-	    
-	    \begin{figure}[H]
-	        \centering
-	        \begin{minipage}[c]{0.50\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.45]{facenetFN3.png}
-	                \caption{Faux négatif du au flou}
-	            \end{center}
-	        \end{minipage} \hfill
-	        \begin{minipage}[c]{0.45\linewidth}
-	            \begin{center}
-	                \includegraphics[scale=0.52]{facenetFN4.png}
-	                \caption{Faux négatif du au flou}
-	            \end{center}
-	        \end{minipage}
-	    \end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.60]{facenetTP1.png}
+            \caption{Détections de visages en arrière-plan}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.435]{facenetTP2.png}
+            \caption{Détections de visages flous}
+            \label{fig:proj_ecran}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\subsubsection{False positives}
+
+Par ailleurs, il y a des situations où la détection est erronée, mais pour lesquels on peut comprendre l'origine de l'erreur :\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.475]{facenetFP6.png}
+            \caption{Faux positif lié à la présence d'un visage en tronqué (celui de droite)}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFP2.png}
+            \caption{Faux positif lié au reflet du visage sur la table}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.48]{facenetFP3.png}
+            \caption{Faux positif lié à la détection de la statuette}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.60]{facenetFP1.png}
+            \caption{Faux positif lié à l'apprentissage de la corrélation visage-casquette}
+            \label{fig:casquette}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+La figure \ref{fig:casquette} est en BGR, mais étant donné que le phénomène est intéressant et ne se produit pas en RGB nous avons gardé l'image.
+
+Il y a également des faux positifs non explicables :\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.50\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.52]{facenetFP4.png}
+            \caption{Faux positif inexplicable}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFP5.png}
+            \caption{Faux positif inexplicable}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\subsubsection{False negatives}
+
+La très grande majorité des faux négatifs sont dus à des situations compliquées, comme des soucis de luminosité, des visages tronqués, ou des visages flous en arrière-plan.\\
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.45]{facenetFN1.png}
+            \caption{Faux négatif dû à la luminosité}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.525]{facenetFN2.png}
+            \caption{Faux négatif dû à un visage tronqué}
+        \end{center}
+    \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.505]{facenetFN3.png}
+            \caption{Faux négatifs dus aux deux visages tronqués}
+        \end{center}
+    \end{minipage} \hfill
+    \begin{minipage}[c]{0.45\linewidth}
+        \begin{center}
+            \includegraphics[scale=0.52]{facenetFN4.png}
+            \caption{Faux négatifs dus au flou}
+        \end{center}
+    \end{minipage}
+\end{figure}
 
 \section{Complétion de la base de données d'entrée}
 \label{sec:completion}
@@ -430,8 +433,7 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 
 	La nécessité d'augmenter la base de données provient du fait que la performance des
 	algorithmes de deep learning est directement proportionnelle à la taille de la base de
-	données (figure \ref{fig:data1}). Il est donc intéressant d'augmenter les données déjà présentes
-	lorsque nous n'avons pas de données supplémentaire à utiliser.
+	données (figure \ref{fig:data1}). Il est donc intéressant d'augmenter les données déjà présentes quand nous n'avons pas de donnée supplémentaire à utiliser.
 
 	\begin{figure}[H]
 	    \centering

@@ -1,8 +1,3 @@
-#   import facenet libraires
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from scipy import misc
 import tensorflow as tf
 import os
@@ -19,11 +14,11 @@ import matplotlib.pyplot as plt
 #   setup facenet parameters
 gpu_memory_fraction = 1.0
 minsize = 30 # minimum size of face
-threshold = [ 0.55, 0.60, 0.65 ]  # three steps's threshold
-factor = 0.85 # scale factor
+threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
+factor = 0.709 # scale factor
 
 #   Start code from facenet/src/compare.py
-print('Creating networks and loading parameters')
+#print('Creating networks and loading parameters')
 with tf.Graph().as_default():
     gpu_options = tf.GPUOptions(
         per_process_gpu_memory_fraction=gpu_memory_fraction)
@@ -73,20 +68,19 @@ with tf.Graph().as_default():
                 # DECOMMENTER POUR AFFICHER LES FP
                 FP += 1
                 tmp_FP += 1
-                #plt.figure()
-                #plt.imshow(batch[0][i])
-                #plt.show()
+                plt.figure()
+                plt.imshow(batch[0][i])
+                plt.show()
             #print ('Accuracy score', acc)
         if (batch[2][i] > len(bounding_boxes)):
             FN += batch[2][i] - len(bounding_boxes) + tmp_FP
         # DECOMMENTER POUR AFFICHER LES FN
-            print(batch[2][i])
-            plt.figure()
-            plt.imshow(batch[0][i])
-            plt.show()
+            #print(batch[2][i] - len(bounding_boxes) + tmp_FP)
             #plt.figure()
-            #plt.imshow(batch[1][i])
+            #plt.imshow(batch[0][i])
             #plt.show()
-    print(TP)
-    print(FP)
-    print(FN)
+        #plt.figure()
+        #plt.imshow(batch[0][i])
+        #plt.show()
+    print("Folder number " + sys.argv[1])
+    print("TP = " + str(TP) + ", FP = " + str(FP) + ", FN = " + str(FN))
