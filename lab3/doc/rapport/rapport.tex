@@ -297,15 +297,29 @@ L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécial
 l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau pré-entraîné sur
 une grande base de données, et continuer de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
 
-Etant donné que les bases de données originales sont énormes, le modèle pré-entraîné aura déjà appris des features pertinents pour notre problème.
+Nous avons utilisé la méthode qui consiste à réentrainer la bottleneck\_layer, qui est l'avant dernière couche du réseau, avant celle de sortie.
 
-Par ailleurs, l'apprentissage par transfert est applicable à notre problème car il est généralisable
-lorsque l'on enlève les couches supérieures.
+Pour cela nous avons découpé les images de la base FDDB en sous-images de 31x31 et 99x99, en les répartissant dans deux dossiers, positifs et négatifs, correspondants aux classes de sortie.
 
-Etant donné que notre base de données de test est relativement petite, l'apprentissage par transfert pourrait amener au surapprentissage (\textit{overfitting}), on utilise donc des stratégies de complétion des données d'entrée, comme présenté dans la partie \ref{sec:completion}.
+\subsection{Evaluation des résultats}
 
-    \subsection{Entraînement}
-    \subsection{Evaluation des résultats}
+Les résultats de classification sont les suivants pour les sous-images de 31x31 :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.42]{transfer1.png}
+    \caption{Résultats de la classification 31x31}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.55]{transfer2.png}
+    \caption{Résultats de la classification 99x99}
+\end{figure}
+
+Soit dans le premier cas, une accuracy finale de 0.855, contre 0.900 dans le second.
+
+Nous n'avons pas obtenu de résultats de détection avec un réseau ré-entrainé.
 
 \section{Utilisation d'un modèle plus complexe : Facenet}
 
