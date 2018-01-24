@@ -294,12 +294,13 @@
 \label{sec:transfert_learning}
 
 L'idée de l'apprentissage par transfert (\textit{fine-tuning}) est une spécialisation de
-l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau pré-entraîné sur
-une grande base de données, et continuer de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
+l'apprentissage dans un domaine particulier. Il s'agit de se fonder sur un réseau pré-entraîné sur une grande base de données, et continuer de l'entraîner dans le domaine qui nous intéresse, ici la reconnaissance faciale.
 
 Nous avons utilisé la méthode qui consiste à réentrainer la bottleneck\_layer, qui est l'avant dernière couche du réseau, avant celle de sortie.
 
 Pour cela nous avons découpé les images de la base FDDB en sous-images de 31x31 et 99x99, en les répartissant dans deux dossiers, positifs et négatifs, correspondants aux classes de sortie.
+
+Nous avons utilisé le réseau pré-entraîné Inceptionv3, avec Tensorflow.
 
 \subsection{Evaluation des résultats}
 
