@@ -203,7 +203,7 @@
     Nous sommes face à un problème de sous-ajustement dans un des deux cas suivants :
     \begin{itemize}
         \item 
-            Notre modèle n'est pas assez complèxe, i.e. ne comporte pas assez de paramètres, pour modéliser les données.
+            Notre modèle n'est pas assez complexe, i.e. ne comporte pas assez de paramètres, pour modéliser les données.
             Dans ce cas, il suffit d'augmenter la complexité du réseau de neurones, c'est-à-dire d'ajouter des couches ou d'augmenter le nombre de features par couche.
             Nous avons complexifié l'architecture de notre réseau, mais cela n'a pas augmenté sa performance.
 
@@ -239,18 +239,18 @@
 \subsubsection{Résultats}
 
     Nous avons entrainé le réseau sur 200 époques et nous l'avons appliqué à des images provenant de la base de données \textit{FDDB}.
-    Des exemples testés se trouvent sur les figures \ref{fig:first_scale} à \ref{last_scale}.
+    Des exemples testés se trouvent sur les figures \ref{fig:first_scale} à \ref{fig:last_scale}.
 
 	\begin{figure}[H]
 	    \centering
 	    \includegraphics[scale=0.3]{first_scale.png}
-	    \caption{Image évaluée avec la pyramide d'images}
+	    \caption{Visages multiples évalués avec la pyramide d'images}
 	    \label{fig:first_scale}
 	\end{figure}
 	\begin{figure}[H]
 	    \centering
 	    \includegraphics[scale=0.3]{scale_2.png}
-	    \caption{Image évaluée avec la pyramide d'images}
+	    \caption{Visages proches évalués avec la pyramide d'images}
 	    \label{fig:scale_2}
 	\end{figure}
 	\begin{figure}[H]
@@ -259,16 +259,21 @@
 	    \caption{Image évaluée avec la pyramide d'images}
 	    \label{fig:scale_3}
 	\end{figure}
-	\begin{figure}[H]
-	    \centering
-	    \includegraphics[scale=0.3]{last_scale.png}
-	    \caption{Image évaluée avec la pyramide d'images}
-	    \label{fig:last_scale}
-	\end{figure}
 
     Nos tests nous montrent qu'on a obtenu une bonne amélioration grâce à l'utilisation de la pyramide d'images.
     En plus de cela, le regroupement des détections positives filtre davantage les faux positifs.
     Un exemple sans filtrage se trouve sur la figure \ref{fig:without_filter}.
+
+	\begin{figure}[H]
+	    \centering
+	    \includegraphics[scale=0.3]{last_scale.png}
+	    \caption{Robustesse de l'algorithme sur une déformation}
+	    \label{fig:last_scale}
+	\end{figure}
+
+	Nous pouvons voir ici que notre algorithme n'est pas robuste aux déformations, cela vient du
+	fait que nous n'avons pas augmenté nos données d'entraînement sur les déformations.
+
 
 	\begin{figure}[H]
 	    \centering
