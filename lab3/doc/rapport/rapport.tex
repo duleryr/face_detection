@@ -289,6 +289,41 @@
 	\end{figure}
 
 
+\section{Visualisation du réseau de neurones}
+\subsection{Principes et méthode}
+A des fins d'évaluations du bon fonctionnement de notre réseau, nous nous sommes également
+penché sur le papier de Matthew D. Zeiler et Rob Fergus (2013) qui traite de la visualisation d'un réseau de neurones.
+Nous avons téléchargé et adapté à notre code source un dépôt github qui implémente une partie
+de ce qui est traité dans ledit papier. Cette technique utilise une inversion du principe des
+réseaux de neurones convolutionnels (les "deconvolutionnal networks") pour inverser la navigation entre les
+couches et ainsi pouvoir générer une visualisation meme pour les niveaux éloignés qui ne sont pas facilement
+reliable avec les pixels d'entrée. Cette technique n'est pas sans perte car la reconstruction tient seulement
+compte des neurones particulièrement activés lors du passage d'une seule window dans le réseau.
+Ceci est néanmoins suffisant pour avoir un rendu correct.
+
+\subsection{Application}
+Lors de l'application de ceci sur notre réseau, on obtient les images suivantes :
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{visu.png}
+    \caption{Visualisation des neurones activés pour chaque fonction de chaque couche}
+    \label{fig:visu}
+\end{figure}
+
+On peut voir que la reconstruction d'une image aux différents niveaux du réseau se fait bien, malgré les difficultés
+théoriques précédemment mentionnées. En revanche, là où l'on s'attendrait à voir en première couche des petites features
+méconaissables (des traits, des arrêtes, des tâches, etc.), en deuxième couche une composition de ces features pour
+réagir à des éléments plus important (yeux, nez, bouche, machoire, etc.), et en dernière couche des visages; on se
+retrouve en fait avec un simple downscaling de la window à chaque couche.
+On notera en revanche que les différentes opérations à chaque niveau s'effectuent correctement, et que le rendu est
+cohérent à celui que l'on s'attendrait à obtenir en théorie (par exemple, le max pooling a bien un effet de
+réduction d'échelle sur l'image résultante, qui apparaît donc "pixellisée").
+
+Nous avons également essayé d'implémenter des fonctionnalités de "deepdreaming" afin de générer automatiquement
+des images qui maximisent l'activation des neurones pour certaines couches, mais le code proposé dans le gitlab
+s'adaptait difficilement au notre et n'a pas donné de résultats concluant.
+
 \section{Apprentissage par transfert : Réseaux de neurones pré-entraînés}
 \subsection{Présentation de la méthode utilisée}
 \label{sec:transfert_learning}
