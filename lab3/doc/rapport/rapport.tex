@@ -35,7 +35,13 @@
 \maketitle
 \vspace{1cm}
 
-\section{Problématique et objectifs}
+\section{Problématique}
+    
+    La problématique de ce projet est d'évaluer la performance d'un réseau de neurones profond. Dans
+    notre cas, nous avons cherché à comparer deux méthodes : entraîner le réseau sur notre propre
+    jeu de données ou encore faire du transfer-learning (i.e. prendre un réseau pré-entraîner et
+    faire l'entraînement des dernières couches. Nous avons aussi expérimenté l'augmentation de données
+    car la performance de l'algorithme est grandement dépendante du jeu de données d'entraînement.
 
 \section{Utilisation de notre propre réseau de neurones}
 
@@ -283,10 +289,6 @@
 	\end{figure}
 
 
-\subsection{Evaluation des résultats}
-\subsubsection{Evaluation par courbes ROC et Precision-Recall}
-\subsubsection{Visualisation des filtres obtenus}
-
 \section{Apprentissage par transfert : Réseaux de neurones pré-entraînés}
 \subsection{Présentation de la méthode utilisée}
 \label{sec:transfert_learning}
@@ -367,7 +369,6 @@ Etant donné que notre base de données de test est relativement petite, l'appre
 	        \end{center}
 	    \end{figure}
 	    
-	    \newpage
 	    Il y a également des faux positifs non explicables :\\
 	    
 	    \begin{figure}[H]
